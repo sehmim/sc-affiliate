@@ -21,16 +21,16 @@
 
 
 # Logs
-/backed2/functions/logs
-/backed2/functions/*.log
-/backed2/functions/npm-debug.log*
-/backed2/functions/yarn-debug.log*
-/backed2/functions/yarn-error.log*
-/backed2/functions/firebase-debug.log*
-/backed2/functions/firebase-debug.*.log*
+/backend/functions/logs
+/backend/functions/*.log
+/backend/functions/npm-debug.log*
+/backend/functions/yarn-debug.log*
+/backend/functions/yarn-error.log*
+/backend/functions/firebase-debug.log*
+/backend/functions/firebase-debug.*.log*
 
 # Firebase cache
-/backed2/functions/.firebase/
+/backend/functions/.firebase/
 
 # Firebase config
 
@@ -39,21 +39,21 @@
 # it commented so all members can deploy to the same project(s) in .firebaserc.
 # .firebaserc
 
-/backed2/functions/pids
-/backed2/functions/*.pid
-/backed2/functions/*.seed
-/backed2/functions/*.pid.lock
-/backed2/functions/lib-cov
-/backed2/functions/coverage
-/backed2/functions/.nyc_output
-/backed2/functions/.grunt
-/backed2/functions/bower_components
-/backed2/functions/.lock-wscript
-/backed2/functions/build/Release
-/backed2/functions/node_modules/
-/backed2/functions/.npm
-/backed2/functions/.eslintcache
-/backed2/functions/.node_repl_history
-/backed2/functions/*.tgz
-/backed2/functions/.yarn-integrity
-/backed2/functions/.env
+/backend/functions/pids
+/backend/functions/*.pid
+/backend/functions/*.seed
+/backend/functions/*.pid.lock
+/backend/functions/lib-cov
+/backend/functions/coverage
+/backend/functions/.nyc_output
+/backend/functions/.grunt
+/backend/functions/bower_components
+/backend/functions/.lock-wscript
+/backend/functions/build/Release
+/backend/functions/node_modules/
+/backend/functions/.npm
+/backend/functions/.eslintcache
+/backend/functions/.node_repl_history
+/backend/functions/*.tgz
+/backend/functions/.yarn-integrity
+/backend/functions/.env
