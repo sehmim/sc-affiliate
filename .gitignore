@@ -1,23 +1,23 @@
 .DS_Store
 
-# /Sponsor-Circle-main/
-/Sponsor-Circle-main/node_modules
-/Sponsor-Circle-main//.pnp
-/Sponsor-Circle-main/.pnp.js
-/Sponsor-Circle-main/coverage
-/Sponsor-Circle-main/build
-/Sponsor-Circle-main/.DS_Store
-/Sponsor-Circle-main/.env.local
-/Sponsor-Circle-main/.env.development.local
-/Sponsor-Circle-main/.env.test.local
-/Sponsor-Circle-main/.env.production.local
-/Sponsor-Circle-main/npm-debug.log*
-/Sponsor-Circle-main/yarn-debug.log*
-/Sponsor-Circle-main/yarn-error.log*
-/Sponsor-Circle-main/.env
+# /frontend/
+/frontend/node_modules
+/frontend//.pnp
+/frontend/.pnp.js
+/frontend/coverage
+/frontend/build
+/frontend/.DS_Store
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.env
 
 
-/google-chrome-extension/.DS_Store
+/chrome-extension/.DS_Store
 
 
 # Logs

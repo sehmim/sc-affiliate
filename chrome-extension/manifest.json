@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "Sponsor Circle Affiliate",
+  "version": "1.0",
+  "description": "Tracks brands that give you discounts",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["content.js"],
+      "css": ["css/index.css"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["*://localhost/*"]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["css/index.css"],
+      "matches": [
+        "http://*/*", "https://*/*"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
+  },
+  "host_permissions": [
+    "http://atlasvpn.com/*",
+    "http://eventtrix.com/*",
+    "http://impact.com/*",
+    "http://invideo.io/*",
+    "http://livwellnutrition.com/*",
+    "http://packedwithpurpose.gifts/*",
+    "http://parisrhone.com/*",
+    "http://points.com/*",
+    "http://purehempbotanicals.com/*",
+    "http://strainz.com/about-strainz/*",
+    "https://www.marks.com/*",
+    "https://www.moosejaw.com/*",
+    "https://www.curiositybox.com/*",
+    "https://printrendy.com/*",
+    "https://lumierehairs.com/*",
+    "https://www.springfreetrampoline.com/*",
+    "https://www.springfreetrampoline.ca/*",
+    "https://www.copaair.com/en-us/connectmiles/about-connectmiles/*",
+    "https://ca.cocoandeve.com/*",
+    "https://www.cocoandeve.com/*",
+    "http://www.prohockeylife.com/*",
+    "https://www.points.com/*",
+    "http://www.fanatics.com/*",
+    "https://www.easyship.com/*",
+    "https://www.decathlon.ca/en/*",
+    "http://www.adidas.com.au/*",
+    "http://wish.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'",
+    "sandbox": "sandbox allow-scripts; script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com"
+  }
+}

@@ -1,0 +1,107 @@
+.landingpage-body {
+    height: calc(100vh - 5.0rem);
+    overflow-y: auto;
+    justify-content: center;
+}
+
+.scroll_snap
+{
+    padding-top: 60px;
+    max-width: 425px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+.ad-image {
+    border: 1px solid;
+    width: 360px;
+    max-height: calc(100vh - 7rem);
+}
+
+.ad-wrapper {
+    max-height: calc(100vh - 7rem);
+    align-items: center;
+}
+
+.ad-container {
+    border-radius: 42px;
+    outline: solid 2px rgba(255, 255, 255, 0.3);
+    outline-offset: -10px;
+
+    transition: all .8s;
+}
+.ad-container:hover {
+    outline: solid 2px white;
+    outline-offset: -20px;
+    background-color: rgba(0, 0, 0, 0.16);
+}
+
+.ad-container:first-child {
+    scroll-snap-align: end;
+}
+
+.ad-container{
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    max-width: 1100px;
+    margin: 40px  auto 0 auto;
+    min-height:calc(100dvh - 120px) ;
+    scroll-snap-align: center;
+    scroll-snap-stop:normal;
+
+    justify-content: center;
+    align-items: center;
+}
+.ad-container:last-child {
+    scroll-snap-align: initial;
+}
+
+.ad-container img{
+    border-radius: 12px;
+    margin-top: 20px;
+    width: auto;
+    /*align-self: center;*/
+}
+.ad-container a{
+    background-color: #6e38f8;
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin: 40px ;
+    transition: .2s all;
+    min-width: 40%;
+}
+
+.ad-container a:hover{
+    background-color: #3b354b;
+
+}
+
+@media only screen and (max-width: 900px) {
+    .ad-container{
+        padding:60px  20px;
+    }
+    .ad-container {
+        border-radius: 22px;
+        outline: solid 2px rgba(255, 255, 255, 0.25);
+        outline-offset: -10px;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.16);
+
+    }
+    .ad-container:hover {
+        border-radius: 22px;
+        outline: solid 2px rgba(255, 255, 255, 0.25);
+        outline-offset: -10px;
+        text-align: center;
+    }
+
+    .ad-container img {
+        min-width: 55%;
+    }
+
+}
+
+.view-ad-button {
+    text-align: center;
+}
