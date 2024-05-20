@@ -1,0 +1,59 @@
+.DS_Store
+
+# /Sponsor-Circle-main/
+/Sponsor-Circle-main/node_modules
+/Sponsor-Circle-main//.pnp
+/Sponsor-Circle-main/.pnp.js
+/Sponsor-Circle-main/coverage
+/Sponsor-Circle-main/build
+/Sponsor-Circle-main/.DS_Store
+/Sponsor-Circle-main/.env.local
+/Sponsor-Circle-main/.env.development.local
+/Sponsor-Circle-main/.env.test.local
+/Sponsor-Circle-main/.env.production.local
+/Sponsor-Circle-main/npm-debug.log*
+/Sponsor-Circle-main/yarn-debug.log*
+/Sponsor-Circle-main/yarn-error.log*
+/Sponsor-Circle-main/.env
+
+
+/google-chrome-extension/.DS_Store
+
+
+# Logs
+/backed2/functions/logs
+/backed2/functions/*.log
+/backed2/functions/npm-debug.log*
+/backed2/functions/yarn-debug.log*
+/backed2/functions/yarn-error.log*
+/backed2/functions/firebase-debug.log*
+/backed2/functions/firebase-debug.*.log*
+
+# Firebase cache
+/backed2/functions/.firebase/
+
+# Firebase config
+
+# Uncomment this if you'd like others to create their own Firebase project.
+# For a team working on the same Firebase project(s), it is recommended to leave
+# it commented so all members can deploy to the same project(s) in .firebaserc.
+# .firebaserc
+
+/backed2/functions/pids
+/backed2/functions/*.pid
+/backed2/functions/*.seed
+/backed2/functions/*.pid.lock
+/backed2/functions/lib-cov
+/backed2/functions/coverage
+/backed2/functions/.nyc_output
+/backed2/functions/.grunt
+/backed2/functions/bower_components
+/backed2/functions/.lock-wscript
+/backed2/functions/build/Release
+/backed2/functions/node_modules/
+/backed2/functions/.npm
+/backed2/functions/.eslintcache
+/backed2/functions/.node_repl_history
+/backed2/functions/*.tgz
+/backed2/functions/.yarn-integrity
+/backed2/functions/.env
