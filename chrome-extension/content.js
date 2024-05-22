@@ -182,18 +182,21 @@ async function fetchDefaultCharaties() {
   })
 }
 
-function getAllowedBrandInfo(allowedDomainsWithIds) {
-  const currentWebsiteUrl = window.location.hostname;
+function getAllowedBrandInfo(allowedDomainsWithIds, campaigns) {
+  const currentWebsiteUrl = window.location.origin;
 
-  for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
-
-    const urlHostname = new URL(url);
-    if (currentWebsiteUrl.includes(urlHostname.hostname)) {
-      return { url: urlHostname, id };
+  campaigns.forEach((campaign)=> {
+    if (allowedDomainsWithIds[campaign.advertiserURL]) {
+      if (allowedDomainsWithIds[currentWebsiteUrl]) {
+        return campaign;
+      }
     }
-  }
+  })
 
   return null;
+}
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
 }
 
 function isCouponedWebsite() {
@@ -226,31 +229,32 @@ function isCouponedWebsite() {
   return couponInfo;
 }
 
-/////////////////////////////////////////////////////////////
+///////////////////////////// INITIALIZE ////////////////////////////////
 async function initialize() {
 
   // If user closed the extension
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('sponsor-circle-extension') === 'false') {
-    return
-  }
+  // const urlParams = new URLSearchParams(window.location.search);
+  // if (urlParams.get('sponsor-circle-extension') === 'false') {
+  //   return
+  // }
 
   // If Couponsed Website show coupon view
   const couponInfo = isCouponedWebsite();
   if (couponInfo) {
-    console.log("THIS IS A COUPON BRAND");
     await createApplyCouponCodeContainer(couponInfo);
   } else {
     const allowedDomainsWithIds = await fetchAllowedDomains();
-    const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");;
-    const allowedBrand = getAllowedBrandInfo(allowedDomainsWithIds);
+    const campaigns = await fetchCampaigns();
+    const allowedBrand = getAllowedBrandInfo(allowedDomainsWithIds, campaigns);
+
+    console.log("allowedBrand ----->", allowedBrand);
 
     const isGoogleSearch = window.location.href.includes('https://www.google.com/search');
 
     if (isGoogleSearch) {
       await applyGoogleSearchDiscounts(allowedDomainsWithIds);
     }
-
+    const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
     if (allowedBrand && !codeAlreadyAppliedToURL) {
       await createActivatePageContainer(allowedBrand);
     }
@@ -258,6 +262,7 @@ async function initialize() {
     if (allowedBrand && codeAlreadyAppliedToURL) {
       await createAppliedLinkPageContainer(allowedBrand);
     }
+
   }
 
   // if (matchedDomain && matchedDomain?.couponCode) {
@@ -449,19 +454,31 @@ if (document.readyState === 'loading') {
 }
 
 async function fetchAllowedDomains() {
-
   let allowedDomains = JSON.parse(localStorage.getItem('sc-allowed-domains')) || null;
+  const cachedTimestamp = localStorage.getItem('sc-cache-timestamp');
+  const currentTime = new Date().getTime();
 
-  if (allowedDomains && Object.keys(allowedDomains).length !== 0) {
-    return allowedDomains
+  if (allowedDomains && Object.keys(allowedDomains).length !== 0 && cachedTimestamp) {
+    // Check if cache is still valid (within 24 hours)
+    const cacheExpiryTime = parseInt(cachedTimestamp) + 24 * 60 * 60 * 1000;
+    if (currentTime < cacheExpiryTime) {
+      return allowedDomains;
+    }
   }
 
   const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/allowedDomains" : "https://alloweddomains-6n7me4jtka-uc.a.run.app";
   allowedDomains = await fetchDataFromServer(url) || [];
-
+  
+  // Update cache with new data and timestamp
   localStorage.setItem('sc-allowed-domains', JSON.stringify(allowedDomains));
+  localStorage.setItem('sc-cache-timestamp', currentTime.toString());
 
   return allowedDomains;
+}
+
+async function fetchCampaigns() {
+  const url = "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns"; // TODO: ADD DEPLOYED
+  return await fetchDataFromServer(url) || [];
 }
 
 

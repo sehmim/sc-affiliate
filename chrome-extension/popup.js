@@ -17,6 +17,27 @@ function createMerchantContainer(title, subtitle, imageSrc, href) {
   return newDiv;
 }
 
+async function fetchDataFromServer(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; // Propagate the error to the caller if needed
+  }
+}
+
+async function fetchCampaigns() {
+  const url = "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns";
+  const campaigns = await fetchDataFromServer(url);
+
+  return campaigns;
+}
+
 const merchantLinks = [
   {
     title: "Mark's",
@@ -152,18 +173,23 @@ const merchantLinks = [
   }
 ];
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Find the container element with the class name 'merchants-container'
+document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
 
   if (merchantsContainer) {
-    // Iterate over the merchantLinks array
-    merchantLinks.forEach(link => {
-      // Call the function to create a new merchant div for each link
-      const newMerchantDiv = createMerchantContainer(link.title, link.subtitle, link.imageSrc, link.href);
-      // Append the new div to the merchantsContainer
-      merchantsContainer.appendChild(newMerchantDiv);
-    });
+    const campaigns = await fetchCampaigns();
+
+    try {
+      for (const campaign of campaigns) {
+        console.log("campaigns ->", campaigns.advertiserName);
+        const subTitle = `up to ${campaign.discountPercentage}%`;
+
+        const newMerchantDiv = createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.advertiserURL);
+        merchantsContainer.appendChild(newMerchantDiv);
+      }
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+    }
   } else {
     console.error('Merchants container not found');
   }

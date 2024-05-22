@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 
 const Navbar = () => (
@@ -17,6 +17,9 @@ const Navbar = () => (
 
 export default function ExtensionSettings(props) {
 
+    const [email, setEmail] = useState(localStorage.getItem('sc-email'));
+
+    console.log("email ==>", email);
     return (
         <>
             <Navbar />
@@ -63,7 +66,8 @@ export default function ExtensionSettings(props) {
                         <input 
                             className='form-control w-full'
                             // onChange={(e) => setEmail(e.target.value)}
-                            // value={email} 
+                            value={email} 
+                            disabled={true}
                             type='text' 
                             placeholder='user@example.com'
                             id="lord-king-shadid"

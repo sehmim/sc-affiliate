@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import "./OnboardingPage.css"
 import SHELL_BROWSER from './shell-broswer.png'
 import BottomRightComponent from './BottomRightComponent'
-import EmailVerificationComponent from './EmailVerificationComponent';
+import EmailSignUpComponent from './EmailSignUpComponent';
 
 export default function OnboardingPage(props) {
 
@@ -38,6 +38,6 @@ export default function OnboardingPage(props) {
     }
 
     if(onboardingStep === 1) {
-        return <EmailVerificationComponent />
+        return <EmailSignUpComponent />
     }
 }
