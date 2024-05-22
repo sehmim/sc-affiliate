@@ -1,5 +1,6 @@
 const LOCAL_ENV = true;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
+const COMMISSION_RATE = 0.50;
 
 ////////////////////////////////////
 async function fetchDataFromServer(url) {
@@ -182,19 +183,35 @@ async function fetchDefaultCharaties() {
   })
 }
 
-function getAllowedBrandInfo(allowedDomainsWithIds, campaigns) {
+function getAllowedBrandInfo(campaigns) {
   const currentWebsiteUrl = window.location.origin;
 
-  campaigns.forEach((campaign)=> {
-    if (allowedDomainsWithIds[campaign.advertiserURL]) {
-      if (allowedDomainsWithIds[currentWebsiteUrl]) {
-        return campaign;
-      }
+  for (let i = 0; i < campaigns.length; i++) {
+    const campaign = campaigns[i];
+    const urlHostname = new URL(campaign.advertiserURL);
+
+    if (currentWebsiteUrl.includes(urlHostname.origin)) {
+      return campaign;
     }
-  })
+  }
 
   return null;
 }
+
+// function getAllowedBrandInfo(allowedDomainsWithIds) {
+//   const currentWebsiteUrl = window.location.hostname;
+
+//   for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
+
+//     const urlHostname = new URL(url);
+//     if (currentWebsiteUrl.includes(urlHostname.hostname)) {
+//       return { url: urlHostname, id };
+//     }
+//   }
+
+//   return null;
+// }
+
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
@@ -245,14 +262,12 @@ async function initialize() {
   } else {
     const allowedDomainsWithIds = await fetchAllowedDomains();
     const campaigns = await fetchCampaigns();
-    const allowedBrand = getAllowedBrandInfo(allowedDomainsWithIds, campaigns);
+    const allowedBrand = getAllowedBrandInfo(campaigns);
 
-    console.log("allowedBrand ----->", allowedBrand);
-
-    const isGoogleSearch = window.location.href.includes('https://www.google.com/search');
+    const isGoogleSearch = window.location.href.includes('https://www.google.com/search') || window.location.href.includes('https://www.google.ca/search');
 
     if (isGoogleSearch) {
-      await applyGoogleSearchDiscounts(allowedDomainsWithIds);
+      await applyGoogleSearchDiscounts(allowedDomainsWithIds, campaigns);
     }
     const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
     if (allowedBrand && !codeAlreadyAppliedToURL) {
@@ -484,19 +499,16 @@ async function fetchCampaigns() {
 
 
 // async function main(){
-  function applyGoogleSearchDiscounts(allowedDomainsWithIds) {
-
-    console.log("allowedDomainsWithIds ->", allowedDomainsWithIds);
-
-    const percentage = "TODO%";
+  function applyGoogleSearchDiscounts(allowedDomainsWithIds, campaigns) {
     const searchResults = document.querySelectorAll('div.g');
 
     searchResults.forEach(result => {
       const url = result.querySelector('a[href^="http"]').href;
       const domain = new URL(url).hostname;
 
-      for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
-        const allowedDomain = new URL(url).hostname;
+      campaigns.map((campaign) => {
+        const allowedDomain = new URL(campaign.advertiserURL).hostname;
+        const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
 
         if (domain.includes(allowedDomain)) {
           const mainDiv = document.createElement('div');
@@ -521,16 +533,54 @@ async function fetchCampaigns() {
           logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
           logoDiv.style.backgroundSize = 'contain';
 
-          const textDiv = document.createElement('div');
+          const textDiv = document.createElement('a');
           textDiv.style.whiteSpace = 'nowrap';
           textDiv.textContent = `Give ${percentage} to your cause 💜`
+          textDiv.href = campaign.trackingLink;
 
           mainDiv.appendChild(logoDiv);
           mainDiv.appendChild(textDiv);
 
           result.insertBefore(mainDiv, result.firstChild);
         }
-      }
+      })
+
+      // for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
+      //   const allowedDomain = new URL(url).hostname;
+
+      //   if (domain.includes(allowedDomain)) {
+      //     const mainDiv = document.createElement('div');
+      //     mainDiv.style.color = '#1a0dab';
+      //     mainDiv.style.background = '#eeeeee';
+      //     mainDiv.style.fontSize = '14px';
+      //     mainDiv.style.lineHeight = '27px';
+      //     mainDiv.style.height = '37px';
+      //     mainDiv.style.margin = '0 0 7px 0';
+      //     mainDiv.style.padding = '6px 0 0 8px';
+      //     mainDiv.style.boxSizing = 'border-box';
+      //     mainDiv.style.width = '100%';
+      //     mainDiv.style.borderRadius = '5px';
+      //     mainDiv.style.fontFamily = "'Cerebri Sans', sans-serif";
+      //     mainDiv.style.minWidth = '542px';
+      //     mainDiv.style.cursor = 'pointer';
+
+      //     const logoDiv = document.createElement('div');
+      //     logoDiv.style.width = '33px';
+      //     logoDiv.style.height = '25px';
+      //     logoDiv.style.float = 'left';
+      //     logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
+      //     logoDiv.style.backgroundSize = 'contain';
+
+      //     const textDiv = document.createElement('div');
+      //     textDiv.style.whiteSpace = 'nowrap';
+      //     textDiv.textContent = `Give ${percentage} to your cause 💜`
+
+      //     mainDiv.appendChild(logoDiv);
+      //     mainDiv.appendChild(textDiv);
+
+      //     result.insertBefore(mainDiv, result.firstChild);
+      //   }
+      // }
     });
   }
 
@@ -718,7 +768,7 @@ function createLeftDiv() {
 }
 
 function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
-    const discountAmount = couponInfo ? couponInfo.amount : "TODO";
+    const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.discountPercentage * COMMISSION_RATE)+"%";
 
     var div = document.createElement("div");
     div.style.width = "65%";
@@ -737,8 +787,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
     closeButton.style.fontSize = '15px';
     closeButton.style.color = '#333';
     closeButton.onclick = function() {
-      let url = new URL(window.location.href);
-      url.searchParams.set('sponsor-circle-extension', 'false');
+      window.localStorage.setItem('sc-minimize', true);
       isolatedIframe.style.display = 'none';
       window.history.replaceState(null, '', url.toString());
     };
@@ -784,6 +833,27 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
 
 
 ////////////////////////// ACTIVATED LINK ///////////////////////////
+async function createMinimizedContainer(){
+  const isolatedIframe = createIsolatedIframe('20px', '20px');
+
+  isolatedIframe.onload = async function() {
+    const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
+    iframeDocument.body.innerHTML = '';
+    iframeDocument.body.style.display = 'flex';
+    iframeDocument.body.style.flexDirection = 'column';
+    iframeDocument.body.style.margin = '0px';
+    iframeDocument.body.style.fontFamily = "Montserrat";
+
+    const img1 = document.createElement("img");
+    img1.src = "https://i.imgur.com/zbRF4VT.png";
+    img1.style.borderRadius = "8px";
+    img1.style.width = "20px";
+    img1.style.marginRight = "10px";
+
+    iframeDocument.body.appendChild(img1);
+  };
+}
+
 async function createAppliedLinkPageContainer(allowedBrand){
   const isolatedIframe = createIsolatedIframe('400px', '280px');
   isolatedIframe.onload = async function() {
@@ -872,7 +942,7 @@ function createNavbar(isolatedIframe) {
     return div;
 }
 
-function createMiddleSection() {
+function createMiddleSection(allowedBrand) {
     var div = document.createElement("div");
     div.style.display = "flex";
     div.style.flexDirection = "column";
@@ -899,7 +969,7 @@ function createMiddleSection() {
 
 
     var p = document.createElement("p");
-    p.textContent = "Your purchases will now give up to 0.07% to " + SELECTED_TEAM;
+    p.textContent = `Your purchases will now give up to ${allowedBrand.discountPercentage * COMMISSION_RATE}% to ` + SELECTED_TEAM;
     p.style.textAlign = "center";
     p.style.margin = "0px";
     p.style.fontFamily = "Montserrat";
@@ -907,6 +977,7 @@ function createMiddleSection() {
     p.style.fontStyle = "normal";
     p.style.fontWeight = "400";
     p.style.lineHeight = "normal";
+    p.style.padding = "0px 20px";
 
     div.appendChild(img);
     div.appendChild(h1);
