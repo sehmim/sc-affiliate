@@ -18,6 +18,8 @@ const EmailVerificationComponent = () => {
   const [isVerificationCodeRequested, setVerificationCodeRequested] =
     useState(false);
   const [loading, setLoading] = useState(false);
+        // Replace this with the actual URL of your Firebase function
+  const functionUrl = "firebase-function-url";
 
   const navigation = useNavigate();
 
@@ -41,8 +43,7 @@ const EmailVerificationComponent = () => {
 
     try {
       setLoading(true);
-      // Replace this with the actual URL of your Firebase function
-      const functionUrl = "firebase-function-url";
+
       //Note: email is the state variable that holds the email address
       const response = await fetch(
         `${functionUrl}?email=${encodeURIComponent(email)}`
@@ -60,9 +61,29 @@ const EmailVerificationComponent = () => {
 
   };
 
-  const loginUser = () => {
-    // TODO: Verify that email is correct:
-    navigation("/extension-settings");
+  const loginUser = async () => {
+    try {
+      setLoading(true);
+  
+      const response = await fetch(`${functionUrl}?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(verificationCode)}`);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        navigation("/extension-settings");
+      } else {
+        console.log('OTP verification failed:', data.error);
+      }
+    } catch (error) {
+      console.log("ERROR ->", error);
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   return (
