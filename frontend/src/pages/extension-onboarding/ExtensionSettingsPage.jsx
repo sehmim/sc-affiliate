@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 
 const Navbar = () => (
   <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
@@ -27,6 +29,9 @@ const Navbar = () => (
 
 export default function ExtensionSettings(props) {
   const location = useLocation();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [selectedCharity, setSelectedCharity] = useState(null);
   //TODO: Replace the following line with the line after
   // when the email is passed from the previous page
   //const email = location.state.email;
@@ -36,15 +41,24 @@ export default function ExtensionSettings(props) {
     <>
       <Navbar />
       <div
-        style={{ width: "900px", margin: "auto" }}
+        style={{ width: "1180px", margin: "auto" }}
         className="h-full mt-20 p-10"
       >
         <div className="d-flex align-items-center justify-content-between">
           <div>
             <div className="fs-1 fw-bold pt-5">Your Settings</div>
-            <div className="text-dark font-inter font-weight-light fs-6 text-muted pt-4">
+            <div
+              style={{
+                textAlign: "center",
+                color: "black",
+                fontSize: 18,
+                fontFamily: "Inter",
+                fontWeight: "400",
+                wordWrap: "break-word",
+              }}
+            >
               Add your profiles’s information and select a charity of your
-              choice.
+              choice.{" "}
             </div>
           </div>
           <div>
@@ -57,51 +71,91 @@ export default function ExtensionSettings(props) {
         </div>
 
         <div className="d-flex flex-column">
-          <div className="d-flex mb-3">
+          <div className="d-flex mb-3" style={{ gap: "100px" }}>
             <div className="w-full">
-              <label className="pb-2">First name:</label> <br></br>
-              <input
-                className="form-control w-full"
-                // onChange={(e) => setEmail(e.target.value)}
-                // value={email}
-                type="text"
-                placeholder="First name"
-                id="lord-king-shadid"
+              <div
+                style={{
+                  color: "#927FC5",
+                  fontSize: 24,
+                  fontFamily: "Inter",
+                  fontWeight: "500",
+                }}
+              >
+                First Name:
+              </div>
+              <TextField
+                id="standard-basic"
+                variant="standard"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                sx={{ width: "100%" }}
               />
             </div>
             <div className="w-full">
-              <label className="pb-2">Last name:</label> <br></br>
-              <input
-                className="form-control w-full"
-                // onChange={(e) => setEmail(e.target.value)}
-                // value={email}
-                type="text"
-                placeholder="Last name"
-                id="lord-king-shadid"
+              <div
+                style={{
+                  color: "#927FC5",
+                  fontSize: 24,
+                  fontFamily: "Inter",
+                  fontWeight: "500",
+                }}
+              >
+                Last Name:
+              </div>
+              <TextField
+                id="standard-basic"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                variant="standard"
+                sx={{ width: "100%" }}
               />
             </div>
           </div>
           <div className="mb-10">
-            <label className="pb-2">Email:</label> <br></br>
-            <input
-              className="form-control w-full"
-              // onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              type="text"
-              placeholder="user@example.com"
-              id="lord-king-shadid"
+            <div
+              style={{
+                color: "#927FC5",
+                fontSize: 24,
+                fontFamily: "Inter",
+                fontWeight: "500",
+              }}
+            >
+              Email:
+            </div>
+            <TextField
+              id="standard-basic"
+              variant="standard"
+              //onChange={(e) => setEmail(e.target.value)}
+              sx={{ width: "100%" }}
             />
           </div>
-          <div className="mb-10">
-            <label className="pb-2">Select Charity:</label> <br></br>
-            <input
-              className="form-control w-full"
-              // onChange={(e) => setEmail(e.target.value)}
-              // value={email}
-              type="text"
-              placeholder="user@example.com"
-              id="lord-king-shadid"
-            />
+          <div className="mb-10" style={{ marginTop: "40px" }}>
+            <div
+              style={{
+                color: "#927FC5",
+                fontSize: 24,
+                fontFamily: "Inter",
+                fontWeight: "500",
+              }}
+            >
+              Choose your Charity:
+            </div>
+            <TextField
+              select
+              defaultValue={null}
+              onChange={(event) => setSelectedCharity(event.target.value)}
+              value={selectedCharity}
+              variant="standard"
+              placeholder="Search for a charity"
+              sx={{ width: "100%" }}
+            >
+              <MenuItem key={1} value={1}>
+                Charity 1
+              </MenuItem>
+              <MenuItem key={2} value={2}>
+                Charity 2
+              </MenuItem>
+            </TextField>
           </div>
         </div>
 
@@ -114,10 +168,11 @@ export default function ExtensionSettings(props) {
             <div
               style={{
                 border: "1px solid",
-                width: "265px",
+                width: "340px",
                 height: "148px",
                 borderRadius: "15px",
-                padding: "4px",
+                padding: "12px",
+                boxSizing: "border-box",
               }}
             >
               <div
@@ -151,10 +206,11 @@ export default function ExtensionSettings(props) {
             <div
               style={{
                 border: "1px solid",
-                width: "265px",
+                width: "340px",
                 height: "148px",
                 borderRadius: "15px",
-                padding: "4px",
+                padding: "12px",
+                boxSizing: "border-box",
               }}
             >
               <div
@@ -188,10 +244,11 @@ export default function ExtensionSettings(props) {
             <div
               style={{
                 border: "1px solid",
-                width: "265px",
+                width: "340px",
                 height: "148px",
                 borderRadius: "15px",
-                padding: "4px",
+                padding: "12px",
+                boxSizing: "border-box",
               }}
             >
               <div
@@ -225,9 +282,9 @@ export default function ExtensionSettings(props) {
           </div>
         </div>
 
-        <div style={{ textAlign: "left" }}>
+        <div style={{ textAlign: "center", marginTop: "100px" }}>
           <button
-            style={{ width: "100px" }}
+            style={{ width: "295px", height: "56px", borderRadius: 16 }}
             onClick={() => {}}
             type="button"
             className="btn btn-dark fw-bold mt-3"
