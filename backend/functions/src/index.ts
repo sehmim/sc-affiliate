@@ -1,10 +1,59 @@
 import { onRequest } from "firebase-functions/v2/https";
-import * as admin from 'firebase-admin';
-import { parseString } from 'xml2js';
-import { handleCorsMiddleware } from './corsMiddleware';
+import * as admin from "firebase-admin";
+import { parseString } from "xml2js";
+import { handleCorsMiddleware } from "./corsMiddleware";
+import * as functions from "firebase-functions";
+import * as nodemailer from "nodemailer";
 
-
+//Initialize Firebase and get Firestore instance
 admin.initializeApp();
+const db = admin.firestore();
+
+//Configuration of the authentication for the Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "outlook365",
+  auth: {
+    user: "info@sponsorcircle.com",
+    pass: "Foj92946",
+  },
+});
+
+// function sendVerificationCode that, when triggered by an HTTP request, generates a six-digit verification code, sends it to a specified email address using Nodemailer, and stores the code along with a timestamp in a Firestore document. If error, it sends a 500 HTTP response with the error message.
+export const sendVerificationCode = functions.https.onRequest(
+  async (req, res) => {
+    const email = req.query.email;
+    // Generate a random 6-digit verification code
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    const mailOptions = {
+      from: "info@sponsorcircle.com",
+      to: email as string,
+      subject: "Your OTP Verification Code",
+      text: `Your OTP verification code is ${verificationCode}`,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      // Set expiration time to 5 minutes from now
+      const expirationTime = admin.firestore.Timestamp.fromMillis(
+        Date.now() + 5 * 60 * 1000
+      );
+      await db
+        .collection("verificationCodes")
+        .doc(email as string)
+        .set({
+          code: verificationCode,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          expiresAt: expirationTime,
+        });
+      res.status(200).send("Verification code sent");
+    } catch (error) {
+      res.status(500).send((error as any).toString());
+    }
+  }
+);
 
 export const getCampaigns = onRequest(async (request, response) => {
     handleCorsMiddleware(request, response, () => {
@@ -24,80 +73,75 @@ export const allowedDomains = onRequest(async (request, response) => {
     });
 });
 
-// const swapKeysAndValues = (obj: any) => {
-//     const swapped = {} as any;
-//     for (const key in obj) {
-//         const value = obj[key];
-//         swapped[value] = key;
-//     }
-//     return swapped;
-// }
-
 export const loginUser = onRequest(async (req, res) => {
-    // Use CORS middleware
-    handleCorsMiddleware(req, res, async () => {
-        try {
-            const { email, password }: LoginRequest = req.body;
+  // Use CORS middleware
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const { email, password }: LoginRequest = req.body;
 
-            if (!email || !password) {
-                throw new Error('Email and password are required');
-            }
+      if (!email || !password) {
+        throw new Error("Email and password are required");
+      }
 
-            const userCredential = await admin.auth().getUserByEmail(email);
-            
-            const user = userCredential as admin.auth.UserRecord;
-            const response: LoginResponseSuccess = { message: 'Login successful', uid: user.uid };
-            res.status(200).json(response);
-        } catch (error) {
-            console.error('Error logging in:', error);
-            let errorMessage = 'Login failed';
-            if ((error as any).code === 'auth/user-not-found' || (error as any).code === 'auth/wrong-password') {
-                errorMessage = 'Invalid email or password';
-            }
-            const response: LoginResponseError = { error: errorMessage };
-            res.status(400).json(response);
-        }
-    });
+      const userCredential = await admin.auth().getUserByEmail(email);
+
+      const user = userCredential as admin.auth.UserRecord;
+      const response: LoginResponseSuccess = {
+        message: "Login successful",
+        uid: user.uid,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      console.error("Error logging in:", error);
+      let errorMessage = "Login failed";
+      if (
+        (error as any).code === "auth/user-not-found" ||
+        (error as any).code === "auth/wrong-password"
+      ) {
+        errorMessage = "Invalid email or password";
+      }
+      const response: LoginResponseError = { error: errorMessage };
+      res.status(400).json(response);
+    }
+  });
 });
-
 
 export const getAllGroups = onRequest(async (req: any, res: any) => {
   try {
     // Use CORS middleware
     handleCorsMiddleware(req, res, async () => {
-      const snapshot = await admin.firestore().collection('groups').get();
+      const snapshot = await admin.firestore().collection("groups").get();
       const groups: any = [];
-      snapshot.forEach(doc => {
+      snapshot.forEach((doc) => {
         groups.push(doc.data());
       });
       res.status(200).json(groups);
     });
   } catch (error) {
-    console.error('Error fetching groups:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Error fetching groups:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
-
 export const getDefaultCharities = onRequest(async (req, res) => {
-    try {
-        // Use CORS middleware
-        handleCorsMiddleware(req, res, async () => {
-          const db = admin.firestore();
-          const defaultCharitiesRef = db.collection('defaultCharities');
-          
-          const snapshot = await defaultCharitiesRef.get();
-          const defaultCharities = snapshot.docs.map(doc => ({
-              id: doc.id,
-              data: doc.data()
-          }));
+  try {
+    // Use CORS middleware
+    handleCorsMiddleware(req, res, async () => {
+      const db = admin.firestore();
+      const defaultCharitiesRef = db.collection("defaultCharities");
 
-          res.status(200).json(defaultCharities);
-        });
-    } catch (error) {
-        console.error('Error fetching default charities:', error);
-        res.status(500).json({ error: 'Failed to fetch default charities' });
-    }
+      const snapshot = await defaultCharitiesRef.get();
+      const defaultCharities = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        data: doc.data(),
+      }));
+
+      res.status(200).json(defaultCharities);
+    });
+  } catch (error) {
+    console.error("Error fetching default charities:", error);
+    res.status(500).json({ error: "Failed to fetch default charities" });
+  }
 });
 
 export const applyTrackingLink = onRequest(async (req: any, res: any) => {
@@ -109,13 +153,17 @@ export const applyTrackingLink = onRequest(async (req: any, res: any) => {
 
       // Check if teamName and trackingLink query parameters are provided
       if (!teamName || !programId) {
-        return res.status(400).send('teamName and trackingLink query parameters are required.');
+        return res
+          .status(400)
+          .send("teamName and trackingLink query parameters are required.");
       }
 
       // Retrieve data from Firestore collection 'trackingLinks'
-      const snapshot = await admin.firestore().collection('trackingLinks')
-        .where('teamName', '==', teamName)
-        .where('programId', '==', programId)
+      const snapshot = await admin
+        .firestore()
+        .collection("trackingLinks")
+        .where("teamName", "==", teamName)
+        .where("programId", "==", programId)
         .get();
 
       // If a document matching the provided teamName and trackingLink is found, return the data
@@ -128,7 +176,7 @@ export const applyTrackingLink = onRequest(async (req: any, res: any) => {
       const responseData = await generateLink(programId, teamName);
 
       // Save the new tracking link and teamName to Firestore
-      await admin.firestore().collection('trackingLinks').add({
+      await admin.firestore().collection("trackingLinks").add({
         teamName,
         programId,
         trackingLink: responseData.TrackingURL,
@@ -138,8 +186,8 @@ export const applyTrackingLink = onRequest(async (req: any, res: any) => {
       res.status(200).json(responseData.TrackingURL);
     });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Error making POST request');
+    console.error("Error:", error);
+    res.status(500).send("Error making POST request");
   }
 });
 
@@ -200,19 +248,23 @@ export const applyTrackingLink = onRequest(async (req: any, res: any) => {
 // //   }
 // });
 
-
 // ------------ NOT USED BY THE EXTENSION DIRECTLY ------------
 export const fetchCampaignsData = onRequest(async (req, res) => {
   try {
-    const base64Auth = Buffer.from(`IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`).toString('base64');
+    const base64Auth = Buffer.from(
+      `IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`
+    ).toString("base64");
 
-    const response = await fetch(`https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Campaigns`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Basic ${base64Auth}`,
-        'Content-Type': 'application/xml' // Specify XML content type
-      },
-    });
+    const response = await fetch(
+      `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Campaigns`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Basic ${base64Auth}`,
+          "Content-Type": "application/xml", // Specify XML content type
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -222,16 +274,17 @@ export const fetchCampaignsData = onRequest(async (req, res) => {
     const xmlData = await response.text();
     parseString(xmlData, (err: any, result: any) => {
       if (err) {
-        console.error('Error parsing XML:', err);
-        res.status(500).send('Error parsing XML');
+        console.error("Error parsing XML:", err);
+        res.status(500).send("Error parsing XML");
       } else {
-        const campaigns = result.ImpactRadiusResponse.Campaigns[0].Campaign.reverse();
+        const campaigns =
+          result.ImpactRadiusResponse.Campaigns[0].Campaign.reverse();
         res.status(200).json(campaigns);
       }
     });
   } catch (error) {
-    console.error('Error fetching data:', error);
-    res.status(500).send('Error fetching data');
+    console.error("Error fetching data:", error);
+    res.status(500).send("Error fetching data");
   }
 });
 
@@ -254,7 +307,9 @@ export const fetchCampaignsData = onRequest(async (req, res) => {
 
 export const generateTrackingLink = onRequest(async (req, res) => {
   try {
-    const base64Auth = Buffer.from(`IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`).toString('base64');
+    const base64Auth = Buffer.from(
+      `IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`
+    ).toString("base64");
 
     // Extract programId and subId1 from the query parameters
     const programId = req.query.programId;
@@ -264,12 +319,12 @@ export const generateTrackingLink = onRequest(async (req, res) => {
     const url = `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${subId1}`;
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Basic ${base64Auth}`,
-        'Content-Type': 'application/json'
+        Authorization: `Basic ${base64Auth}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({}) // You can pass any data in the body if needed
+      body: JSON.stringify({}), // You can pass any data in the body if needed
     });
 
     if (!response.ok) {
@@ -279,25 +334,26 @@ export const generateTrackingLink = onRequest(async (req, res) => {
     const responseData = await response.json();
     res.status(200).json(responseData);
   } catch (error) {
-    console.error('Error making POST request:', error);
-    res.status(500).send('Error making POST request');
+    console.error("Error making POST request:", error);
+    res.status(500).send("Error making POST request");
   }
 });
 
-
 async function generateLink(programId: string, teamName: string) {
-      try {
-    const base64Auth = Buffer.from(`IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`).toString('base64');
+  try {
+    const base64Auth = Buffer.from(
+      `IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`
+    ).toString("base64");
 
     const url = `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${teamName}`;
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Basic ${base64Auth}`,
-        'Content-Type': 'application/json'
+        Authorization: `Basic ${base64Auth}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({}) // You can pass any data in the body if needed
+      body: JSON.stringify({}), // You can pass any data in the body if needed
     });
 
     if (!response.ok) {
@@ -305,25 +361,24 @@ async function generateLink(programId: string, teamName: string) {
     }
 
     const responseData = await response.json();
-    return responseData
+    return responseData;
   } catch (error) {
-    console.error('Error making POST request:', error);
+    console.error("Error making POST request:", error);
   }
 }
 
-
 interface LoginRequest {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 interface LoginResponseSuccess {
-    message: string;
-    uid: string;
+  message: string;
+  uid: string;
 }
 
 interface LoginResponseError {
-    error: string;
+  error: string;
 }
 
 const CAMPAIGNS = [

@@ -38,140 +38,20 @@ async function fetchCampaigns() {
   return campaigns;
 }
 
-const merchantLinks = [
+const couponMerchants = [
   {
-    title: "Mark's",
-    subtitle: "up to 7.6%",
-    imageSrc: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLbHCo5fu86eEqgle59e-ht92ScGGd5vjuX-sJXU1QtQ&s",
-    href: "https://www.marks.com/"
+    discountPercentage: 20,
+    advertiserName: 'lacoutts.com',
+    campaignLogoURI: 'https://lacoutts.com/cdn/shop/files/la_coutts_logo_white_toronto.webp',
+    advertiserURL: 'https://lacoutts.com'
   },
   {
-    title: "Moosejaw",
-    subtitle: "up to 10%",
-    imageSrc: "https://www.bicycleretailer.com/sites/default/files/styles/article_primary_image/public/images/article/moosejaw.gif?itok=yOsO6NbJ",
-    href: "https://www.moosejaw.com"
-  },
-  {
-    title: "Curiosity Box",
-    subtitle: "up to 5%",
-    imageSrc: "https://example.com/curiositybox.jpg",
-    href: "https://www.curiositybox.com/"
-  },
-  {
-    title: "Print Trendy",
-    subtitle: "up to 12%",
-    imageSrc: "https://example.com/printrendy.jpg",
-    href: "https://printrendy.com/"
-  },
-  {
-    title: "Lumiere Hairs",
-    subtitle: "up to 8%",
-    imageSrc: "https://example.com/lumierehairs.jpg",
-    href: "https://lumierehairs.com/"
-  },
-  {
-    title: "Springfree Trampoline",
-    subtitle: "up to 7%",
-    imageSrc: "https://example.com/springfreetrampoline.jpg",
-    href: "https://www.springfreetrampoline.com/"
-  },
-  {
-    title: "Wish",
-    subtitle: "up to 15%",
-    imageSrc: "https://example.com/wish.jpg",
-    href: "http://wish.com"
-  },
-  {
-    title: "Decathlon Canada",
-    subtitle: "up to 5%",
-    imageSrc: "https://example.com/decathlon.jpg",
-    href: "https://www.decathlon.ca/en"
-  },
-  {
-    title: "Easyship",
-    subtitle: "up to 10%",
-    imageSrc: "https://example.com/easyship.jpg",
-    href: "https://www.easyship.com/"
-  },
-  {
-    title: "Fanatics",
-    subtitle: "up to 8%",
-    imageSrc: "https://example.com/fanatics.jpg",
-    href: "https://www.fanatics.com/"
-  },
-  {
-    title: "Points",
-    subtitle: "up to 6%",
-    imageSrc: "https://example.com/points.jpg",
-    href: "https://www.points.com/"
-  },
-  {
-    title: "Pro Hockey Life",
-    subtitle: "up to 12%",
-    imageSrc: "https://example.com/prohockeylife.jpg",
-    href: "http://www.prohockeylife.com/"
-  },
-  {
-    title: "Copa Airlines",
-    subtitle: "up to 7%",
-    imageSrc: "https://example.com/copaair.jpg",
-    href: "https://www.copaair.com/en-us/connectmiles/about-connectmiles/"
-  },
-  {
-    title: "Strainz",
-    subtitle: "up to 10%",
-    imageSrc: "https://example.com/strainz.jpg",
-    href: "https://strainz.com/about-strainz/"
-  },
-  {
-    title: "Pure Hemp Botanicals",
-    subtitle: "up to 9%",
-    imageSrc: "https://example.com/purehempbotanicals.jpg",
-    href: "http://purehempbotanicals.com/"
-  },
-  {
-    title: "Paris Rhone",
-    subtitle: "up to 8%",
-    imageSrc: "https://example.com/parisrhone.jpg",
-    href: "https://parisrhone.com/"
-  },
-  {
-    title: "LivWell Nutrition",
-    subtitle: "up to 10%",
-    imageSrc: "https://example.com/livwellnutrition.jpg",
-    href: "http://livwellnutrition.com/"
-  },
-  {
-    title: "Packed With Purpose",
-    subtitle: "up to 7%",
-    imageSrc: "https://example.com/packedwithpurpose.jpg",
-    href: "http://packedwithpurpose.gifts/"
-  },
-  {
-    title: "InVideo",
-    subtitle: "up to 12%",
-    imageSrc: "https://example.com/invideo.jpg",
-    href: "http://invideo.io/"
-  },
-  {
-    title: "Impact",
-    subtitle: "up to 9%",
-    imageSrc: "https://example.com/impact.jpg",
-    href: "http://impact.com/"
-  },
-  {
-    title: "Event Trix",
-    subtitle: "up to 8%",
-    imageSrc: "https://example.com/eventtrix.jpg",
-    href: "http://eventtrix.com/"
-  },
-  {
-    title: "Atlas VPN",
-    subtitle: "up to 15%",
-    imageSrc: "https://example.com/atlasvpn.jpg",
-    href: "http://atlasvpn.com/"
+    discountPercentage: 10,
+    advertiserName: 'softstrokessilk.com',
+    campaignLogoURI: '',
+    advertiserURL: 'https://www.softstrokessilk.com'
   }
-];
+]
 
 document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
@@ -181,10 +61,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
       for (const campaign of campaigns) {
-        console.log("campaigns ->", campaigns.advertiserName);
-        const subTitle = `up to ${campaign.discountPercentage}%`;
+        const subTitle = `up to ${campaign.discountPercentage * 0.50}%`;
 
         const newMerchantDiv = createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.advertiserURL);
+        merchantsContainer.appendChild(newMerchantDiv);
+      }
+
+      for (const couponMerchant of couponMerchants) {
+        const subTitle = `up to ${couponMerchant.discountPercentage * 0.50}%`;
+
+        const newMerchantDiv = createMerchantContainer(couponMerchant.advertiserName, subTitle, couponMerchant.campaignLogoURI, couponMerchant.advertiserURL);
         merchantsContainer.appendChild(newMerchantDiv);
       }
     } catch (error) {

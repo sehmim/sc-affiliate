@@ -805,7 +805,6 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
     closeButton.onclick = function() {
       window.localStorage.setItem('sc-minimize', true);
       isolatedIframe.style.display = 'none';
-      window.history.replaceState(null, '', url.toString());
     };
     div.appendChild(closeButton);
 

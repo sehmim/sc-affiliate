@@ -49,12 +49,14 @@
   align-items: center;
   justify-content: space-around;
   margin-bottom: 15px;
+  text-decoration: none;
+  padding-top: 5px;
 }
 
 .merchant-img-wrapper {
   width: 80px;
   height: 80px;
-  background-color: gray;
+  background-color: #c6c6c6a8;
   border-radius: 50px;
   display: flex;
   align-items: center;
