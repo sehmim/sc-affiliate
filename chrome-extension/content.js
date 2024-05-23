@@ -1,4 +1,4 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
 const COMMISSION_RATE = 0.50;
 
@@ -282,8 +282,8 @@ async function initialize() {
     if (isGoogleSearch) {
       await applyGoogleSearchDiscounts(allowedDomainsWithIds, campaigns);
     }
-    const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
-    if (allowedBrand && !codeAlreadyAppliedToURL) {
+    const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid") || localStorage.getItem('sc-activated');
+    if ((allowedBrand && !codeAlreadyAppliedToURL)) {
       await createActivatePageContainer(allowedBrand, closedDiv);
     }
 
@@ -840,11 +840,13 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
             if (allowedBrand) {
               await applyAffiliateLink(allowedBrand);
               localStorage.setItem('sc-minimize', false);
+              localStorage.setItem('sc-activated', true);
             } 
 
             if (couponInfo) {
               await handleApplyCouponCode(couponInfo?.couponCode, isolatedIframe);
               localStorage.setItem('sc-minimize', false);
+              localStorage.setItem('sc-activated', true);
             }
         } catch (error) {
             console.error("Error activating to give:", error);
