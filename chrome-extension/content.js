@@ -1,4 +1,4 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
 const COMMISSION_RATE = 0.50;
 
@@ -265,16 +265,13 @@ function isCouponedWebsite() {
 ///////////////////////////// INITIALIZE ////////////////////////////////
 async function initialize() {
 
-  // If user closed the extension
-  // const urlParams = new URLSearchParams(window.location.search);
-  // if (urlParams.get('sponsor-circle-extension') === 'false') {
-  //   return
-  // }
+  const closedDiv = createClosedDiv();
+  document.body.appendChild(closedDiv);
 
   // If Couponsed Website show coupon view
   const couponInfo = isCouponedWebsite();
   if (couponInfo) {
-    await createApplyCouponCodeContainer(couponInfo);
+    await createApplyCouponCodeContainer(couponInfo, closedDiv);
   } else {
     const allowedDomainsWithIds = await fetchAllowedDomains();
     const campaigns = await fetchCampaigns();
@@ -287,11 +284,11 @@ async function initialize() {
     }
     const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
     if (allowedBrand && !codeAlreadyAppliedToURL) {
-      await createActivatePageContainer(allowedBrand);
+      await createActivatePageContainer(allowedBrand, closedDiv);
     }
 
     if (allowedBrand && codeAlreadyAppliedToURL) {
-      await createAppliedLinkPageContainer(allowedBrand);
+      await createAppliedLinkPageContainer(allowedBrand, closedDiv);
     }
 
   }
@@ -680,13 +677,46 @@ function createIsolatedIframe(width, height) {
   return iframe;
 }
 
+function createClosedDiv() {
+  const img = document.createElement('img');
 
-async function createActivatePageContainer(allowedBrand){
+  // Set the src attribute
+  img.src = 'https://i.imgur.com/Oj6PnUe.png';
+
+  // Apply the styles
+  img.style.position = 'fixed';
+  img.style.bottom = '0%';
+  img.style.left = '3%';
+  img.style.transform = 'translate(-50%, -50%)';
+  img.style.width = '50px';
+  img.style.height = '50px';
+  img.style.border = 'none';
+  img.style.backgroundColor = 'rgb(253, 253, 253)';
+  img.style.borderRadius = '16px';
+  img.style.boxShadow = 'rgba(0, 0, 0, 0.25) 0px 4px 4px 0px';
+  img.style.display = 'flex';
+  img.style.zIndex = '10000';
+  img.style.transition = 'top 0.75s ease-out 0s';
+  img.style.cursor = 'pointer';
+  img.style.display = 'none';
+
+  // Add the onClick event
+  img.onclick = function() {
+      isolatedIframe.style.visibility = 'visible';
+  };
+
+  // Return the img
+  return img;
+}
+
+
+async function createActivatePageContainer(allowedBrand, closedDiv){
+
   const isolatedIframe = createIsolatedIframe('400px', '100px');
-  isolatedIframe.onload = async function() {
 
+  isolatedIframe.onload = async function() {
     const leftDiv = createLeftDiv();
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, undefined, closedDiv);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
@@ -695,35 +725,6 @@ async function createActivatePageContainer(allowedBrand){
 
     iframeDocument.body.appendChild(leftDiv);
     iframeDocument.body.appendChild(rightDiv);
-
-
-    /////////  ROUGH ///////////
-    // const loginForm = generateLoginForm();
-    // const greetingDiv = greetUser();
-    // const closeButton = createCloseButton(isolatedIframe);
-
-    // const userEmail = localStorage.getItem('sponsorcircle-useremail');
-    // if (userEmail) {
-    //     const allowedTeams = await fetchAllowedGroups(userEmail);
-    //     const allowedCharaties = await fetchDefaultCharaties();
-
-    //     // const teamsCobined = ["------Your Teams-----" ,...allowedTeams, "-----Default Charities-----", ...allowedCharaties];
-
-    //     const { allowedTeamsDropdown, selectElement } = createDropdownWithOptions(allowedCharaties, "Pick A Team:");
-
-    //     const activateButton = createActivateButton(allowedBrand, selectElement);
-    //     const logoutbutton = createLogoutButton();
-
-    //     iframeDocument.body.appendChild(closeButton);
-    //     iframeDocument.body.appendChild(greetingDiv);
-    //     iframeDocument.body.appendChild(allowedTeamsDropdown);
-    //     // iframeDocument.body.appendChild(allowedCharatiesDropdown);
-    //     iframeDocument.body.appendChild(activateButton);
-    //     iframeDocument.body.appendChild(logoutbutton);
-    // } else {
-    //   iframeDocument.body.appendChild(closeButton);
-    //   iframeDocument.body.appendChild(loginForm);
-    // }
   };
   document.body.appendChild(isolatedIframe);
 } 
@@ -783,8 +784,14 @@ function createLeftDiv() {
     return div;
 }
 
-function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
+function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.discountPercentage * COMMISSION_RATE)+"%";
+
+    closedDiv.onclick = function () {
+      isolatedIframe.style.display = '';
+      closedDiv.style.display = 'none';
+      localStorage.setItem('sc-minimize', false);
+    }
 
     var div = document.createElement("div");
     div.style.width = "65%";
@@ -805,6 +812,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
     closeButton.onclick = function() {
       window.localStorage.setItem('sc-minimize', true);
       isolatedIframe.style.display = 'none';
+      closedDiv.style.display = '';
     };
     div.appendChild(closeButton);
 
@@ -831,10 +839,12 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
         try {
             if (allowedBrand) {
               await applyAffiliateLink(allowedBrand);
+              localStorage.setItem('sc-minimize', false);
             } 
 
             if (couponInfo) {
               await handleApplyCouponCode(couponInfo?.couponCode, isolatedIframe);
+              localStorage.setItem('sc-minimize', false);
             }
         } catch (error) {
             console.error("Error activating to give:", error);
@@ -848,31 +858,31 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo) {
 
 
 ////////////////////////// ACTIVATED LINK ///////////////////////////
-async function createMinimizedContainer(){
-  const isolatedIframe = createIsolatedIframe('20px', '20px');
+// async function createMinimizedContainer(){
+//   const isolatedIframe = createIsolatedIframe('20px', '20px');
 
-  isolatedIframe.onload = async function() {
-    const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
-    iframeDocument.body.innerHTML = '';
-    iframeDocument.body.style.display = 'flex';
-    iframeDocument.body.style.flexDirection = 'column';
-    iframeDocument.body.style.margin = '0px';
-    iframeDocument.body.style.fontFamily = "Montserrat";
+//   isolatedIframe.onload = async function() {
+//     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
+//     iframeDocument.body.innerHTML = '';
+//     iframeDocument.body.style.display = 'flex';
+//     iframeDocument.body.style.flexDirection = 'column';
+//     iframeDocument.body.style.margin = '0px';
+//     iframeDocument.body.style.fontFamily = "Montserrat";
 
-    const img1 = document.createElement("img");
-    img1.src = "https://i.imgur.com/zbRF4VT.png";
-    img1.style.borderRadius = "8px";
-    img1.style.width = "20px";
-    img1.style.marginRight = "10px";
+//     const img1 = document.createElement("img");
+//     img1.src = "https://i.imgur.com/zbRF4VT.png";
+//     img1.style.borderRadius = "8px";
+//     img1.style.width = "20px";
+//     img1.style.marginRight = "10px";
 
-    iframeDocument.body.appendChild(img1);
-  };
-}
+//     iframeDocument.body.appendChild(img1);
+//   };
+// }
 
-async function createAppliedLinkPageContainer(allowedBrand){
+async function createAppliedLinkPageContainer(allowedBrand, closedDiv){
   const isolatedIframe = createIsolatedIframe('400px', '280px');
   isolatedIframe.onload = async function() {
-    const navbar = createNavbar(isolatedIframe);
+    const navbar = createNavbar(isolatedIframe, closedDiv);
     const middleSection = createMiddleSection(allowedBrand);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
@@ -917,7 +927,13 @@ async function createAppliedLinkPageContainer(allowedBrand){
   document.body.appendChild(isolatedIframe);
 }
 
-function createNavbar(isolatedIframe) {
+function createNavbar(isolatedIframe, closedDiv) {
+    closedDiv.onclick = function () {
+      isolatedIframe.style.display = '';
+      closedDiv.style.display = 'none';
+      localStorage.setItem('sc-minimize', false);
+    }
+
     var div = document.createElement("div");
     div.style.flexDirection = "row";
     div.style.background = "rgb(44, 5, 147)";
@@ -947,6 +963,8 @@ function createNavbar(isolatedIframe) {
     closeButton.style.color = 'white';
     closeButton.onclick = function() {
       isolatedIframe.style.display = 'none';
+      window.localStorage.setItem('sc-minimize', true);
+      closedDiv.style.display = '';
     };
     div.appendChild(closeButton);
 
@@ -1003,11 +1021,11 @@ function createMiddleSection(allowedBrand) {
 
 
 ///////////////////// COUPON CODE ////////////////////////////
-async function createApplyCouponCodeContainer(couponInfo){
+async function createApplyCouponCodeContainer(couponInfo, closedDiv){
   const isolatedIframe = createIsolatedIframe('400px', '100px');
   isolatedIframe.onload = async function() {
     const leftDiv = createLeftDiv();
-    const rightDiv = createRightDiv(isolatedIframe, undefined, couponInfo);
+    const rightDiv = createRightDiv(isolatedIframe, undefined, couponInfo, closedDiv);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
