@@ -1,4 +1,4 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
 const COMMISSION_RATE = 0.50;
 
@@ -459,7 +459,7 @@ async function applyAffiliateLink(allowedBrand, selectedTeam){
   //   return
   // }
 
-  const programId = allowedBrand.id;
+  const programId = allowedBrand.campaignID;
   const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${SELECTED_TEAM}` 
       : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${SELECTED_TEAM}`;
 
@@ -508,7 +508,7 @@ async function fetchAllowedDomains() {
 }
 
 async function fetchCampaigns() {
-  const url = "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns"; // TODO: ADD DEPLOYED
+  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://getcampaigns-6n7me4jtka-uc.a.run.app"; 
   return await fetchDataFromServer(url) || [];
 }
 

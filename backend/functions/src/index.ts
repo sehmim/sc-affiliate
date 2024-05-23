@@ -144,18 +144,14 @@ export const getDefaultCharities = onRequest(async (req, res) => {
   }
 });
 
-export const applyTrackingLink = onRequest(async (req: any, res: any) => {
-  try {
-    // Use CORS middleware
-    handleCorsMiddleware(req, res, async () => {
+export const applyTrackingLink = onRequest((req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
       const teamName = req.query.teamName;
       const programId = req.query.programId;
 
-      // Check if teamName and trackingLink query parameters are provided
       if (!teamName || !programId) {
-        return res
-          .status(400)
-          .send("teamName and trackingLink query parameters are required.");
+        return res.status(400).send("teamName and programId query parameters are required.");
       }
 
       // Retrieve data from Firestore collection 'trackingLinks'
@@ -166,14 +162,14 @@ export const applyTrackingLink = onRequest(async (req: any, res: any) => {
         .where("programId", "==", programId)
         .get();
 
-      // If a document matching the provided teamName and trackingLink is found, return the data
+      // If a document matching the provided teamName and programId is found, return the data
       if (!snapshot.empty) {
         const responseData = snapshot.docs[0].data();
         return res.status(200).json(responseData.trackingLink);
       }
 
       // If no matching document is found, generate a new tracking link
-      const responseData = await generateLink(programId, teamName);
+      const responseData = await generateLink(programId as any, teamName as any);
 
       // Save the new tracking link and teamName to Firestore
       await admin.firestore().collection("trackingLinks").add({
@@ -183,12 +179,12 @@ export const applyTrackingLink = onRequest(async (req: any, res: any) => {
       });
 
       // Return the generated tracking link
-      res.status(200).json(responseData.TrackingURL);
-    });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Error making POST request");
-  }
+      return res.status(200).json(responseData.TrackingURL);
+    } catch (error) {
+      console.error("Error:", error);
+      return res.status(500).send("Error making POST request");
+    }
+  });
 });
 
 // export const fetchAds = onRequest(async (req, res) => {

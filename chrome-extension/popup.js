@@ -1,3 +1,5 @@
+const LOCAL_ENV = false;
+
 function createMerchantContainer(title, subtitle, imageSrc, href) {
   const newDiv = document.createElement('a');
   newDiv.classList.add('merchant');
@@ -32,7 +34,7 @@ async function fetchDataFromServer(url) {
 }
 
 async function fetchCampaigns() {
-  const url = "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns";
+  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://getcampaigns-6n7me4jtka-uc.a.run.app";
   const campaigns = await fetchDataFromServer(url);
 
   return campaigns;
@@ -68,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
 
       for (const couponMerchant of couponMerchants) {
-        const subTitle = `up to ${couponMerchant.discountPercentage * 0.50}%`;
+        const subTitle = `up to ${couponMerchant.discountPercentage}%`;
 
         const newMerchantDiv = createMerchantContainer(couponMerchant.advertiserName, subTitle, couponMerchant.campaignLogoURI, couponMerchant.advertiserURL);
         merchantsContainer.appendChild(newMerchantDiv);
