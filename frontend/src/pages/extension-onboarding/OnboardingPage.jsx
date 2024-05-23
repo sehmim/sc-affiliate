@@ -5,7 +5,7 @@ import BottomRightComponent from "./BottomRightComponent";
 import EmailVerificationComponent from "./EmailVerificationComponent";
 
 export default function OnboardingPage(props) {
-  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [onboardingStep, setOnboardingStep] = useState(0);
 
   if (onboardingStep === 0) {
     return (

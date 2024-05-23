@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 
 const Navbar = () => (
   <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
@@ -25,6 +26,12 @@ const Navbar = () => (
 );
 
 export default function ExtensionSettings(props) {
+  const location = useLocation();
+  //TODO: Replace the following line with the line after
+  // when the email is passed from the previous page
+  //const email = location.state.email;
+  const email = "";
+
   return (
     <>
       <Navbar />
@@ -58,7 +65,7 @@ export default function ExtensionSettings(props) {
                 // onChange={(e) => setEmail(e.target.value)}
                 // value={email}
                 type="text"
-                placeholder="user@example.com"
+                placeholder="First name"
                 id="lord-king-shadid"
               />
             </div>
@@ -69,7 +76,7 @@ export default function ExtensionSettings(props) {
                 // onChange={(e) => setEmail(e.target.value)}
                 // value={email}
                 type="text"
-                placeholder="user@example.com"
+                placeholder="Last name"
                 id="lord-king-shadid"
               />
             </div>
@@ -79,7 +86,7 @@ export default function ExtensionSettings(props) {
             <input
               className="form-control w-full"
               // onChange={(e) => setEmail(e.target.value)}
-              // value={email}
+              value={email}
               type="text"
               placeholder="user@example.com"
               id="lord-king-shadid"

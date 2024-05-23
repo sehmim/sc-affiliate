@@ -74,7 +74,7 @@ const EmailVerificationComponent = () => {
       const data = await response.json();
   
       if (data.success) {
-        navigation("/extension-settings");
+        navigation("/extension-settings", { email: email });
       } else {
         console.log('OTP verification failed:', data.error);
       }
@@ -145,7 +145,9 @@ const EmailVerificationComponent = () => {
             </button>
             <div>
               Did not get code?{" "}
-              <a onClick={() => {}} href="#">
+              <a onClick={(e) => {
+                e.preventDefault();
+                sendEmailVerificationCode()}} href="!#">
                 Resend Code
               </a>
             </div>
