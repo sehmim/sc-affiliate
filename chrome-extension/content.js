@@ -2,6 +2,22 @@ const LOCAL_ENV = true;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
 const COMMISSION_RATE = 0.50;
 
+///////////////////////////////////
+// Inject Montserrat font link
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap';
+fontLink.rel = 'stylesheet';
+document.head.appendChild(fontLink);
+
+// Inject styles.css
+const styleLink = document.createElement('link');
+styleLink.href = chrome.runtime.getURL('styles.css');
+styleLink.rel = 'stylesheet';
+document.head.appendChild(styleLink);
+
+// Directly manipulate the DOM to apply Montserrat font
+document.body.classList.add('montserrat-font');
+
 ////////////////////////////////////
 async function fetchDataFromServer(url) {
   try {
@@ -969,7 +985,7 @@ function createMiddleSection(allowedBrand) {
 
 
     var p = document.createElement("p");
-    p.textContent = `Your purchases will now give up to ${allowedBrand.discountPercentage * COMMISSION_RATE}% to ` + SELECTED_TEAM;
+    p.textContent = `Your purchases will now give up to ${allowedBrand.discountPercentage * COMMISSION_RATE}% to \n` + SELECTED_TEAM;
     p.style.textAlign = "center";
     p.style.margin = "0px";
     p.style.fontFamily = "Montserrat";

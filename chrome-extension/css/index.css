@@ -4,6 +4,7 @@
   border-radius: 20px;
   background-color: #fff; /* Optional: Set background color */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Optional: Add box shadow */
+  font-family: 'Montserrat' !important;
 }
 
 .navbar {
@@ -38,7 +39,8 @@
 }
 
 .merchant {
-  border: 1px solid gray;
+  border: 1px solid #C6C6C6;
+  border-radius: 8px;
   width: 145px;
   height: 135px;
   border-radius: 10px;
@@ -68,4 +70,13 @@
 .discover-more {
   text-align: center;
   padding: 10px;
+}
+
+.merchant-header {
+  color: #000;
+  font-family: 'Montserrat';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
 }
