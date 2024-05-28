@@ -2,58 +2,209 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { parseString } from "xml2js";
 import { handleCorsMiddleware } from "./corsMiddleware";
-import * as functions from "firebase-functions";
-import * as nodemailer from "nodemailer";
+import * as mandrill from 'mandrill-api/mandrill';
 
 //Initialize Firebase and get Firestore instance
 admin.initializeApp();
-const db = admin.firestore();
 
-//Configuration of the authentication for the Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: "outlook365",
-  auth: {
-    user: "info@sponsorcircle.com",
-    pass: "Foj92946",
-  },
-});
+const mandrillClient = new mandrill.Mandrill('md-1P__LTE1pBx7CQJUxjBMlA');
 
-// function sendVerificationCode that, when triggered by an HTTP request, generates a six-digit verification code, sends it to a specified email address using Nodemailer, and stores the code along with a timestamp in a Firestore document. If error, it sends a 500 HTTP response with the error message.
-export const sendVerificationCode = functions.https.onRequest(
-  async (req, res) => {
-    const email = req.query.email;
-    // Generate a random 6-digit verification code
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-
-    const mailOptions = {
-      from: "info@sponsorcircle.com",
-      to: email as string,
-      subject: "Your OTP Verification Code",
-      text: `Your OTP verification code is ${verificationCode}`,
+export async function sendEmail(to: string, subject: string, message: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const email = {
+      to: [{ email: to }],
+      from_email: 'info@sponsorcircle.com',
+      subject: subject,
+      text: message
     };
 
-    try {
-      await transporter.sendMail(mailOptions);
-      // Set expiration time to 5 minutes from now
-      const expirationTime = admin.firestore.Timestamp.fromMillis(
-        Date.now() + 5 * 60 * 1000
-      );
-      await db
-        .collection("verificationCodes")
-        .doc(email as string)
-        .set({
-          code: verificationCode,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-          expiresAt: expirationTime,
-        });
-      res.status(200).send("Verification code sent");
-    } catch (error) {
-      res.status(500).send((error as any).toString());
-    }
+    mandrillClient.messages.send({ message: email }, (result: any) => {
+      console.log('Email sent successfully:', result);
+      resolve();
+    }, (error: any) => {
+      console.error('Mandrill error:', error);
+      reject(error);
+    });
+  });
+}
+
+export async function saveVerificationCodeToFirestore(code: string, email: string): Promise<void> {
+  try {
+    const db = admin.firestore();
+
+    await db.collection('verificationCodes').add({
+      code: code,
+      email: email
+    });
+    console.log('Verification code saved successfully!');
+  } catch (error) {
+    console.error('Error saving verification code:', error);
+    throw new Error('Failed to save verification code.');
   }
-);
+}
+
+export const verifyVerificationCode = onRequest(async (req: any, res: any) => {
+
+  handleCorsMiddleware(req, res, async () => {
+    const email = req.query.email;
+    const code = req.query.code;
+
+    if (!email || !code) {
+      return res.status(400).send("Email and code are required");
+    }
+
+    try {
+      const db = admin.firestore();
+      const querySnapshot = await db.collection('verificationCodes')
+        .where('email', '==', email)
+        .where('code', '==', code)
+        .get();
+
+
+      if (querySnapshot.empty) {
+            res.status(404).send({
+              message: 'Email or Code not found.',
+            });
+            return
+      } 
+
+      res.status(200).send(true);
+
+    } catch (error) {
+      console.error("Error verifying code:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
+export const sendVerificationCode = onRequest(async (req, res) => {
+    handleCorsMiddleware(req, res, async () => {
+        const email = req.query.email;
+
+        if (!email) {
+            res.status(400).send('No Email Found');
+            return;
+        }
+
+        // TODO: CHECK IF CODE EXISTS 
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        const mailOptions = {
+          from: "info@sponsorcircle.com",
+          to: email as string,
+          subject: "Your one time Verification Code",
+          message: `Your one time verification code is ${verificationCode}`,
+        };
+
+        try {
+            await sendEmail(mailOptions.to, mailOptions.subject, mailOptions.message);
+            await saveVerificationCodeToFirestore(verificationCode, email as string);
+            res.status(200).send('Verification code sent');
+        } catch (error) {
+            res.status(500).send((error as any).toString());
+        }
+    });
+});
+
+export const createUser = onRequest((req, res) => {
+    handleCorsMiddleware(req, res, async () => {
+        try {
+            const db = admin.firestore();
+            const { email, firstName, lastName, activeCharity } = req.body;
+
+            if (!email) {
+                res.status(400).send('Email is required.');
+                return;
+            }
+
+            // Check if user with the given email already exists
+            const userQuery = db.collection('users').where('email', '==', email);
+            const snapshot = await userQuery.get();
+
+            if (!snapshot.empty) {
+                res.status(200).send('User already exists.');
+                return;
+            }
+
+            // Create the user if they do not exist
+            const userRef = await db.collection('users').add({
+                firstName: firstName || "",
+                lastName: lastName || "",
+                activeCharity: activeCharity || "",
+                email: email,
+            });
+
+            res.status(201).send({ id: userRef.id, message: 'User created successfully' });
+        } catch (error) {
+            console.error('Error creating user: ', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+});
+
+export const getUser = onRequest((req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const { email } = req.query;
+
+      // Basic validation
+      if (!email) {
+        res.status(400).send('Email is required.');
+        return;
+      }
+
+      // Query the user document by email
+      const db = admin.firestore();
+      const userRef = db.collection('users').where('email', '==', email);
+      const snapshot = await userRef.get();
+
+      if (snapshot.empty) {
+        res.status(404).send('User not found.');
+        return;
+      }
+
+      // Send the user data (assuming only one user per email)
+      const userData = snapshot.docs[0].data();
+      res.status(200).send(userData);
+    } catch (error) {
+      console.error('Error fetching user data: ', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});
+
+export const updateUser = onRequest((req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const { email, updates } = req.body;
+
+      // Basic validation
+      if (!email || !updates) {
+        res.status(400).send('Email and updates are required.');
+        return;
+      }
+
+      // Query the user document by email
+      const db = admin.firestore();
+      const userRef = db.collection('users').where('email', '==', email);
+      const snapshot = await userRef.get();
+
+      if (snapshot.empty) {
+        res.status(404).send('User not found.');
+        return;
+      }
+
+      // Update the user document (assuming only one user per email)
+      const userId = snapshot.docs[0].id;
+      await db.collection('users').doc(userId).update(updates);
+
+      res.status(200).send('User updated successfully.');
+    } catch (error) {
+      console.error('Error updating user data: ', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});
 
 export const allowedDomains = onRequest(async (request, response) => {
   // Use CORS middleware
