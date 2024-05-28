@@ -37,7 +37,7 @@ function App() {
             <Route path='/joingroup' element={<Auth><JoinGroup /></Auth>}/>
             <Route path='/settings' element={<Auth><Settings /></Auth>}/>
             <Route path='/onboard' element={<OnboardingPage/>}></Route>
-            <Route path='/extension-settings' element={<ExtensionSettings/>}></Route>
+            <Route path='/extension-settings' element={<Auth><ExtensionSettings/></Auth>}></Route>
           </Routes>
       </Router>
       

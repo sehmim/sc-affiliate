@@ -1,6 +1,14 @@
-/*global chrome*/
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import TextField from "@mui/material/TextField";
+
+const LOCAL_ENV = true;
+export const sendVerificationCodeUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/sendVerificationCode" : "https://sendverificationcode-6n7me4jtka-uc.a.run.app";
+export const verifyVerificationCode = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/verifyVerificationCode" : "https://verifyverificationcode-6n7me4jtka-uc.a.run.app";
+export const createUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/createUser" : "https://createuser-6n7me4jtka-uc.a.run.app";
+export const getUserByEmailUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getUser" : "https://getuser-6n7me4jtka-uc.a.run.app";
+export const updateUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/updateUser": "https://updateuser-6n7me4jtka-uc.a.run.app";
+export const defaultCharitiesUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getDefaultCharities" : "https://getdefaultcharities-6n7me4jtka-uc.a.run.app";
 
 function send(extensionId, msg, callback, retry = 20) {
   const timer = setTimeout(send, 100, extensionId, msg, callback, retry - 1);
@@ -18,35 +26,15 @@ const EmailVerificationComponent = () => {
   const [isVerificationCodeRequested, setVerificationCodeRequested] =
     useState(false);
   const [loading, setLoading] = useState(false);
-        // Replace this with the actual URL of your Firebase function
-  const functionUrl = "firebase-function-url";
-
-  const navigation = useNavigate();
-
-  // const sendDataToExtension = async (data) => {
-  //   console.log('Sending data to extension ---->>>', chrome)
-  //   const extensionId = 'pjhmpaffmobhpffggcjebledmbihhecb'
-
-  //   const response = await chrome.runtime.sendMessage(extensionId, {
-  //     data: data,
-  //     message: 'sc-form'
-  //   })
-
-  //   console.log('---->><><', response)
-
-  // };
-
+  const navigate = useNavigate();
   const sendEmailVerificationCode = async () => {
-    // sendDataToExtension({
-    //   'email': 'shadid-lord-gulag@email.com'
-    // })
 
     try {
       setLoading(true);
 
       //Note: email is the state variable that holds the email address
       const response = await fetch(
-        `${functionUrl}?email=${encodeURIComponent(email)}`
+        `${sendVerificationCodeUrl}?email=${encodeURIComponent(email)}`
       );
 
       if (!response.ok) {
@@ -58,65 +46,149 @@ const EmailVerificationComponent = () => {
     } finally {
       setLoading(false);
     }
+  };
 
+  const verifyCode = async (email, verificationCode) => {
+    const response = await fetch(
+      `${verifyVerificationCode}?email=${encodeURIComponent(email)}&code=${encodeURIComponent(verificationCode)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.ok;
   };
 
   const loginUser = async () => {
     try {
       setLoading(true);
-  
-      const response = await fetch(`${functionUrl}?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(verificationCode)}`);
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-  
-      if (data.success) {
-        navigation("/extension-settings", { email: email });
+
+      const isVerified = await verifyCode(email, verificationCode);
+
+      if (isVerified) {
+        try {
+          await createUser(email);
+          localStorage.setItem('sc-user', email)
+          navigate("/extension-settings", { state: { email: email } });
+        } catch (error) {
+          console.error("Error creating user:", error);
+        }
       } else {
-        console.log('OTP verification failed:', data.error);
+        console.error("OTP verification failed");
       }
     } catch (error) {
-      console.log("ERROR ->", error);
+      console.error("Error during login:", error);
     } finally {
       setLoading(false);
     }
+  };
 
+    const createUser = async (email) => {
+    try {
+      const response = await fetch(createUserUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create user');
+      }
+      return response;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
   };
 
   return (
     <div className="onboarding-page-container">
-      <div className="body-conatiner" style={{ maxWidth: "450px" }}>
+      <div className="body-conatiner" style={{ maxWidth: "500px" }}>
         <div className="fs-1 fw-bold text-center pt-5">Email Verification</div>
-        <div className="text-center text-dark font-inter font-weight-light fs-6 text-muted pt-4">
-          Please type in your email where we will send you a verification code.
-          If email does not appear please check your spam folder.
-        </div>
+
+        {!isVerificationCodeRequested ? (
+          <div className="text-center text-dark font-inter font-weight-light fs-6 text-muted pt-4">
+            Please type in your email where we will send you a verification
+            code. If email does not appear please check your spam folder.
+          </div>
+        ) : (
+          <div className="text-center text-dark font-inter font-weight-light fs-6 text-muted pt-4">
+            Please share the verification code sent to {email}. If email does
+            not appear please check your spam folder.
+          </div>
+        )}
 
         <div className="p-3 w-full">
-          <label className="pb-2">Email:</label> <br></br>
-          <input
+          <div
+            className="EmailAddress"
+            style={{
+              textAlign: "left",
+              color: "#927FC5",
+              fontSize: 24,
+              fontFamily: "Inter",
+              fontWeight: "500",
+              marginBottom: "8px",
+            }}
+          >
+            Email Address:
+          </div>
+          {/* <label className="pb-2">Email Address</label> <br></br> */}
+          {/* <input
             className="form-control w-full"
             onChange={(e) => setEmail(e.target.value)}
             value={email}
             type="text"
             placeholder="user@example.com"
             id="lord-king-shadid"
+          /> */}
+          <TextField
+            id="standard-basic"
+            variant="standard"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+            //placeholder="user@example.com"
+            sx={{ width: "100%" }}
           />
         </div>
 
         {isVerificationCodeRequested && (
           <div className="p-3 w-full">
-            <label className="pb-2">Code: </label> <br></br>
-            <input
-              className="form-control w-full"
+            <div
+              className="EmailAddress"
+              style={{
+                textAlign: "left",
+                color: "#927FC5",
+                fontSize: 24,
+                fontFamily: "Inter",
+                fontWeight: "500",
+                marginBottom: "8px",
+              }}
+            >
+              Verification Code:
+            </div>
+            <TextField
+              id="standard-basic"
+              variant="standard"
               onChange={(e) => setVerificationCode(e.target.value)}
               value={verificationCode}
-              type="text"
-              placeholder=""
+              //placeholder="user@example.com"
+              sx={{ width: "100%" }}
             />
+            <div
+              className="ValidFor1Hour"
+              style={{
+                textAlign: "right",
+                color: "#7F7F7F",
+                fontSize: 16,
+                fontFamily: "Inter",
+                fontWeight: "300",
+              }}
+            >
+              Valid for 1 Hour
+            </div>
           </div>
         )}
 
@@ -126,7 +198,7 @@ const EmailVerificationComponent = () => {
             onClick={() => sendEmailVerificationCode()}
             type="button"
             className="btn btn-dark btn-lg fw-bold pt-2"
-            style={{ width: "320px" }}
+            style={{ width: "295px", marginTop: "32px" }}
           >
             Send Code
           </button>
@@ -139,17 +211,39 @@ const EmailVerificationComponent = () => {
               onClick={() => loginUser()}
               type="button"
               className="btn btn-dark btn-lg fw-bold"
-              style={{ width: "320px" }}
+              style={{ width: "295px", marginTop: "32px" }}
             >
-              Login
+              Continue
             </button>
-            <div>
-              Did not get code?{" "}
-              <a onClick={(e) => {
-                e.preventDefault();
-                sendEmailVerificationCode()}} href="!#">
+            <div
+              className="DidNotGetCodeResendCode"
+              style={{ textAlign: "center" }}
+            >
+              <span
+                style={{
+                  color: "#7F7F7F",
+                  fontSize: 16,
+                  fontFamily: "Inter",
+                  fontWeight: "300",
+                  wordWrap: "break-word",
+                }}
+              >
+                Did not get code?{" "}
+              </span>
+              <span
+                onClick={() => {
+                  sendEmailVerificationCode();
+                }}
+                style={{
+                  color: "#6C7CEB",
+                  fontSize: 16,
+                  fontFamily: "Inter",
+                  fontWeight: "400",
+                  cursor: "pointer",
+                }}
+              >
                 Resend Code
-              </a>
+              </span>
             </div>
           </div>
         )}

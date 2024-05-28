@@ -18,6 +18,12 @@ document.head.appendChild(styleLink);
 // Directly manipulate the DOM to apply Montserrat font
 document.body.classList.add('montserrat-font');
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "sendData") {
+    console.log("Data received in content script:", message.data);
+  }
+});
+
 ////////////////////////////////////
 async function fetchDataFromServer(url) {
   try {

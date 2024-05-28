@@ -1,15 +1,15 @@
 import { Navigate } from "react-router-dom"
 
 const Auth = ({children}) => {
-    if(localStorage.getItem("user")) {
+    if(localStorage.getItem("sc-user")) {
         return children
     }
 
-    if(!localStorage.getItem("group")){
-        return <Navigate to='/creategroup'/>
-    }
+    // if(!localStorage.getItem("group")){
+    //     return <Navigate to='/extension-settings'/>
+    // }
 
-    return <Navigate to='/login'/>
+    return <Navigate to='/onboard'/>
 }
 
 export default Auth
