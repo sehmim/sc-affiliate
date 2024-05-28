@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
   <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
     <div className="d-flex justify-content-between w-100">
-      <a href="/">
+      <a href="/extension-settings">
         <img
           className="w-60"
           src={"https://i.imgur.com/UItnKy8.png"}
