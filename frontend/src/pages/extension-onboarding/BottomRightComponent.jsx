@@ -18,7 +18,7 @@ const BottomRightComponent = () => {
               alt="Card"
               style={{ width: "50px", height: "50px", objectFit: "cover" }}
             />
-            <div className="d-flex flex-column justify-content-center">
+            <div className="d-flex flex-column justify-content-center ml-2">
               <div>AISEC</div>
               <div className="w-[126.60px] h-4 text-black text-[10px] font-light font-['Inter']">
                 Upto 0.07% donated
@@ -36,7 +36,7 @@ const BottomRightComponent = () => {
               alt="Card"
               style={{ width: "50px", height: "50px", objectFit: "cover" }}
             />
-            <div className="d-flex flex-column justify-content-center">
+            <div className="d-flex flex-column justify-content-center ml-2">
               <div>SoapForHope</div>
               <div className="w-[126.60px] h-4 text-black text-[10px] font-light font-['Inter']">
                 Upto 0.03% donated
@@ -54,7 +54,7 @@ const BottomRightComponent = () => {
               alt="Card"
               style={{ width: "50px", height: "50px", objectFit: "cover" }}
             />
-            <div className="d-flex flex-column justify-content-center">
+            <div className="d-flex flex-column justify-content-center ml-2">
               <div>Melanoma</div>
 
               <div className="w-[126.60px] h-4 text-black text-[10px] font-light font-['Inter']">

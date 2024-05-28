@@ -17,7 +17,6 @@ import LandingPage from './pages/LandingPage/LandingPage';
 import Auth from './utils/Auth';
 import OnboardingPage from './pages/extension-onboarding/OnboardingPage';
 import ExtensionSettings from './pages/extension-onboarding/ExtensionSettingsPage';
-import ExtensionActivePage from './pages/extension-onboarding/ExtensionActivePage';
 
 
 function App() {
@@ -38,8 +37,7 @@ function App() {
             <Route path='/joingroup' element={<Auth><JoinGroup /></Auth>}/>
             <Route path='/settings' element={<Auth><Settings /></Auth>}/>
             <Route path='/onboard' element={<OnboardingPage/>}></Route>
-            <Route path='/extension-settings' element={<ExtensionSettings/>}></Route>
-            <Route path='/extension-active-page' element={<ExtensionActivePage/>}></Route>
+            <Route path='/extension-settings' element={<Auth><ExtensionSettings/></Auth>}></Route>
           </Routes>
       </Router>
       

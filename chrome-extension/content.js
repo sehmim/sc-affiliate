@@ -1,6 +1,12 @@
 const LOCAL_ENV = true;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "sendData") {
+    console.log("Data received in content script:", message.data);
+  }
+});
+
 ////////////////////////////////////
 async function fetchDataFromServer(url) {
   try {

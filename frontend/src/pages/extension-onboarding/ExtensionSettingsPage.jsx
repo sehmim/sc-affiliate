@@ -1,9 +1,18 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
+import { defaultCharitiesUrl, getUserByEmailUrl, updateUserUrl } from "./EmailVerificationComponent";
 
-const Navbar = () => (
+const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.setItem('sc-user', null);
+    navigate('/onboard');
+  }
+
+  return (
   <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
     <div className="d-flex justify-content-between w-100">
       <a href="/">
@@ -16,7 +25,7 @@ const Navbar = () => (
       <div>
         <span className="mr-4">Settings</span>
         <button
-          onClick={() => {}}
+          onClick={handleLogout}
           type="button"
           className="btn btn-dark fw-bold"
         >
@@ -25,17 +34,146 @@ const Navbar = () => (
       </div>
     </div>
   </header>
-);
+  )
+};
+
+const EXTENSION_ID = 'ciakmmjmafmpbpbgfihlfdaalipkohbm';
+
+const getUserByEmail = async (email) => {
+  try {
+    const response = await fetch(`${getUserByEmailUrl}?email=${email}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    throw error;
+  }
+};
+
+const getDefaultCharities = async () => {
+    try {
+    const response = await fetch(`${defaultCharitiesUrl}?`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user data');
+    }
+
+    const data = await response.json();
+    console.log("DATA --->", data)
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    throw error;
+  }
+}
+
+  const updateUser = async (email, updates) => {
+    try {
+      const response = await fetch(updateUserUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, updates }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.status;
+
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  };
+
+function sendMessageToExtension(data) {
+  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage(
+      EXTENSION_ID, 
+      { action: "sendData", data: data },
+      (response) => {
+        console.log("Response from extension:", response);
+      }
+    );
+  } else {
+    console.log("Chrome extension not detected.");
+  }
+}
 
 export default function ExtensionSettings(props) {
   const location = useLocation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [selectedCharity, setSelectedCharity] = useState(null);
+  const [defaultCharities, setDefaultCharities] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   //TODO: Replace the following line with the line after
   // when the email is passed from the previous page
-  //const email = location.state.email;
-  const email = "";
+  console.log("--->", location.state?.email);
+  const [email] = useState(location.state?.email);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        console.log("EMAIL -->", email)
+        const userData = await getUserByEmail(email);
+        const fetchedCharities = await getDefaultCharities();
+        console.log("-2222---->", fetchedCharities);
+        setDefaultCharities(fetchedCharities);
+        setFirstName(userData?.firstName);
+        setLastName(userData?.lastName);
+        setSelectedCharity(userData?.selectedCharity);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserData();
+  }, [email]);
+
+
+  const handleSave = async () => {
+    const updates = {
+      firstName, lastName, selectedCharity
+    }
+    
+    try {
+      setLoading(true);
+      await updateUser(email, updates)
+      console.log("User Updated")
+    } catch (error) {
+      console.log("ERROR")
+    }
+    setLoading(false);
+  }
+
+  if(loading){
+    <div>Loading...</div>
+  }
 
   return (
     <>
@@ -125,7 +263,8 @@ export default function ExtensionSettings(props) {
             <TextField
               id="standard-basic"
               variant="standard"
-              //onChange={(e) => setEmail(e.target.value)}
+              value={location.state?.email}
+              disabled={true}
               sx={{ width: "100%" }}
             />
           </div>
@@ -142,19 +281,22 @@ export default function ExtensionSettings(props) {
             </div>
             <TextField
               select
-              defaultValue={null}
+              defaultValue={selectedCharity}
               onChange={(event) => setSelectedCharity(event.target.value)}
               value={selectedCharity}
               variant="standard"
               placeholder="Search for a charity"
               sx={{ width: "100%" }}
             >
-              <MenuItem key={1} value={1}>
-                Charity 1
-              </MenuItem>
-              <MenuItem key={2} value={2}>
-                Charity 2
-              </MenuItem>
+              {
+                defaultCharities && defaultCharities.map(({data: defaultCharity}) => {
+                  return(
+                    <MenuItem  key={1} value={defaultCharity.organizationName}>
+                      {defaultCharity.organizationName}
+                    </MenuItem>
+                  )
+                })
+              }
             </TextField>
           </div>
         </div>
@@ -165,127 +307,58 @@ export default function ExtensionSettings(props) {
             className="d-flex justify-content-space-between mt-3"
             style={{ gap: 12 }}
           >
-            <div
-              style={{
-                border: "1px solid",
-                width: "340px",
-                height: "148px",
-                borderRadius: "15px",
-                padding: "12px",
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                className="container-row"
-                style={{ flexDirection: "row", display: "flex" }}
-              >
-                <div className="Rectangle22 w-[66.28px] h-[75px] bg-grey rounded-lg" />
+            {
+              defaultCharities && defaultCharities.map(({data: defaultCharity}) => {
+                return (
                 <div
                   style={{
-                    flexDirection: "column",
-                    display: "flex",
-                    alignItems: "flex-start",
+                    border: "1px solid",
+                    width: "340px",
+                    height: "148px",
+                    borderRadius: "15px",
+                    padding: "12px",
+                    boxSizing: "border-box",
                   }}
                 >
-                  <div className="CharityName w-[121.18px] text-center text-black text-lg font-bold font-['Inter']">
-                    Charity Name
+                  <div
+                    className="container-row w-full"
+                    style={{ flexDirection: "row", display: "flex" }}
+                  >
+                    <img className="Rectangle22 w-[66.28px] h-[75px] bg-grey rounded-lg" src={defaultCharity.logo} />
+                    <div
+                      style={{
+                        flexDirection: "column",
+                        display: "flex",
+                        alignItems: "flex-start",
+                      }}
+                      className="w-full p-1"
+                    >
+                      <div className="CharityName w-5/6 text-black text-lg font-bold font-['Inter'] truncate">
+                        {defaultCharity.organizationName}
+                      </div>
+                      <div className="truncate text-start Ein123456789 w-full text-sm font-semibold font-['Inter']">
+                        EIN: {defaultCharity.registrationNumber}
+                      </div>
+                      <div className="truncate text-start CityProvince w-full text-black text-sm font-semibold font-['Inter']">
+                        {defaultCharity?.city}, {defaultCharity?.country}
+                      </div>
+                    </div>
                   </div>
-                  <div className="Ein123456789 w-[106.16px] text-center text-sm font-semibold font-['Inter']">
-                    EIN: 123456789
-                  </div>
-                  <div className="CityProvince w-[94.14px] text-center text-black text-sm font-semibold font-['Inter']">
-                    City, Province
-                  </div>
-                </div>
-              </div>
-              <div className="text w-[fit-content] text-black text-sm font-light font-['Inter']">
-                Lorem ipsum dolor sit amet consectetur. Adipiscing sit sed non
-                enim sollicitudin mi viverra.
-              </div>
-            </div>
-            <div
-              style={{
-                border: "1px solid",
-                width: "340px",
-                height: "148px",
-                borderRadius: "15px",
-                padding: "12px",
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                className="container-row"
-                style={{ flexDirection: "row", display: "flex" }}
-              >
-                <div className="Rectangle22 w-[66.28px] h-[75px] bg-grey rounded-lg" />
-                <div
-                  style={{
-                    flexDirection: "column",
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div className="CharityName w-[121.18px] text-center text-black text-lg font-bold font-['Inter']">
-                    Charity Name
-                  </div>
-                  <div className="Ein123456789 w-[106.16px] text-center text-sm font-semibold font-['Inter']">
-                    EIN: 123456789
-                  </div>
-                  <div className="CityProvince w-[94.14px] text-center text-black text-sm font-semibold font-['Inter']">
-                    City, Province
+                  <div className="text w-[fit-content] text-black text-sm font-light font-['Inter']">
+                      <div>Type: {defaultCharity.typeOfQualifiedDone}</div>
+                      <div>status: {defaultCharity.status}</div>
                   </div>
                 </div>
-              </div>
-              <div className="text w-[fit-content] text-black text-sm font-light font-['Inter']">
-                Lorem ipsum dolor sit amet consectetur. Adipiscing sit sed non
-                enim sollicitudin mi viverra.
-              </div>
-            </div>
-            <div
-              style={{
-                border: "1px solid",
-                width: "340px",
-                height: "148px",
-                borderRadius: "15px",
-                padding: "12px",
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                className="container-row"
-                style={{ flexDirection: "row", display: "flex" }}
-              >
-                <div className="Rectangle22 w-[66.28px] h-[75px] bg-grey rounded-lg" />
-                <div
-                  style={{
-                    flexDirection: "column",
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div className="CharityName w-[121.18px] text-center text-black text-lg font-bold font-['Inter']">
-                    Charity Name
-                  </div>
-                  <div className="Ein123456789 w-[106.16px] text-center text-sm font-semibold font-['Inter']">
-                    EIN: 123456789
-                  </div>
-                  <div className="CityProvince w-[94.14px] text-center text-black text-sm font-semibold font-['Inter']">
-                    City, Province
-                  </div>
-                </div>
-              </div>
-              <div className="text w-[fit-content] text-black text-sm font-light font-['Inter']">
-                Lorem ipsum dolor sit amet consectetur. Adipiscing sit sed non
-                enim sollicitudin mi viverra.
-              </div>
-            </div>
+                )
+              })
+            }
           </div>
         </div>
 
         <div style={{ textAlign: "center", marginTop: "100px" }}>
           <button
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
-            onClick={() => {}}
+            onClick={handleSave}
             type="button"
             className="btn btn-dark fw-bold mt-3"
           >
