@@ -105,19 +105,19 @@ const getDefaultCharities = async () => {
     }
   };
 
-function sendMessageToExtension(data) {
-  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
-    chrome.runtime.sendMessage(
-      EXTENSION_ID, 
-      { action: "sendData", data: data },
-      (response) => {
-        console.log("Response from extension:", response);
-      }
-    );
-  } else {
-    console.log("Chrome extension not detected.");
-  }
-}
+// function sendMessageToExtension(data) {
+//   if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+//     chrome.runtime.sendMessage(
+//       EXTENSION_ID, 
+//       { action: "sendData", data: data },
+//       (response) => {
+//         console.log("Response from extension:", response);
+//       }
+//     );
+//   } else {
+//     console.log("Chrome extension not detected.");
+//   }
+// }
 
 export default function ExtensionSettings(props) {
   const location = useLocation();
