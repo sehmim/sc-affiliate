@@ -39,6 +39,18 @@ async function fetchDataFromServer(url) {
   }
 }
 
+function checkCookieExpiration(url, cookieName) {
+    console.log(`Checking cookie: ${cookieName} for URL: ${url}`); // Debug log
+    chrome.runtime.sendMessage({ action: 'checkCookie', url: url, cookieName: cookieName }, function(response) {
+        if (response && response.error) {
+            console.error(response.error);
+        } else if (response && response.expired) {
+            console.log("Cookie is expired");
+        } else {
+            console.log("Cookie is not expired");
+        }
+    });
+}
 
 // Function to create and style the div container
 function createDivContainer() {
@@ -289,7 +301,8 @@ async function initialize() {
       await applyGoogleSearchDiscounts(allowedDomainsWithIds, campaigns);
     }
 
-    const isCookieExpired = isCookieExpired("irclickid");
+    
+    const isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
     const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
 
     if ((allowedBrand && !codeAlreadyAppliedToURL && !isCookieExpired)) {
@@ -1047,37 +1060,4 @@ async function createApplyCouponCodeContainer(couponInfo, closedDiv){
     iframeDocument.body.appendChild(rightDiv);
   };
   document.body.appendChild(isolatedIframe);
-}
-
-function isCookieExpired(cookieName) {
-    // Get all cookies as a semicolon-separated string
-    var cookies = document.cookie;
-
-    // Split the string into individual cookies
-    var cookieArray = cookies.split(';');
-
-    // Loop through each cookie to find the one you're interested in
-    for (var i = 0; i < cookieArray.length; i++) {
-        var cookie = cookieArray[i].trim();
-
-        // Check if the cookie starts with the name you're looking for
-        if (cookie.indexOf(cookieName + '=') === 0) {
-            // Extract the value of the cookie
-            var cookieValue = cookie.substring(cookieName.length + 1);
-
-            // Parse the value to get its expiration date
-            var cookiePairs = cookieValue.split('&');
-            for (var j = 0; j < cookiePairs.length; j++) {
-                var pair = cookiePairs[j].split('=');
-                if (pair[0] === 'expires') {
-                    // Compare expiration date with current date
-                    var expirationDate = new Date(pair[1]);
-                    return expirationDate < new Date();
-                }
-            }
-        }
-    }
-
-    // Cookie not found or no expiration date found
-    return true; // Consider it expired if not found
 }

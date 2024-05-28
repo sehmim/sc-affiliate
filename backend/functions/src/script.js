@@ -702,4 +702,7 @@ function convertToHttps(httpUrl) {
 const baseUrl = 'https://cdn2.impact.com';
 
 const processedData = processArray(CAMPAIGNS, baseUrl);
-saveAsJsonFile(processedData, 'output.json');
+// saveAsJsonFile(processedData, 'output.json');
+
+const domains = processedData.map((a) => (a.advertiserURL + "/*"));
+console.log(domains)
