@@ -1,4 +1,4 @@
-const CAMPAIGNS = [
+[
   {
     "Advertiser ID": 419062,
     "Advertiser Name": "adidas Australia",
@@ -630,79 +630,3 @@ const CAMPAIGNS = [
     "Action Locking": "All actions happening in a given month are locked 2 month(s) and 15 day(s) after the end of the month"
   }
 ]
-
-
-const fs = require('fs');
-
-// Function to convert keys to camelCase
-function toCamelCase(str) {
-    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-        if (+match === 0) return ""; // Or if (/\s+/.test(match)) for white spaces
-        return index === 0 ? match.toLowerCase() : match.toUpperCase();
-    });
-}
-
-// Function to process the objects in the array
-function processArray(data, baseUrl) {
-    return data.map(item => {
-        let newItem = {};
-        
-        for (let key in item) {
-            if (item.hasOwnProperty(key)) {
-                const camelCaseKey = toCamelCase(key);
-                newItem[camelCaseKey] = item[key];
-            }
-        }
-
-        // Add full image URL
-        if (newItem.campaignLogoURI) {
-            newItem.campaignLogoURI = `${baseUrl}${newItem.campaignLogoURI}`;
-        }
-
-        newItem.advertiserURL = convertToHttps(newItem.advertiserURL);
-
-        // Extract discount percentage and type from payout
-        if (newItem.payout) {
-            const payoutText = newItem.payout;
-            const percentageMatch = payoutText.match(/(\d+(\.\d+)?)%/);
-            const typeMatch = payoutText.match(/of (.+)/);
-
-            if (percentageMatch) {
-                newItem.discountPercentage = parseFloat(percentageMatch[1]);
-            }
-            if (typeMatch) {
-                newItem.discountType = typeMatch[1].trim();
-            }
-        }
-
-        return newItem;
-    });
-}
-
-// Function to save the processed array as a .json file
-function saveAsJsonFile(data, filename) {
-    fs.writeFile(filename, JSON.stringify(data, null, 2), (err) => {
-        if (err) throw err;
-        console.log(`Data has been saved to ${filename}`);
-    });
-}
-
-function convertToHttps(httpUrl) {
-    // Check if the input URL starts with 'http://'
-    if (httpUrl.startsWith("http://")) {
-        // Replace 'http://' with 'https://'
-        return "https://" + httpUrl.slice(7);
-    } else {
-        // If the input URL doesn't start with 'http://', return it unchanged
-        return httpUrl;
-    }
-}
-
-// Example usage with the correct base URL
-const baseUrl = 'https://cdn2.impact.com';
-
-const processedData = processArray(CAMPAIGNS, baseUrl);
-// saveAsJsonFile(processedData, 'output.json');
-
-const domains = processedData.map((a) => (a.advertiserURL));
-console.log([...new Set(domains)])

@@ -547,7 +547,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 45 day(s) after the end of the month",
     "discountPercentage": 5,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": ["https://adidas-australia.pxf.io", "https://purehempbotanicals.com"],
   },
   {
     "advertiserID": 2583300,
@@ -567,27 +568,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 90 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 1 month(s) and 1 day(s) after the end of the month",
     "discountPercentage": 60,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 2583300,
-    "advertiserName": "Anthology Brands",
-    "advertiserURL": "https://anthologybrands.com",
-    "advertiserCategory": "Diet & Nutrition",
-    "campaignID": 12753,
-    "campaignName": "Strainz",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/12753.gif",
-    "activeDate": "Apr 9, 2024 15:35",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://strainz.sjv.io/c/4797259/954930/12753",
-    "allowsDeepLinking": true,
-    "payout": "You earn 60% of Net Sales Amount",
-    "performanceBonus": "If monthly sales reach $1,500.00, payout rate will be 65% for that month's actions",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 1 day(s) after the end of the month",
-    "discountPercentage": 60,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 1719590,
@@ -602,12 +584,13 @@ const CAMPAIGNS = [
     "insertionOrderStatus": "Active",
     "trackingLink": "https://decathlon-canada.mkr3.net/c/4797259/642729/10224",
     "allowsDeepLinking": true,
-    "payout": "You earn 3% of Net Sales Amount\nYou earn 3% of Net Sales Amount",
+    "payout": "You earn 8% of Net Sales Amount\nYou earn 8% of Net Sales Amount",
     "performanceBonus": "N/a",
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action\nReferrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 2 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 2 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 3,
-    "discountType": "Net Sales Amount"
+    "discountPercentage": 8,
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 1912000,
@@ -627,7 +610,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in the same day are locked 0 day(s) later\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
     "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 1398261,
@@ -647,7 +631,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action\nReferrals are only considered for credit if they occur within 7 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month\nAll actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
     "discountPercentage": 6,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 1217827,
@@ -667,7 +652,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 180 day(s) of the action",
     "actionLocking": "Actions are locked 15 day(s) after they are approved by advertiser. If actions are not locked after 13 month(s), they are rejected.",
     "discountPercentage": 12,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 2588106,
@@ -687,7 +673,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 20 day(s) after the end of the month",
     "discountPercentage": 30,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": ["https://eventtrix.com"]
   },
   {
     "advertiserID": 2463760,
@@ -707,27 +694,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 120 day(s) of the action\nReferrals are only considered for credit if they occur within 120 day(s) of the action\nReferrals are only considered for credit if they occur within 30 day(s) of the action\nReferrals are only considered for credit if they occur within 120 day(s) of the action\nReferrals are only considered for credit if they occur within 120 day(s) of the action",
     "actionLocking": "All actions happening in the same day are locked 30 day(s) later\nAll actions happening in the same day are locked 30 day(s) later\nAll actions happening in the same day are locked 27 day(s) later\nAll actions happening in the same day are locked 27 day(s) later\nAll actions happening in the same day are locked 27 day(s) later",
     "discountPercentage": 25,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 1217855,
-    "advertiserName": "LightInTheBoxLimited",
-    "advertiserURL": "https://www.eechic.com",
-    "advertiserCategory": "Men's Apparel",
-    "campaignID": 17020,
-    "campaignName": "Printrendy",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/17020.gif",
-    "activeDate": "Apr 9, 2024 15:38",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://printrendy.pxf.io/c/4797259/1432688/17020",
-    "allowsDeepLinking": true,
-    "payout": "You earn 15% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 25 day(s) after the end of the month",
-    "discountPercentage": 15,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 3017626,
@@ -747,7 +715,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 12,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 4253690,
@@ -767,7 +736,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 10,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 1274595,
@@ -787,7 +757,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 1 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 2 month(s) and 10 day(s) after the end of the month",
     "discountPercentage": 4,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 48706,
@@ -807,7 +778,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
     "actionLocking": "All actions happening in the same day are locked 30 day(s) later",
     "discountPercentage": 6,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 3274582,
@@ -827,7 +799,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action\nReferrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month\nAll actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 8,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 2551659,
@@ -847,228 +820,31 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
     "discountPercentage": 60,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 4704,
-    "campaignName": "United Airlines MileagePlus - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4704.gif",
-    "activeDate": "Apr 9, 2024 15:48",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://united.elfm.net/c/4797259/302886/4704",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 4705,
-    "campaignName": "Southwest Airlines Rapid Rewards - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4705.gif",
-    "activeDate": "Mar 4, 2024 16:45",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://swa.eyjo.net/c/4797259/302888/4705",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 4707,
-    "campaignName": "Alaska Airlines Mileage Plan - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4707.gif",
-    "activeDate": "Apr 9, 2024 15:48",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://alaska.gqco.net/c/4797259/302892/4707",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Accommodations",
-    "campaignID": 4797,
-    "campaignName": "IHG Rewards Club - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4797.gif",
-    "activeDate": "Mar 4, 2024 16:45",
-    "insertionOrderName": "Public Term",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://ihg.hmxg.net/c/4797259/310617/4797",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Accommodations",
-    "campaignID": 4823,
-    "campaignName": "Hilton Honors Rewards - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4823.gif",
-    "activeDate": "Mar 4, 2024 16:46",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://hilton.ijrn.net/c/4797259/314255/4823",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Accommodations",
-    "campaignID": 4882,
-    "campaignName": "World of Hyatt - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4882.gif",
-    "activeDate": "Apr 9, 2024 15:48",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://hyatt.jewn.net/c/4797259/319067/4882",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 4883,
-    "campaignName": "JetBlue TrueBlue - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4883.gif",
-    "activeDate": "Apr 9, 2024 15:51",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://jetblue.jyeh.net/c/4797259/319069/4883",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 4885,
-    "campaignName": "Choice Privileges - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4885.gif",
-    "activeDate": "Apr 9, 2024 15:48",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://choice.mtko.net/c/4797259/319073/4885",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 4926,
-    "campaignName": "Air France KLM Flying Blue - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4926.gif",
-    "activeDate": "Apr 9, 2024 15:48",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://afklm.tcux.net/c/4797259/321349/4926",
-    "allowsDeepLinking": false,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Accommodations",
-    "campaignID": 4937,
-    "campaignName": "Marriott Bonvoy - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4937.gif",
-    "activeDate": "Mar 4, 2024 16:45",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://marriott.pxf.io/c/4797259/321373/4937",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 298281,
-    "advertiserName": "Points",
-    "advertiserURL": "https://www.points.com",
-    "advertiserCategory": "Transportation",
-    "campaignID": 5123,
-    "campaignName": "Copa Airlines ConnectMiles - Points.com",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/5123.gif",
-    "activeDate": "Apr 9, 2024 15:50",
-    "insertionOrderName": "Public Terms",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://copa.sjv.io/c/4797259/343960/5123",
-    "allowsDeepLinking": true,
-    "payout": "You earn 2.5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-    "discountPercentage": 2.5,
-    "discountType": "Net Sales Amount"
-  },
+  // TODO: ADD ALL THE CAMPAIGNS AND THEIR SUB DOMAINS
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "https://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 5123,
+  //   "campaignName": "Copa Airlines ConnectMiles - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/5123.gif",
+  //   "activeDate": "Apr 9, 2024 15:50",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://copa.sjv.io/c/4797259/343960/5123",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": []
+  // },
   {
     "advertiserID": 2642689,
     "advertiserName": "Pro Hockey Life",
@@ -1087,27 +863,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 5 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 3 month(s) and 0 day(s) after the end of the month",
     "discountPercentage": 4,
-    "discountType": "Net Sales Amount"
-  },
-  {
-    "advertiserID": 3930596,
-    "advertiserName": "Springfree Limited Partnership",
-    "advertiserURL": "https://www.springfreetrampoline.com",
-    "advertiserCategory": "Outdoors & Recreation",
-    "campaignID": 18258,
-    "campaignName": "Springfree Trampoline",
-    "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/18258.gif",
-    "activeDate": "Sep 21, 2023 01:00",
-    "insertionOrderName": "5% of sale - US",
-    "insertionOrderStatus": "Active",
-    "trackingLink": "https://springfree-trampoline.pxf.io/c/4797259/1569543/18258",
-    "allowsDeepLinking": true,
-    "payout": "You earn 5% of Net Sales Amount",
-    "performanceBonus": "N/a",
-    "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
-    "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
-    "discountPercentage": 5,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 3930596,
@@ -1127,7 +884,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 7,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 3663611,
@@ -1147,7 +905,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": ["https://*.cocoandeve.*"]
   },
   {
     "advertiserID": 3705465,
@@ -1167,7 +926,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+        "subDomains": ["https://*.sandandsky.*"]
   },
   {
     "advertiserID": 3938277,
@@ -1187,7 +947,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
     "discountPercentage": 20,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   },
   {
     "advertiserID": 4819836,
@@ -1207,7 +968,8 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 8,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": ["https://parisrhone.com"]
   },
   {
     "advertiserID": 2495728,
@@ -1227,6 +989,7 @@ const CAMPAIGNS = [
     "clickReferralPeriod": "Referrals are only considered for credit if they occur within 30 day(s) of the action",
     "actionLocking": "All actions happening in a given month are locked 2 month(s) and 15 day(s) after the end of the month",
     "discountPercentage": 6,
-    "discountType": "Net Sales Amount"
+    "discountType": "Net Sales Amount",
+    "subDomains": []
   }
 ]

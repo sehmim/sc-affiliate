@@ -10,7 +10,6 @@ const DOMAINS = [
   'https://www.impact.com',
   'https://internationalopenacademy.com',
   'https://www.invideo.io',
-  'https://www.eechic.com',
   'https://livwellnutrition.com',
   'https://lumierehairs.com',
   'https://www.marks.com',
@@ -28,21 +27,6 @@ const DOMAINS = [
 ];
 
 ///////////////////////////////////
-// Inject Montserrat font link
-const fontLink = document.createElement('link');
-fontLink.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap';
-fontLink.rel = 'stylesheet';
-document.head.appendChild(fontLink);
-
-// Inject styles.css
-const styleLink = document.createElement('link');
-styleLink.href = chrome.runtime.getURL('styles.css');
-styleLink.rel = 'stylesheet';
-document.head.appendChild(styleLink);
-
-// Directly manipulate the DOM to apply Montserrat font
-document.body.classList.add('montserrat-font');
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "sendData") {
     console.log("Data received in content script:", message.data);
@@ -117,29 +101,6 @@ function createDivContainer() {
   div.appendChild(closeButton);
   
   return div;
-}
-
-// Function to create and style the button
-function createActivateButton(allowedBrand, allowedTeamsDropdown) {
-  const button = document.createElement('button');
-  button.textContent = 'Activate';
-  button.style.display = 'block';
-  button.style.width = '100%';
-  button.style.padding = '10px';
-  button.style.marginTop = '10px';
-  button.style.border = '1px solid #ccc';
-  button.style.backgroundColor = '#fff';
-  button.style.color = '#333';
-  button.style.fontFamily = 'Arial, sans-serif';
-  button.style.fontSize = '16px';
-  button.style.cursor = 'pointer';
-
-  button.addEventListener('click', async function() {
-    const selectedValue = allowedTeamsDropdown.value;
-    await applyAffiliateLink(allowedBrand, selectedValue);
-  });
-
-  return button;
 }
 
 function createDropdownWithOptions(optionsArray, textContent) {
@@ -657,75 +618,8 @@ function extractUrlFromCite(divElement) {
           return
         }
       })
-
-      // for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
-      //   const allowedDomain = new URL(url).hostname;
-
-      //   if (domain.includes(allowedDomain)) {
-      //     const mainDiv = document.createElement('div');
-      //     mainDiv.style.color = '#1a0dab';
-      //     mainDiv.style.background = '#eeeeee';
-      //     mainDiv.style.fontSize = '14px';
-      //     mainDiv.style.lineHeight = '27px';
-      //     mainDiv.style.height = '37px';
-      //     mainDiv.style.margin = '0 0 7px 0';
-      //     mainDiv.style.padding = '6px 0 0 8px';
-      //     mainDiv.style.boxSizing = 'border-box';
-      //     mainDiv.style.width = '100%';
-      //     mainDiv.style.borderRadius = '5px';
-      //     mainDiv.style.fontFamily = "'Cerebri Sans', sans-serif";
-      //     mainDiv.style.minWidth = '542px';
-      //     mainDiv.style.cursor = 'pointer';
-
-      //     const logoDiv = document.createElement('div');
-      //     logoDiv.style.width = '33px';
-      //     logoDiv.style.height = '25px';
-      //     logoDiv.style.float = 'left';
-      //     logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
-      //     logoDiv.style.backgroundSize = 'contain';
-
-      //     const textDiv = document.createElement('div');
-      //     textDiv.style.whiteSpace = 'nowrap';
-      //     textDiv.textContent = `Give ${percentage} to your cause 💜`
-
-      //     mainDiv.appendChild(logoDiv);
-      //     mainDiv.appendChild(textDiv);
-
-      //     result.insertBefore(mainDiv, result.firstChild);
-      //   }
-      // }
     });
   }
-
-//   // Function to simulate fetching allowed domains with a delay
-//   async function fetchAllowedDomains() {
-
-//     let allowedDomains = JSON.parse(localStorage.getItem('sc-allowed-domains')) || null;
-
-//     if (allowedDomains && Object.keys(allowedDomains).length !== 0) {
-//       return allowedDomains
-//     }
-
-//     console.log("CALLING ALLOWED DOMAINS");
-//     const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/allowedDomains" : "https://alloweddomains-6n7me4jtka-uc.a.run.app";
-//     allowedDomains = await fetchDataFromServer(url) || [];
-
-//     localStorage.setItem('sc-allowed-domains', JSON.stringify(allowedDomains));
-
-//     return allowedDomains;
-//   }
-
-
-//   const allowedDomains = await fetchAllowedDomains();
-//   applyGoogleSearchDiscounts(allowedDomains);
-// }
-
-// main();
-
-
-
-
-
 
 
 
@@ -771,6 +665,11 @@ function createIsolatedIframe(width, height) {
   // Trigger the animation after appending
   setTimeout(() => {
     iframe.style.top = '30%'; // Move down to the final position
+
+    let link = iframe.contentDocument.createElement('link');
+    link.href = 'https://fonts.cdnfonts.com/css/montserrat';
+    link.rel = 'stylesheet';
+    iframe.contentDocument.head.appendChild(link);
   }, 0);
 
   // Return the created iframe
@@ -898,7 +797,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     div.style.height = "100%";
     div.style.display = "flex";
 
-        // Create and append close button
+    // Create and append close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'X';
     closeButton.style.position = 'absolute';
@@ -937,6 +836,11 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
 
     button.onclick = async function() {
         try {
+            // Disable the button and show loading text
+            button.disabled = true;
+            button.style.cursor = "not-allowed";
+            button.textContent = "Loading...";
+
             if (allowedBrand) {
               await applyAffiliateLink(allowedBrand);
               localStorage.setItem('sc-minimize', false);
@@ -950,7 +854,12 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
             }
         } catch (error) {
             console.error("Error activating to give:", error);
-        }
+        } finally {
+          // Re-enable the button and restore the original text
+          button.disabled = false;
+          button.style.cursor = "pointer";
+          button.textContent = `Activate to Give ${discountAmount}`;
+      }
     };
 
     div.appendChild(button);
@@ -958,28 +867,6 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     return div;
 }
 
-
-////////////////////////// ACTIVATED LINK ///////////////////////////
-// async function createMinimizedContainer(){
-//   const isolatedIframe = createIsolatedIframe('20px', '20px');
-
-//   isolatedIframe.onload = async function() {
-//     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
-//     iframeDocument.body.innerHTML = '';
-//     iframeDocument.body.style.display = 'flex';
-//     iframeDocument.body.style.flexDirection = 'column';
-//     iframeDocument.body.style.margin = '0px';
-//     iframeDocument.body.style.fontFamily = "Montserrat";
-
-//     const img1 = document.createElement("img");
-//     img1.src = "https://i.imgur.com/zbRF4VT.png";
-//     img1.style.borderRadius = "8px";
-//     img1.style.width = "20px";
-//     img1.style.marginRight = "10px";
-
-//     iframeDocument.body.appendChild(img1);
-//   };
-// }
 
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv){
   const isolatedIframe = createIsolatedIframe('400px', '280px');
@@ -996,35 +883,6 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv){
 
     iframeDocument.body.appendChild(navbar);
     iframeDocument.body.appendChild(middleSection);
-
-
-    /////////  ROUGH ///////////
-    // const loginForm = generateLoginForm();
-    // const greetingDiv = greetUser();
-    // const closeButton = createCloseButton(isolatedIframe);
-
-    // const userEmail = localStorage.getItem('sponsorcircle-useremail');
-    // if (userEmail) {
-    //     const allowedTeams = await fetchAllowedGroups(userEmail);
-    //     const allowedCharaties = await fetchDefaultCharaties();
-
-    //     // const teamsCobined = ["------Your Teams-----" ,...allowedTeams, "-----Default Charities-----", ...allowedCharaties];
-
-    //     const { allowedTeamsDropdown, selectElement } = createDropdownWithOptions(allowedCharaties, "Pick A Team:");
-
-    //     const activateButton = createActivateButton(allowedBrand, selectElement);
-    //     const logoutbutton = createLogoutButton();
-
-    //     iframeDocument.body.appendChild(closeButton);
-    //     iframeDocument.body.appendChild(greetingDiv);
-    //     iframeDocument.body.appendChild(allowedTeamsDropdown);
-    //     // iframeDocument.body.appendChild(allowedCharatiesDropdown);
-    //     iframeDocument.body.appendChild(activateButton);
-    //     iframeDocument.body.appendChild(logoutbutton);
-    // } else {
-    //   iframeDocument.body.appendChild(closeButton);
-    //   iframeDocument.body.appendChild(loginForm);
-    // }
   };
   document.body.appendChild(isolatedIframe);
 }
