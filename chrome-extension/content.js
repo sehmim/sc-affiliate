@@ -54,6 +54,27 @@ function isGoogle(url) {
     return pattern.test(url);
 }
 
+function isMainDomain(currentUrl, mainDomain) {
+    // Helper function to extract the base domain (without subdomains and protocol)
+    function extractBaseDomain(url) {
+        // Remove protocol (http, https, etc.) and 'www'
+        let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
+        // Split by '/' and take the first part (the domain)
+        domain = domain.split('/')[0];
+        // Split by '.' and take the last two parts (base domain and TLD)
+        let parts = domain.split('.');
+        return parts.slice(-2).join('.');
+    }
+
+    // Extract base domains from both URLs
+    let baseCurrent = extractBaseDomain(currentUrl);
+    let baseMain = extractBaseDomain(mainDomain);
+
+    // Check if the base domains match
+    return baseCurrent === baseMain;
+}
+
+
 function checkCookieExpiration(url, cookieName) {
 
   if (isGoogle(url)) {
@@ -70,37 +91,6 @@ function checkCookieExpiration(url, cookieName) {
             console.log("Cookie is not expired");
         }
     });
-}
-
-// Function to create and style the div container
-function createDivContainer() {
-  const div = document.createElement('div');
-  div.style.position = 'fixed';
-  div.style.width = '400px';
-  div.style.top = '60px';
-  div.style.right = '20px';
-  div.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-  div.style.padding = '35px 10px 10px 10px';
-  div.style.border = '1px solid #ccc';
-  div.style.zIndex = '9999'; // Set a high z-index value
-  
-  // Create and append close button
-  const closeButton = document.createElement('button');
-  closeButton.textContent = 'X';
-  closeButton.style.position = 'absolute';
-  closeButton.style.top = '10px';
-  closeButton.style.right = '10px';
-  closeButton.style.backgroundColor = 'transparent';
-  closeButton.style.border = 'none';
-  closeButton.style.cursor = 'pointer';
-  closeButton.style.fontSize = '20px';
-  closeButton.style.color = '#333';
-  closeButton.onclick = function() {
-    div.style.display = 'none';
-  };
-  div.appendChild(closeButton);
-  
-  return div;
 }
 
 function createDropdownWithOptions(optionsArray, textContent) {
@@ -215,33 +205,44 @@ async function fetchDefaultCharaties() {
 }
 
 function getAllowedBrandInfo(campaigns) {
-  const currentWebsiteUrl = window.location.origin;
+  const currentWebsiteUrl = window.location.hostname;
+  let resultCampaign = null;
+  let resultSubDomain = null;
 
   for (let i = 0; i < campaigns.length; i++) {
-    const campaign = campaigns[i];
-    const urlHostname = new URL(campaign.advertiserURL);
-
-    if (currentWebsiteUrl.includes(urlHostname.origin)) {
-      return campaign;
+    if (resultCampaign) {
+      return {
+        allowedBrand: resultCampaign,
+        allowedSubDomain: resultSubDomain,
+      }
     }
+
+    const campaign = campaigns[i];
+    const urlHostname = new URL(campaign.advertiserURL).hostname;
+    
+    // Check if window hostname matches campain hostname  
+    if (isMainDomain(currentWebsiteUrl, urlHostname)) {
+      return {
+        allowedBrand: campaign,
+        allowedSubDomain: null,
+      }
+    }
+
+    // Otherwiese check if window hostname matches campain's subdomain's hostname  
+    const allowedSubDomains = campaign.subDomains;
+    allowedSubDomains.forEach((allowedSubDomain)=> {
+      const allowedSubDomainHostname = new URL(allowedSubDomain).hostname;
+
+      if (isMainDomain(currentWebsiteUrl, allowedSubDomainHostname)) {
+        resultCampaign = campaign;
+        resultSubDomain = allowedSubDomain;
+      }
+    })
   }
 
   return null;
 }
 
-// function getAllowedBrandInfo(allowedDomainsWithIds) {
-//   const currentWebsiteUrl = window.location.hostname;
-
-//   for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
-
-//     const urlHostname = new URL(url);
-//     if (currentWebsiteUrl.includes(urlHostname.hostname)) {
-//       return { url: urlHostname, id };
-//     }
-//   }
-
-//   return null;
-// }
 
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
@@ -265,14 +266,6 @@ function isCouponedWebsite() {
       amount: "10%"
     }
   } 
-
-  // else if(href.includes("https://www.lavenderpolo.com/checkout")){
-  //   couponInfo = {
-  //     brand: "lavenderpolo.com",
-  //     couponCode: "LPOLO",
-  //     amount: "10%"
-  //   }
-  // }
 
   return couponInfo;
 }
@@ -301,60 +294,26 @@ async function initialize() {
     // BRAND PAGES
     let isCookieExpired;
     let codeAlreadyAppliedToURL;
-    const allowedBrand = getAllowedBrandInfo(campaigns);
+    const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
 
     if (allowedBrand) {
       isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
       codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
     }
 
-    if ((allowedBrand && !codeAlreadyAppliedToURL && !isCookieExpired)) {
+    if ((allowedBrand && !allowedSubDomain && !codeAlreadyAppliedToURL && !isCookieExpired)) {
       await createActivatePageContainer(allowedBrand, closedDiv);
     }
 
+    // SHOW APPLIED POPUP
     if (allowedBrand && codeAlreadyAppliedToURL) {
       await createAppliedLinkPageContainer(allowedBrand, closedDiv);
     }
-
   }
-
-  // if (matchedDomain && matchedDomain?.couponCode) {
-  //   if (window.location.href.includes("checkouts")) {
-  //     const div = createDivContainer();
-
-  //     // const dropdown = createDropdownWithOptions(allowedTeams);
-
-  //     const button = createButton();
-  //     button.addEventListener('click', () => handleApplyCouponCode(matchedDomain.couponCode, div));
-
-  //     // div.appendChild(dropdown);
-  //     div.appendChild(button);
-  //     document.body.appendChild(div);
-  //   }
-  // } else {
-  //   const appliedURL = window.location.href.includes("irclickid");
-  //   if (matchedDomain && !appliedURL) {
-  //     const div = createDivContainer();
-      
-  //     const dropdown = createDropdownWithOptions(allowedTeams);
-      
-  //     const button = createButton();
-  //     button.addEventListener('click', () => handleButtonClick(matchedDomain.affiliateLink));
-      
-  //     div.appendChild(dropdown);
-  //     div.appendChild(button);
-  //     document.body.appendChild(div);
-  //   }
-  // }
 }
 
 function getUserInfo() {
-
   console.log("chrome ----->", chrome);
-  // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //   const activeTab = tabs[0];
-  //   chrome.tabs.sendMessage(activeTab.id, { type: 'USER_EMAIL', payload: 'user@example.com' });
-  // });
 }
 
 function greetUser() {
@@ -565,12 +524,7 @@ function extractUrlFromCite(divElement) {
       const href = result.querySelector('a[href^="http"]')?.href;
       const url = href || extractUrlFromCite(result);
 
-      if (!url) {
-        console.log("url-->", url);
-        console.log("asdasd-->", result.querySelector('a[href^="http"]'));
-        console.log("123123-->", extractUrlFromCite(result));
-        return
-      }
+      if (!url) return
 
       const domain = new URL(url).hostname;
 
@@ -578,8 +532,17 @@ function extractUrlFromCite(divElement) {
         const allowedDomain = new URL(campaign.advertiserURL).hostname;
         const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
 
-        if (!domain.includes(allowedDomain)) {
-          return
+        if (!isMainDomain(domain, allowedDomain)) { 
+          const allowedSubDomains = campaign.subDomains;
+
+          if (!allowedSubDomains || allowedSubDomains.length === 0) return;
+
+          allowedSubDomains.forEach((allowedSubDomain) => {
+            const allowedDomainHotname = new URL(allowedSubDomain).hostname;
+            if (!isMainDomain(domain, allowedDomainHotname)) {
+              return
+            }
+          })
         }
 
         if (domain.includes(allowedDomain)) {
@@ -625,10 +588,7 @@ function extractUrlFromCite(divElement) {
 
 ///////////////////////////// NEW DESIGN //////////////////////////////////
 function createIsolatedIframe(width, height) {
-  // Create a new iframe element
   const iframe = document.createElement('iframe');
-
-  // Set attributes for the iframe
   iframe.setAttribute('src', 'about:blank'); // Load a blank page initially
 
   // Set initial inline styles for the iframe
@@ -643,7 +603,7 @@ function createIsolatedIframe(width, height) {
   iframe.style.borderRadius = '16px';
   iframe.style.boxShadow = '0px 4px 4px 0px rgba(0, 0, 0, 0.25)';
   iframe.style.display = 'flex';
-  iframe.style.zIndex = 10000;
+  iframe.style.zIndex = 20000;
   iframe.style.transition = 'top 0.75s ease-out'; // Animation for moving down
 
   // Access the document within the iframe
@@ -659,12 +619,9 @@ function createIsolatedIframe(width, height) {
     iframeDocument.body.style.color = '#333';
   }
 
-  // // Append the iframe to the document body
-  // document.body.appendChild(iframe);
-
   // Trigger the animation after appending
   setTimeout(() => {
-    iframe.style.top = '30%'; // Move down to the final position
+    iframe.style.top = '35%'; // Move down to the final position
 
     let link = iframe.contentDocument.createElement('link');
     link.href = 'https://fonts.cdnfonts.com/css/montserrat';

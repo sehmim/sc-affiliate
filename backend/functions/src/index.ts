@@ -548,7 +548,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 45 day(s) after the end of the month",
     "discountPercentage": 5,
     "discountType": "Net Sales Amount",
-    "subDomains": ["https://adidas-australia.pxf.io", "https://purehempbotanicals.com"],
+    "subDomains": ["https://adidas-australia.pxf.io"],
   },
   {
     "advertiserID": 2583300,
@@ -569,7 +569,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 1 month(s) and 1 day(s) after the end of the month",
     "discountPercentage": 60,
     "discountType": "Net Sales Amount",
-    "subDomains": []
+    "subDomains": ["https://purehempbotanicals.com"]
   },
   {
     "advertiserID": 1719590,
@@ -890,7 +890,7 @@ const CAMPAIGNS = [
   {
     "advertiserID": 3663611,
     "advertiserName": "Supernova Pte Ltd",
-    "advertiserURL": "https://us.cocoandeve.com",
+    "advertiserURL": "https://www.cocoandeve.com",
     "advertiserCategory": "Cosmetics & Skin Care",
     "campaignID": 17345,
     "campaignName": "Coco&Eve",
@@ -906,7 +906,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
     "discountType": "Net Sales Amount",
-    "subDomains": ["https://*.cocoandeve.*"]
+    "subDomains": ["https://us.cocoandeve.com", "https://ca.cocoandeve.com"]
   },
   {
     "advertiserID": 3705465,
@@ -927,7 +927,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
     "discountType": "Net Sales Amount",
-        "subDomains": ["https://*.sandandsky.*"]
+    "subDomains": ["https://ca.sandandsky.com"]
   },
   {
     "advertiserID": 3938277,
