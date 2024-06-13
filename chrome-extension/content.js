@@ -1,6 +1,31 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
 const COMMISSION_RATE = 0.50;
+const DOMAINS = [
+  'https://www.adidas.com.au',
+  'https://anthologybrands.com',
+  'https://www.decathlon.ca',
+  'https://www.easyship.com/',
+  'https://www.fanatics.com',
+  'https://www.impact.com',
+  'https://internationalopenacademy.com',
+  'https://www.invideo.io',
+  'https://www.eechic.com',
+  'https://livwellnutrition.com',
+  'https://lumierehairs.com',
+  'https://www.marks.com',
+  'https://www.moosejaw.com/',
+  'https://packedwithpurpose.gifts',
+  'https://atlasvpn.com',
+  'https://www.points.com',
+  'https://www.prohockeylife.com/',
+  'https://www.springfreetrampoline.com',
+  'https://us.cocoandeve.com',
+  'https://www.sandandsky.com',
+  'https://www.curiositybox.com/',
+  'https://www.ravpower.com',
+  'https://wish.com'
+];
 
 ///////////////////////////////////
 // Inject Montserrat font link
@@ -39,7 +64,18 @@ async function fetchDataFromServer(url) {
   }
 }
 
+function isGoogle(url) {
+    // Use a regular expression to match "http(s)://www.google." followed by any characters
+    const pattern = /^https?:\/\/www\.google\.\w+/i;
+    return pattern.test(url);
+}
+
 function checkCookieExpiration(url, cookieName) {
+
+  if (isGoogle(url)) {
+    return
+  }
+
     console.log(`Checking cookie: ${cookieName} for URL: ${url}`); // Debug log
     chrome.runtime.sendMessage({ action: 'checkCookie', url: url, cookieName: cookieName }, function(response) {
         if (response && response.error) {
@@ -291,19 +327,25 @@ async function initialize() {
   if (couponInfo) {
     await createApplyCouponCodeContainer(couponInfo, closedDiv);
   } else {
-    const allowedDomainsWithIds = await fetchAllowedDomains();
     const campaigns = await fetchCampaigns();
-    const allowedBrand = getAllowedBrandInfo(campaigns);
 
+    // GOOGLE SEARCH
     const isGoogleSearch = window.location.href.includes('https://www.google.com/search') || window.location.href.includes('https://www.google.ca/search');
 
     if (isGoogleSearch) {
-      await applyGoogleSearchDiscounts(allowedDomainsWithIds, campaigns);
+      await applyGoogleSearchDiscounts(campaigns);
+      return
     }
 
-    
-    const isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
-    const codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
+    // BRAND PAGES
+    let isCookieExpired;
+    let codeAlreadyAppliedToURL;
+    const allowedBrand = getAllowedBrandInfo(campaigns);
+
+    if (allowedBrand) {
+      isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
+      codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
+    }
 
     if ((allowedBrand && !codeAlreadyAppliedToURL && !isCookieExpired)) {
       await createActivatePageContainer(allowedBrand, closedDiv);
@@ -531,19 +573,53 @@ async function fetchCampaigns() {
   return await fetchDataFromServer(url) || [];
 }
 
+function extractUrlFromCite(divElement) {
+    const citeElements = divElement.querySelectorAll('cite');
+    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
 
+    for (let cite of citeElements) {
+        const textContent = cite.textContent.trim();
+        if (urlPattern.test(textContent)) {
+            return textContent;
+        }
+    }
+
+    return null;
+}
+
+
+// function getAllowedMainDomains(campaigns){
+//   return campaigns.map((campaign)=> {
+//     const hostname = new URL(campaign?.advertiserURL)?.hostname;
+//     const mainDomain = hostname.split('.').slice(-2).join('.');
+//     return mainDomain;
+//   })
+// }
 
 // async function main(){
-  function applyGoogleSearchDiscounts(allowedDomainsWithIds, campaigns) {
+  function applyGoogleSearchDiscounts(campaigns) {
     const searchResults = document.querySelectorAll('div.g');
 
     searchResults.forEach(result => {
-      const url = result.querySelector('a[href^="http"]').href;
+      const href = result.querySelector('a[href^="http"]')?.href;
+      const url = href || extractUrlFromCite(result);
+
+      if (!url) {
+        console.log("url-->", url);
+        console.log("asdasd-->", result.querySelector('a[href^="http"]'));
+        console.log("123123-->", extractUrlFromCite(result));
+        return
+      }
+
       const domain = new URL(url).hostname;
 
       campaigns.map((campaign) => {
         const allowedDomain = new URL(campaign.advertiserURL).hostname;
         const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
+
+        if (!domain.includes(allowedDomain)) {
+          return
+        }
 
         if (domain.includes(allowedDomain)) {
           const mainDiv = document.createElement('div');
@@ -572,11 +648,13 @@ async function fetchCampaigns() {
           textDiv.style.whiteSpace = 'nowrap';
           textDiv.textContent = `Give ${percentage} to your cause 💜`
           textDiv.href = campaign.trackingLink;
+          textDiv.target = "_blank";
 
           mainDiv.appendChild(logoDiv);
           mainDiv.appendChild(textDiv);
 
           result.insertBefore(mainDiv, result.firstChild);
+          return
         }
       })
 

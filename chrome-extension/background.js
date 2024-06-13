@@ -18,11 +18,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;  // Indicate that you want to send a response asynchronously
 });
 
+function isGoogle(url) {
+    // Use a regular expression to match "http(s)://www.google." followed by any characters
+    const pattern = /^https?:\/\/www\.google\.\w+/i;
+    return pattern.test(url);
+}
+
+
 // background.js
 function isCookieExpired(url, cookieName, callback) {
     // Ensure the URL includes a protocol
     if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
+    }
+
+    if (isGoogle(url)) {
+        return
     }
 
     console.log(`Checking cookie: ${cookieName} for URL: ${url}`); // Debug log
@@ -49,6 +60,7 @@ function isCookieExpired(url, cookieName, callback) {
         }
     });
 }
+
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'checkCookie' && request.url && request.cookieName) {
