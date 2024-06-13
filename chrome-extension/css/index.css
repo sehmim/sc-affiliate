@@ -82,6 +82,5 @@
   font-style: normal;
   font-weight: 500;
   width: 100%;
-  overflow: hidden;
   text-overflow: ellipsis;
 }

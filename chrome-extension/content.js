@@ -55,23 +55,24 @@ function isGoogle(url) {
 }
 
 function isMainDomain(currentUrl, mainDomain) {
-    // Helper function to extract the base domain (without subdomains and protocol)
-    function extractBaseDomain(url) {
+    // Helper function to extract the main part of the domain (without subdomains and protocol)
+    function extractMainDomain(url) {
         // Remove protocol (http, https, etc.) and 'www'
         let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
         // Split by '/' and take the first part (the domain)
         domain = domain.split('/')[0];
-        // Split by '.' and take the last two parts (base domain and TLD)
+        // Split by '.' and remove the TLD
         let parts = domain.split('.');
-        return parts.slice(-2).join('.');
+        // Join all parts except the last one (TLD)
+        return parts.slice(0, -1).join('.');
     }
 
-    // Extract base domains from both URLs
-    let baseCurrent = extractBaseDomain(currentUrl);
-    let baseMain = extractBaseDomain(mainDomain);
+    // Extract main parts of the domains from both URLs
+    let mainPartCurrent = extractMainDomain(currentUrl);
+    let mainPartMain = extractMainDomain(mainDomain);
 
-    // Check if the base domains match
-    return baseCurrent === baseMain;
+    // Check if the main parts match
+    return mainPartCurrent === mainPartMain;
 }
 
 
@@ -545,7 +546,7 @@ function extractUrlFromCite(divElement) {
           })
         }
 
-        if (domain.includes(allowedDomain)) {
+        if (isMainDomain(domain, allowedDomain)) {
           const mainDiv = document.createElement('div');
           mainDiv.style.color = '#1a0dab';
           mainDiv.style.background = '#eeeeee';
