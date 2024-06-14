@@ -40,21 +40,6 @@ async function fetchCampaigns() {
   return campaigns;
 }
 
-const couponMerchants = [
-  {
-    discountPercentage: 20,
-    advertiserName: 'lacoutts.com',
-    campaignLogoURI: 'https://i.imgur.com/FOe5vMf.png',
-    advertiserURL: 'https://lacoutts.com'
-  },
-  {
-    discountPercentage: 10,
-    advertiserName: 'softstrokessilk.com',
-    campaignLogoURI: '',
-    advertiserURL: 'https://www.softstrokessilk.com'
-  }
-]
-
 document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
 
@@ -69,12 +54,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         merchantsContainer.appendChild(newMerchantDiv);
       }
 
-      for (const couponMerchant of couponMerchants) {
-        const subTitle = `up to ${couponMerchant.discountPercentage}%`;
-
-        const newMerchantDiv = createMerchantContainer(couponMerchant.advertiserName, subTitle, couponMerchant.campaignLogoURI, couponMerchant.advertiserURL);
-        merchantsContainer.appendChild(newMerchantDiv);
-      }
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     }

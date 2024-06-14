@@ -23,7 +23,8 @@ const DOMAINS = [
   'https://www.sandandsky.com',
   'https://www.curiositybox.com/',
   'https://www.ravpower.com',
-  'https://wish.com'
+  'https://wish.com',
+  'https://lacoutts.com/'
 ];
 
 ///////////////////////////////////
@@ -55,15 +56,10 @@ function isGoogle(url) {
 }
 
 function isMainDomain(currentUrl, mainDomain) {
-    // Helper function to extract the main part of the domain (without subdomains and protocol)
     function extractMainDomain(url) {
-        // Remove protocol (http, https, etc.) and 'www'
         let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
-        // Split by '/' and take the first part (the domain)
         domain = domain.split('/')[0];
-        // Split by '.' and remove the TLD
         let parts = domain.split('.');
-        // Join all parts except the last one (TLD)
         return parts.slice(0, -1).join('.');
     }
 
@@ -82,16 +78,18 @@ function checkCookieExpiration(url, cookieName) {
     return
   }
 
-    console.log(`Checking cookie: ${cookieName} for URL: ${url}`); // Debug log
-    chrome.runtime.sendMessage({ action: 'checkCookie', url: url, cookieName: cookieName }, function(response) {
-        if (response && response.error) {
-            console.error(response.error);
-        } else if (response && response.expired) {
-            console.log("Cookie is expired");
-        } else {
-            console.log("Cookie is not expired");
-        }
-    });
+  console.log(`Checking cookie: ${cookieName} for URL: ${url}`); // Debug log
+  const cookie = chrome.runtime.sendMessage({ action: 'checkCookie', url: url, cookieName: cookieName }, function(response) {
+      if (response && response.error) {
+          console.error(response.error);
+      } else if (response && response.expired) {
+          console.log("Cookie is expired");
+      } else {
+          console.log("Cookie is not expired");
+      }
+  });
+
+  return cookie;
 }
 
 function createDropdownWithOptions(optionsArray, textContent) {
@@ -143,7 +141,7 @@ function createLogoutButton() {
 }
 
 //////////////////////////////////////
-function handleApplyCouponCode(couponCode, isolatedIframe){
+function handleApplyCouponCodeOnCheckout(couponCode, isolatedIframe){
   let discountInput = 
     document.querySelector('input[aria-label="Discount code"]') 
     || document.querySelector('input[placeholder="Discount code"]');
@@ -241,7 +239,10 @@ function getAllowedBrandInfo(campaigns) {
     })
   }
 
-  return null;
+  return {
+        allowedBrand: null,
+        allowedSubDomain: null,
+      };
 }
 
 
@@ -249,7 +250,7 @@ function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
 
-function isCouponedWebsite() {
+function isCouponedWebsiteCheckout() {
   // const COUPONED_BRANDS = ["lacoutts.com", "softstrokessilk.com", "lavenderpolo.com"]
   let couponInfo = null;
   const href = window.location.href;
@@ -271,25 +272,45 @@ function isCouponedWebsite() {
   return couponInfo;
 }
 
+function isCouponedWebsite(domain) {
+  let couponInfo = null;
+  const href = new URL(domain).href;
+
+  if (href.includes("https://lacoutts.com")) {
+    couponInfo = {
+      brand: "lacoutts.com",
+      couponCode: "LaCouttsSC20",
+      amount: "20%"
+    }
+  } else if (href.includes("https://www.softstrokessilk.com")) {
+    couponInfo = {
+      brand: "softstrokessilk.com",
+      couponCode: "LOVESILK",
+      amount: "10%"
+    }
+  } 
+
+  return couponInfo;
+}
+
 ///////////////////////////// INITIALIZE ////////////////////////////////
 async function initialize() {
-
   const closedDiv = createClosedDiv();
   document.body.appendChild(closedDiv);
 
-  // If Couponsed Website show coupon view
-  const couponInfo = isCouponedWebsite();
+  // If Couponsed Website, show coupon view
+  const couponInfo = isCouponedWebsiteCheckout();
   if (couponInfo) {
     await createApplyCouponCodeContainer(couponInfo, closedDiv);
   } else {
     const campaigns = await fetchCampaigns();
 
     // GOOGLE SEARCH
-    const isGoogleSearch = window.location.href.includes('https://www.google.com/search') || window.location.href.includes('https://www.google.ca/search');
-
+    const isGoogleSearch = window.location.href.includes('https://www.google.com/search') ||
+                           window.location.href.includes('https://www.google.ca/search');
     if (isGoogleSearch) {
       await applyGoogleSearchDiscounts(campaigns);
-      return
+      return;
     }
 
     // BRAND PAGES
@@ -299,19 +320,22 @@ async function initialize() {
 
     if (allowedBrand) {
       isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
-      codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
-    }
+      const href = window.location.href;
+      codeAlreadyAppliedToURL = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
 
-    if ((allowedBrand && !allowedSubDomain && !codeAlreadyAppliedToURL && !isCookieExpired)) {
-      await createActivatePageContainer(allowedBrand, closedDiv);
     }
 
     // SHOW APPLIED POPUP
     if (allowedBrand && codeAlreadyAppliedToURL) {
       await createAppliedLinkPageContainer(allowedBrand, closedDiv);
     }
+
+    if (allowedBrand && !allowedSubDomain && !codeAlreadyAppliedToURL && !isCookieExpired) {
+      await createActivatePageContainer(allowedBrand, closedDiv);
+    }
   }
 }
+
 
 function getUserInfo() {
   console.log("chrome ----->", chrome);
@@ -517,73 +541,73 @@ function extractUrlFromCite(divElement) {
 //   })
 // }
 
-// async function main(){
-  function applyGoogleSearchDiscounts(campaigns) {
-    const searchResults = document.querySelectorAll('div.g');
+function applyGoogleSearchDiscounts(campaigns) {
+  const searchResults = document.querySelectorAll('div.g');
 
-    searchResults.forEach(result => {
-      const href = result.querySelector('a[href^="http"]')?.href;
-      const url = href || extractUrlFromCite(result);
+  searchResults.forEach(result => {
+    const href = result.querySelector('a[href^="http"]')?.href;
+    const url = href || extractUrlFromCite(result);
 
-      if (!url) return
+    if (!url) return;
 
-      const domain = new URL(url).hostname;
+    const domain = new URL(url).hostname;
 
-      campaigns.map((campaign) => {
-        const allowedDomain = new URL(campaign.advertiserURL).hostname;
-        const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
+    campaigns.map(campaign => {
+      const allowedDomain = new URL(campaign.advertiserURL).hostname;
+      const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
 
-        if (!isMainDomain(domain, allowedDomain)) { 
-          const allowedSubDomains = campaign.subDomains;
+      if (!isMainDomain(domain, allowedDomain)) {
+        const allowedSubDomains = campaign.subDomains;
 
-          if (!allowedSubDomains || allowedSubDomains.length === 0) return;
+        if (!allowedSubDomains || allowedSubDomains.length === 0) return;
 
-          allowedSubDomains.forEach((allowedSubDomain) => {
-            const allowedDomainHotname = new URL(allowedSubDomain).hostname;
-            if (!isMainDomain(domain, allowedDomainHotname)) {
-              return
-            }
-          })
-        }
+        let matched = false;
+        allowedSubDomains.forEach(allowedSubDomain => {
+          const allowedDomainHostname = new URL(allowedSubDomain).hostname;
+          if (isMainDomain(domain, allowedDomainHostname)) {
+            matched = true;
+          }
+        });
+        if (!matched) return;
+      }
 
-        if (isMainDomain(domain, allowedDomain)) {
-          const mainDiv = document.createElement('div');
-          mainDiv.style.color = '#1a0dab';
-          mainDiv.style.background = '#eeeeee';
-          mainDiv.style.fontSize = '14px';
-          mainDiv.style.lineHeight = '27px';
-          mainDiv.style.height = '37px';
-          mainDiv.style.margin = '0 0 7px 0';
-          mainDiv.style.padding = '6px 0 0 8px';
-          mainDiv.style.boxSizing = 'border-box';
-          mainDiv.style.width = '100%';
-          mainDiv.style.borderRadius = '5px';
-          mainDiv.style.fontFamily = "'Cerebri Sans', sans-serif";
-          mainDiv.style.minWidth = '542px';
-          mainDiv.style.cursor = 'pointer';
+      const mainDiv = document.createElement('div');
+      mainDiv.style.color = '#1a0dab';
+      mainDiv.style.background = '#eeeeee';
+      mainDiv.style.fontSize = '14px';
+      mainDiv.style.lineHeight = '27px';
+      mainDiv.style.height = '37px';
+      mainDiv.style.margin = '0 0 7px 0';
+      mainDiv.style.padding = '6px 0 0 8px';
+      mainDiv.style.boxSizing = 'border-box';
+      mainDiv.style.width = '100%';
+      mainDiv.style.borderRadius = '5px';
+      mainDiv.style.fontFamily = "'Cerebri Sans', sans-serif";
+      mainDiv.style.minWidth = '542px';
+      mainDiv.style.cursor = 'pointer';
 
-          const logoDiv = document.createElement('div');
-          logoDiv.style.width = '33px';
-          logoDiv.style.height = '25px';
-          logoDiv.style.float = 'left';
-          logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
-          logoDiv.style.backgroundSize = 'contain';
+      const logoDiv = document.createElement('div');
+      logoDiv.style.width = '33px';
+      logoDiv.style.height = '25px';
+      logoDiv.style.float = 'left';
+      logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
+      logoDiv.style.backgroundSize = 'contain';
 
-          const textDiv = document.createElement('a');
-          textDiv.style.whiteSpace = 'nowrap';
-          textDiv.textContent = `Give ${percentage} to your cause 💜`
-          textDiv.href = campaign.trackingLink;
-          textDiv.target = "_blank";
+      const textDiv = document.createElement('a');
+      textDiv.style.whiteSpace = 'nowrap';
+      textDiv.textContent = `Give ${percentage} to your cause 💜`;
+      textDiv.href = campaign.trackingLink;
+      textDiv.target = "_blank";
 
-          mainDiv.appendChild(logoDiv);
-          mainDiv.appendChild(textDiv);
+      mainDiv.appendChild(logoDiv);
+      mainDiv.appendChild(textDiv);
 
-          result.insertBefore(mainDiv, result.firstChild);
-          return
-        }
-      })
+      result.insertBefore(mainDiv, result.firstChild);
+      return
     });
-  }
+  });
+}
+
 
 
 
@@ -799,17 +823,22 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
             button.style.cursor = "not-allowed";
             button.textContent = "Loading...";
 
+            if (allowedBrand && allowedBrand.discountType === "Coupon") {
+              if (isCouponedWebsiteCheckout()) {
+                await handleApplyCouponCodeOnCheckout(couponInfo?.couponCode, isolatedIframe);
+                localStorage.setItem('sc-minimize', false);
+                localStorage.setItem('sc-activated', true); 
+              } else {
+                window.location.href = allowedBrand.trackingLink;
+              }
+            }
+
             if (allowedBrand) {
               await applyAffiliateLink(allowedBrand);
               localStorage.setItem('sc-minimize', false);
               localStorage.setItem('sc-activated', true);
             } 
 
-            if (couponInfo) {
-              await handleApplyCouponCode(couponInfo?.couponCode, isolatedIframe);
-              localStorage.setItem('sc-minimize', false);
-              localStorage.setItem('sc-activated', true);
-            }
         } catch (error) {
             console.error("Error activating to give:", error);
         } finally {

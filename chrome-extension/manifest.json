@@ -75,7 +75,9 @@
     "https://www.jetblue.com/*",
     "https://www.hilton.com/*",
     "https://www.southwest.com/*",
-    "https://buymiles.mileageplus.com/*"
+    "https://buymiles.mileageplus.com/*",
+    "https://lacoutts.com/*",
+    "https://www.softstrokessilk.com/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'",
