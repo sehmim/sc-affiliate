@@ -44,7 +44,7 @@ const couponMerchants = [
   {
     discountPercentage: 20,
     advertiserName: 'lacoutts.com',
-    campaignLogoURI: 'https://lacoutts.com/cdn/shop/files/la_coutts_logo_white_toronto.webp',
+    campaignLogoURI: 'https://i.imgur.com/FOe5vMf.png',
     advertiserURL: 'https://lacoutts.com'
   },
   {
