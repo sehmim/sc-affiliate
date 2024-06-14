@@ -57,7 +57,7 @@
     "https://www.moosejaw.com//*",
     "https://packedwithpurpose.gifts/*",
     "https://atlasvpn.com/*",
-    "https://www.points.com/*",
+    "https://*.points.com/*",
     "https://www.prohockeylife.com//*",
     "https://www.springfreetrampoline.com/*",
     "https://www.springfreetrampoline.ca/*",
@@ -68,7 +68,14 @@
     "https://www.wish.com/*",
     "https://purehempbotanicals.com/*",
     "https://eventtrix.com/*",
-    "https://parisrhone.com/*"
+    "https://parisrhone.com/*",
+    "https://storefront.points.com/*",
+    "https://buy.points.com/*",
+    "https://www.flyingblue.com/*",
+    "https://www.jetblue.com/*",
+    "https://www.hilton.com/*",
+    "https://www.southwest.com/*",
+    "https://buymiles.mileageplus.com/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'",
