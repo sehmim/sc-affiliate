@@ -1,4 +1,4 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 const SELECTED_TEAM = 'AIESEC Canada';
 const AIESEC_ICON = "https://i.imgur.com/SxAYeEl.png";
 const COMMISSION_RATE = 0.50;
