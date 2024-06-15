@@ -198,12 +198,7 @@ async function initialize() {
   const closedDiv = createClosedDiv();
   document.body.appendChild(closedDiv);
 
-  // If Couponsed Website, show coupon view
-  const couponInfo = isCouponedWebsiteCheckout();
-  if (couponInfo) {
-    await createApplyCouponCodeContainer(couponInfo, closedDiv);
-  } else {
-    const campaigns = await fetchCampaigns();
+  const campaigns = await fetchCampaigns();
 
     // GOOGLE SEARCH
     const isGoogleSearch = window.location.href.includes('https://www.google.com/search') ||
@@ -214,36 +209,27 @@ async function initialize() {
     }
 
     // BRAND PAGES
-    let codeAlreadyAppliedToBrand;
     const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
+    
+    if (!allowedBrand) return;
+    
+    let codeAlreadyAppliedToBrand = isCodeAlreadyAppliedToWebsite();
 
-    if (allowedBrand) {
-      // isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
-      const href = window.location.href;
-      const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
-      
-      const validIrclickid = getCookie("irclickid");
-      const validClickid = getCookie("clickid");
-      const validScCoupon = getCookie("sc-coupon");
+    // Coupon Container
+    const couponInfo = isCouponedWebsiteCheckout();
+    if (couponInfo) {
+      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand);
+    } else {
+      // SHOW APPLIED POPUP
+      if (codeAlreadyAppliedToBrand) {
+        await createAppliedLinkPageContainer(allowedBrand, closedDiv);
+      }
 
-      const isValidCookie = validIrclickid || validClickid || validScCoupon;
-
-      codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
-
-      if (codeInUrl && !isValidCookie) {
-        saveClickIdToCookie()
+      // Regular Affilicate Link Container
+      if (!couponInfo && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
+        await createActivatePageContainer(allowedBrand, closedDiv);
       }
     }
-
-    // SHOW APPLIED POPUP
-    if (allowedBrand && codeAlreadyAppliedToBrand) {
-      await createAppliedLinkPageContainer(allowedBrand, closedDiv);
-    }
-
-    if (allowedBrand && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
-      await createActivatePageContainer(allowedBrand, closedDiv);
-    }
-  }
 }
 
 
@@ -252,6 +238,26 @@ initialize().then(() => {
 });
 
 
+
+function isCodeAlreadyAppliedToWebsite() {
+    let codeAlreadyAppliedToBrand;
+    const href = window.location.href;
+    const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
+    
+    const validIrclickid = getCookie("irclickid");
+    const validClickid = getCookie("clickid");
+    const validScCoupon = getCookie("sc-coupon");
+
+    const isValidCookie = validIrclickid || validClickid || validScCoupon;
+
+    codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
+
+    if (codeInUrl && !isValidCookie) {
+      saveClickIdToCookie()
+    }
+
+    return codeAlreadyAppliedToBrand;
+}
 
 async function applyAffiliateLink(allowedBrand, selectedTeam){
   // if (selectedTeam === "------Your Teams-----" || selectedTeam === "-----Default Charities-----") {
@@ -583,16 +589,14 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
             if (allowedBrand && allowedBrand.discountType === "Coupon") {
               if (isCouponedWebsiteCheckout()) {
                 await handleApplyCouponCodeOnCheckout(couponInfo?.couponCode, isolatedIframe);
-                setCookie("sc-minimize", false);
               } else {
                 window.location.href = allowedBrand.trackingLink;
               }
-            }
-
-            if (allowedBrand) {
+            } else {
               await applyAffiliateLink(allowedBrand);
-              setCookie("sc-minimize", false);
-            } 
+            }
+  
+            setCookie("sc-minimize", false);
 
         } catch (error) {
             console.error("Error activating to give:", error);
@@ -730,11 +734,11 @@ function createMiddleSection(allowedBrand) {
 
 
 ///////////////////// COUPON CODE ////////////////////////////
-async function createApplyCouponCodeContainer(couponInfo, closedDiv){
+async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand){
   const isolatedIframe = createIsolatedIframe('400px', '100px');
   isolatedIframe.onload = async function() {
     const leftDiv = createLeftDiv();
-    const rightDiv = createRightDiv(isolatedIframe, undefined, couponInfo, closedDiv);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
