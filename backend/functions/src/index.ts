@@ -653,7 +653,7 @@ const CAMPAIGNS = [
     "actionLocking": "Actions are locked 15 day(s) after they are approved by advertiser. If actions are not locked after 13 month(s), they are rejected.",
     "discountPercentage": 12,
     "discountType": "Net Sales Amount",
-    "subDomains": []
+    "subDomains": ["https://go.impact.com"]
   },
   {
     "advertiserID": 2588106,
