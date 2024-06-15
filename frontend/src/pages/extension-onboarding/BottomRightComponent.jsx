@@ -8,7 +8,7 @@ const BottomRightComponent = () => {
 
   const hoverCards = [
     {
-      title: "AIESEC",
+      title: "AIESEC Canada",
       subTitle: "Upto 7% donated",
       imgSrc: IMAGE1
     },
@@ -31,7 +31,7 @@ const BottomRightComponent = () => {
           hoverCards.map((hoverCard) => {
             return (
               <Card
-                style={{ width: "200px", overflow: "hidden" }}
+                style={{ width: "210px", overflow: "hidden" }}
                 className="m-0 p-0"
               >
                 <Card.Body className="d-flex align-items-center">

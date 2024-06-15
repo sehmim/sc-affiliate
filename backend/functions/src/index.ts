@@ -865,10 +865,11 @@ const CAMPAIGNS = [
     "discountType": "Net Sales Amount",
     "subDomains": []
   },
+  // Dublicating cocoandeve to support .ca
   {
     "advertiserID": 3663611,
-    "advertiserName": "Supernova Pte Ltd",
-    "advertiserURL": "https://www.cocoandeve.com",
+    "advertiserName": "Supernova Pte Ltd Canada",
+    "advertiserURL": "https://www.ca.cocoandeve.com",
     "advertiserCategory": "Cosmetics & Skin Care",
     "campaignID": 17345,
     "campaignName": "Coco&Eve",
@@ -884,12 +885,12 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
     "discountType": "Net Sales Amount",
-    "subDomains": ["https://us.cocoandeve.com", "https://ca.cocoandeve.com"]
+    "subDomains": ["https://us.cocoandeve.com", "https://cocoandeve.com"]
   },
   {
     "advertiserID": 3705465,
-    "advertiserName": "Supernova Pte Ltd - SS",
-    "advertiserURL": "https://www.sandandsky.com",
+    "advertiserName": "Supernova Pte Ltd - SS Canada",
+    "advertiserURL": "https://www.ca.sandandsky.com",
     "advertiserCategory": "Cosmetics & Skin Care",
     "campaignID": 17524,
     "campaignName": "Sand&Sky",
@@ -905,7 +906,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
     "discountType": "Net Sales Amount",
-    "subDomains": ["https://ca.sandandsky.com"]
+    "subDomains": ["https://sandandsky.com"]
   },
   {
     "advertiserID": 3938277,
