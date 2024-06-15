@@ -1,5 +1,5 @@
-const LOCAL_ENV = true;
-const SELECTED_TEAM = '(AIESEC) Canada International Congress Inc';
+const LOCAL_ENV = false;
+const SELECTED_TEAM = 'AIESEC Canada';
 const AIESEC_ICON = "https://i.imgur.com/SxAYeEl.png";
 const COMMISSION_RATE = 0.50;
 const DOMAINS = [
@@ -244,8 +244,8 @@ function isCodeAlreadyAppliedToWebsite() {
     const href = window.location.href;
     const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
     
-    const validIrclickid = getCookie("irclickid");
-    const validClickid = getCookie("clickid");
+    const validIrclickid = getCookie("sc-irclickid");
+    const validClickid = getCookie("sc-clickid");
     const validScCoupon = getCookie("sc-coupon");
 
     const isValidCookie = validIrclickid || validClickid || validScCoupon;
@@ -782,11 +782,11 @@ function saveClickIdToCookie() {
   const scCoupon = getQueryParameter("sc-coupon");
 
   if (irclickid) {
-      setCookie("irclickid", irclickid, 7);
+      setCookie("sc-irclickid", irclickid, 7);
   }
 
   if (clickid) {
-      setCookie("clickid", clickid, 7);
+      setCookie("sc-clickid", clickid, 7);
   }
 
   if (scCoupon && scCoupon === "activated") {
