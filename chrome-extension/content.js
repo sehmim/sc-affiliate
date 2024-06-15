@@ -214,23 +214,33 @@ async function initialize() {
     }
 
     // BRAND PAGES
-    let isCookieExpired;
-    let codeAlreadyAppliedToURL;
+    let codeAlreadyAppliedToBrand;
     const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
 
     if (allowedBrand) {
       // isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
       const href = window.location.href;
-      codeAlreadyAppliedToURL = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
+      const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
+      
+      const validIrclickid = getCookie("irclickid");
+      const validClickid = getCookie("clickid");
+      const validScCoupon = getCookie("sc-coupon");
 
+      const isValidCookie = validIrclickid || validClickid || validScCoupon;
+
+      codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
+
+      if (codeInUrl && !isValidCookie) {
+        saveClickIdToCookie()
+      }
     }
 
     // SHOW APPLIED POPUP
-    if (allowedBrand && codeAlreadyAppliedToURL) {
+    if (allowedBrand && codeAlreadyAppliedToBrand) {
       await createAppliedLinkPageContainer(allowedBrand, closedDiv);
     }
 
-    if (allowedBrand && !allowedSubDomain && !codeAlreadyAppliedToURL) {
+    if (allowedBrand && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
       await createActivatePageContainer(allowedBrand, closedDiv);
     }
   }
@@ -432,10 +442,6 @@ function createClosedDiv() {
   img.style.cursor = 'pointer';
   img.style.display = 'none';
 
-  // Add the onClick event
-  img.onclick = function() {
-      isolatedIframe.style.visibility = 'visible';
-  };
 
   // Return the img
   return img;
@@ -522,7 +528,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     closedDiv.onclick = function () {
       isolatedIframe.style.display = '';
       closedDiv.style.display = 'none';
-      localStorage.setItem('sc-minimize', false);
+      setCookie("sc-minimize", false);
     }
 
     var div = document.createElement("div");
@@ -542,7 +548,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     closeButton.style.fontSize = '15px';
     closeButton.style.color = '#333';
     closeButton.onclick = function() {
-      window.localStorage.setItem('sc-minimize', true);
+      setCookie("sc-minimize", true);
       isolatedIframe.style.display = 'none';
       closedDiv.style.display = '';
     };
@@ -577,8 +583,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
             if (allowedBrand && allowedBrand.discountType === "Coupon") {
               if (isCouponedWebsiteCheckout()) {
                 await handleApplyCouponCodeOnCheckout(couponInfo?.couponCode, isolatedIframe);
-                localStorage.setItem('sc-minimize', false);
-                localStorage.setItem('sc-activated', true); 
+                setCookie("sc-minimize", false);
               } else {
                 window.location.href = allowedBrand.trackingLink;
               }
@@ -586,8 +591,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
 
             if (allowedBrand) {
               await applyAffiliateLink(allowedBrand);
-              localStorage.setItem('sc-minimize', false);
-              localStorage.setItem('sc-activated', true);
+              setCookie("sc-minimize", false);
             } 
 
         } catch (error) {
@@ -623,13 +627,20 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv){
     iframeDocument.body.appendChild(middleSection);
   };
   document.body.appendChild(isolatedIframe);
+
+  const isMinimized = getCookie("sc-minimize"); 
+  
+  if (isMinimized === "true") {
+    closedDiv.style.display = 'flex';
+    isolatedIframe.style.display = 'none';
+  }
 }
 
 function createNavbar(isolatedIframe, closedDiv) {
     closedDiv.onclick = function () {
       isolatedIframe.style.display = '';
       closedDiv.style.display = 'none';
-      localStorage.setItem('sc-minimize', false);
+      setCookie("sc-minimize", false);
     }
 
     var div = document.createElement("div");
@@ -661,7 +672,7 @@ function createNavbar(isolatedIframe, closedDiv) {
     closeButton.style.color = 'white';
     closeButton.onclick = function() {
       isolatedIframe.style.display = 'none';
-      window.localStorage.setItem('sc-minimize', true);
+      setCookie("sc-minimize", true);
       closedDiv.style.display = '';
     };
     div.appendChild(closeButton);
@@ -734,4 +745,47 @@ async function createApplyCouponCodeContainer(couponInfo, closedDiv){
     iframeDocument.body.appendChild(rightDiv);
   };
   document.body.appendChild(isolatedIframe);
+}
+
+
+/////////// COOKIES /////////////
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function getQueryParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+function saveClickIdToCookie() {
+  const irclickid = getQueryParameter("irclickid");
+  const clickid = getQueryParameter("clickid");
+  const scCoupon = getQueryParameter("sc-coupon");
+
+  if (irclickid) {
+      setCookie("irclickid", irclickid, 7);
+  }
+
+  if (clickid) {
+      setCookie("clickid", clickid, 7);
+  }
+
+  if (scCoupon && scCoupon === "activated") {
+      setCookie("sc-coupon", scCoupon, 7);
+  }
 }
