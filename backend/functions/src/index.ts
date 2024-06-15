@@ -319,17 +319,17 @@ export const applyTrackingLink = onRequest((req, res) => {
         return res.status(200).json(responseData.trackingLink);
       }
 
-      // If no matching document is found, generate a new tracking link
+      // If no matching document is found, generate a new trackingLink
       const responseData = await generateLink(programId as any, teamName as any);
 
-      // Save the new tracking link and teamName to Firestore
+      // Save the new trackingLink and teamName to Firestore
       await admin.firestore().collection("trackingLinks").add({
         teamName,
         programId,
         trackingLink: responseData.TrackingURL,
       });
 
-      // Return the generated tracking link
+      // Return the generated trackingLink
       return res.status(200).json(responseData.TrackingURL);
     } catch (error) {
       console.error("Error:", error);
@@ -548,7 +548,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 45 day(s) after the end of the month",
     "discountPercentage": 5,
     "discountType": "Net Sales Amount",
-    "subDomains": ["https://adidas-australia.pxf.io", "https://purehempbotanicals.com"],
+    "subDomains": ["https://adidas-australia.pxf.io"],
   },
   {
     "advertiserID": 2583300,
@@ -569,7 +569,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 1 month(s) and 1 day(s) after the end of the month",
     "discountPercentage": 60,
     "discountType": "Net Sales Amount",
-    "subDomains": []
+    "subDomains": ["https://purehempbotanicals.com"]
   },
   {
     "advertiserID": 1719590,
@@ -653,7 +653,7 @@ const CAMPAIGNS = [
     "actionLocking": "Actions are locked 15 day(s) after they are approved by advertiser. If actions are not locked after 13 month(s), they are rejected.",
     "discountPercentage": 12,
     "discountType": "Net Sales Amount",
-    "subDomains": []
+    "subDomains": ["https://go.impact.com"]
   },
   {
     "advertiserID": 2588106,
@@ -823,28 +823,6 @@ const CAMPAIGNS = [
     "discountType": "Net Sales Amount",
     "subDomains": []
   },
-  // TODO: ADD ALL THE CAMPAIGNS AND THEIR SUB DOMAINS
-  // {
-  //   "advertiserID": 298281,
-  //   "advertiserName": "Points",
-  //   "advertiserURL": "https://www.points.com",
-  //   "advertiserCategory": "Transportation",
-  //   "campaignID": 5123,
-  //   "campaignName": "Copa Airlines ConnectMiles - Points.com",
-  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/5123.gif",
-  //   "activeDate": "Apr 9, 2024 15:50",
-  //   "insertionOrderName": "Public Terms",
-  //   "insertionOrderStatus": "Active",
-  //   "trackingLink": "https://copa.sjv.io/c/4797259/343960/5123",
-  //   "allowsDeepLinking": true,
-  //   "payout": "You earn 2.5% of Net Sales Amount",
-  //   "performanceBonus": "N/a",
-  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
-  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
-  //   "discountPercentage": 2.5,
-  //   "discountType": "Net Sales Amount",
-  //   "subDomains": []
-  // },
   {
     "advertiserID": 2642689,
     "advertiserName": "Pro Hockey Life",
@@ -890,7 +868,7 @@ const CAMPAIGNS = [
   {
     "advertiserID": 3663611,
     "advertiserName": "Supernova Pte Ltd",
-    "advertiserURL": "https://us.cocoandeve.com",
+    "advertiserURL": "https://www.cocoandeve.com",
     "advertiserCategory": "Cosmetics & Skin Care",
     "campaignID": 17345,
     "campaignName": "Coco&Eve",
@@ -906,7 +884,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
     "discountType": "Net Sales Amount",
-    "subDomains": ["https://*.cocoandeve.*"]
+    "subDomains": ["https://us.cocoandeve.com", "https://ca.cocoandeve.com"]
   },
   {
     "advertiserID": 3705465,
@@ -927,7 +905,7 @@ const CAMPAIGNS = [
     "actionLocking": "All actions happening in a given month are locked 27 day(s) after the end of the month",
     "discountPercentage": 2,
     "discountType": "Net Sales Amount",
-        "subDomains": ["https://*.sandandsky.*"]
+    "subDomains": ["https://ca.sandandsky.com"]
   },
   {
     "advertiserID": 3938277,
@@ -991,5 +969,257 @@ const CAMPAIGNS = [
     "discountPercentage": 6,
     "discountType": "Net Sales Amount",
     "subDomains": []
+  },
+  // COUPONED WEBSITES: 
+  {
+    "discountPercentage": 20,
+    "advertiserName": 'lacoutts.com',
+    "campaignLogoURI": 'https://i.imgur.com/FOe5vMf.png',
+    "advertiserURL": 'https://lacoutts.com',
+    "subDomains": [],
+    "discountType": "Coupon",
+    "trackingLink": "https://lacoutts.com?sc-coupon=activated&couponCode=LaCouttsSC20&discountPercentage=20",
+    "couponCode": "LaCouttsSC20",
+  },
+  {
+    "discountPercentage": 10,
+    "advertiserName": 'softstrokessilk.com',
+    "campaignLogoURI": '',
+    "advertiserURL": 'https://www.softstrokessilk.com',
+    "subDomains": [],
+    "discountType": "Coupon",
+    "trackingLink": "https://softstrokessilk.com?sc-coupon=activated&couponCode=LOVESILK&discountPercentage=10",
+    "couponCode": "LOVESILK",
   }
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 4704,
+  //   "campaignName": "United Airlines MileagePlus - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4704.gif",
+  //   "activeDate": "Apr 9, 2024 15:48",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://united.elfm.net/c/4797259/302886/4704",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://buymiles.mileageplus.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 4705,
+  //   "campaignName": "Southwest Airlines Rapid Rewards - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4705.gif",
+  //   "activeDate": "Mar 4, 2024 16:45",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://swa.eyjo.net/c/4797259/302888/4705",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://www.southwest.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 4707,
+  //   "campaignName": "Alaska Airlines Mileage Plan - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4707.gif",
+  //   "activeDate": "Apr 9, 2024 15:48",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://alaska.gqco.net/c/4797259/302892/4707",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://storefront.points.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Accommodations",
+  //   "campaignID": 4797,
+  //   "campaignName": "IHG Rewards Club - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4797.gif",
+  //   "activeDate": "Mar 4, 2024 16:45",
+  //   "insertionOrderName": "Public Term",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://ihg.hmxg.net/c/4797259/310617/4797",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://storefront.points.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Accommodations",
+  //   "campaignID": 4823,
+  //   "campaignName": "Hilton Honors Rewards - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4823.gif",
+  //   "activeDate": "Mar 4, 2024 16:46",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://hilton.ijrn.net/c/4797259/314255/4823",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://www.hilton.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Accommodations",
+  //   "campaignID": 4882,
+  //   "campaignName": "World of Hyatt - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4882.gif",
+  //   "activeDate": "Apr 9, 2024 15:48",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://hyatt.jewn.net/c/4797259/319067/4882",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://storefront.points.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 4883,
+  //   "campaignName": "JetBlue TrueBlue - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4883.gif",
+  //   "activeDate": "Apr 9, 2024 15:51",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://jetblue.jyeh.net/c/4797259/319069/4883",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://www.jetblue.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 4885,
+  //   "campaignName": "Choice Privileges - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4885.gif",
+  //   "activeDate": "Apr 9, 2024 15:48",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://choice.mtko.net/c/4797259/319073/4885",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://storefront.points.com"] 
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 4926,
+  //   "campaignName": "Air France KLM Flying Blue - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4926.gif",
+  //   "activeDate": "Apr 9, 2024 15:48",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://afklm.tcux.net/c/4797259/321349/4926",
+  //   "allowsDeepLinking": false,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://www.flyingblue.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Accommodations",
+  //   "campaignID": 4937,
+  //   "campaignName": "Marriott Bonvoy - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/4937.gif",
+  //   "activeDate": "Mar 4, 2024 16:45",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://marriott.pxf.io/c/4797259/321373/4937",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 7 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://buy.points.com"]
+  // },
+  // {
+  //   "advertiserID": 298281,
+  //   "advertiserName": "Points",
+  //   "advertiserURL": "http://www.points.com",
+  //   "advertiserCategory": "Transportation",
+  //   "campaignID": 5123,
+  //   "campaignName": "Copa Airlines ConnectMiles - Points.com",
+  //   "campaignLogoURI": "https://cdn2.impact.com/display-logo-via-campaign/5123.gif",
+  //   "activeDate": "Apr 9, 2024 15:50",
+  //   "insertionOrderName": "Public Terms",
+  //   "insertionOrderStatus": "Active",
+  //   "trackingLink": "https://copa.sjv.io/c/4797259/343960/5123",
+  //   "allowsDeepLinking": true,
+  //   "payout": "You earn 2.5% of Net Sales Amount",
+  //   "performanceBonus": "N/a",
+  //   "clickReferralPeriod": "Referrals are only considered for credit if they occur within 15 day(s) of the action",
+  //   "actionLocking": "All actions happening in a given month are locked 1 month(s) and 0 day(s) after the end of the month",
+  //   "discountPercentage": 2.5,
+  //   "discountType": "Net Sales Amount",
+  //   "subDomains": ["https://storefront.points.com/"]
+  // },
 ]

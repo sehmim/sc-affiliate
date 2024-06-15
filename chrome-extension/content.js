@@ -1,5 +1,6 @@
 const LOCAL_ENV = true;
-const SELECTED_TEAM = '(A.C.C.E.S.) ACCESSIBLE COMMUNITY COUNSELLING AND EMPLOYMENT SERVICES'
+const SELECTED_TEAM = '(AIESEC) Canada International Congress Inc';
+const AIESEC_ICON = "https://i.imgur.com/SxAYeEl.png";
 const COMMISSION_RATE = 0.50;
 const DOMAINS = [
   'https://www.adidas.com.au',
@@ -23,7 +24,8 @@ const DOMAINS = [
   'https://www.sandandsky.com',
   'https://www.curiositybox.com/',
   'https://www.ravpower.com',
-  'https://wish.com'
+  'https://wish.com',
+  'https://lacoutts.com/'
 ];
 
 ///////////////////////////////////
@@ -54,105 +56,24 @@ function isGoogle(url) {
     return pattern.test(url);
 }
 
-function checkCookieExpiration(url, cookieName) {
+function isMainDomain(currentUrl, mainDomain) {
+    function extractMainDomain(url) {
+        let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
+        domain = domain.split('/')[0];
+        let parts = domain.split('.');
+        return parts.slice(0, -1).join('.');
+    }
 
-  if (isGoogle(url)) {
-    return
-  }
+    // Extract main parts of the domains from both URLs
+    let mainPartCurrent = extractMainDomain(currentUrl);
+    let mainPartMain = extractMainDomain(mainDomain);
 
-    console.log(`Checking cookie: ${cookieName} for URL: ${url}`); // Debug log
-    chrome.runtime.sendMessage({ action: 'checkCookie', url: url, cookieName: cookieName }, function(response) {
-        if (response && response.error) {
-            console.error(response.error);
-        } else if (response && response.expired) {
-            console.log("Cookie is expired");
-        } else {
-            console.log("Cookie is not expired");
-        }
-    });
-}
-
-// Function to create and style the div container
-function createDivContainer() {
-  const div = document.createElement('div');
-  div.style.position = 'fixed';
-  div.style.width = '400px';
-  div.style.top = '60px';
-  div.style.right = '20px';
-  div.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-  div.style.padding = '35px 10px 10px 10px';
-  div.style.border = '1px solid #ccc';
-  div.style.zIndex = '9999'; // Set a high z-index value
-  
-  // Create and append close button
-  const closeButton = document.createElement('button');
-  closeButton.textContent = 'X';
-  closeButton.style.position = 'absolute';
-  closeButton.style.top = '10px';
-  closeButton.style.right = '10px';
-  closeButton.style.backgroundColor = 'transparent';
-  closeButton.style.border = 'none';
-  closeButton.style.cursor = 'pointer';
-  closeButton.style.fontSize = '20px';
-  closeButton.style.color = '#333';
-  closeButton.onclick = function() {
-    div.style.display = 'none';
-  };
-  div.appendChild(closeButton);
-  
-  return div;
-}
-
-function createDropdownWithOptions(optionsArray, textContent) {
-  var labelElement = document.createElement('label');
-  labelElement.textContent = textContent || 'Select your team:';
-
-  var selectElement = document.createElement('select');
-  selectElement.id = "selectedTeam";
-
-  optionsArray.forEach(function(optionText) {
-    var optionElement = document.createElement('option');
-    optionElement.textContent = optionText;
-    optionElement.value = optionText;
-    selectElement.style.width = "200px";
-    selectElement.appendChild(optionElement);
-  });
-
-  var containerDiv = document.createElement('div');
-  containerDiv.appendChild(labelElement);
-  containerDiv.appendChild(selectElement);
-  containerDiv.style.display = "flex";
-  containerDiv.style.justifyContent = "space-between";
-
-  return { allowedTeamsDropdown: containerDiv, selectElement};
-}
-
-function createLoginButton() {
-  var loginButton = document.createElement('button');
-  loginButton.textContent = 'Login';
-  loginButton.style.cursor = 'pointer'; // Make cursor change on hover
-
-  loginButton.addEventListener('click', function() {
-    window.location.href = 'https://sponsorcircle-affiliate-git-feature-landingpage-sehmim.vercel.app/login';
-  });
-
-  return loginButton;
-}
-
-function createLogoutButton() {
-  let button = document.createElement('button');
-  
-  button.textContent = 'Logout';
-  button.addEventListener('click', function() {
-    localStorage.removeItem('sponsorcircle-useremail');
-    window.location.reload();
-  });
-
-  return button;
+    // Check if the main parts match
+    return mainPartCurrent === mainPartMain;
 }
 
 //////////////////////////////////////
-function handleApplyCouponCode(couponCode, isolatedIframe){
+function handleApplyCouponCodeOnCheckout(couponCode, isolatedIframe){
   let discountInput = 
     document.querySelector('input[aria-label="Discount code"]') 
     || document.querySelector('input[placeholder="Discount code"]');
@@ -185,69 +106,51 @@ function handleApplyCouponCode(couponCode, isolatedIframe){
     }, 300);
   }
 
-function handleApplyCouponCodeForLavenderPolo(couponCode, isolatedIframe) {
-  
-}
-
-async function fetchAllowedGroups(userEmail) {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getAllGroups" : "https://getallgroups-6n7me4jtka-uc.a.run.app";
-  const groups = await fetchDataFromServer(url);
-
-  return groups.filter((group) => {
-    const isLeader = group.leader.email === userEmail;
-    const isMember = group.members.some(member => member.email === userEmail);
-    
-    if (isLeader || isMember) {
-      return true;
-    } else {
-      return false;
-    }
-  }).map(group => group.teamName);
-}
-
-async function fetchDefaultCharaties() {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getDefaultCharities" : "https://getdefaultcharities-6n7me4jtka-uc.a.run.app";
-  const charities = await fetchDataFromServer(url);
-
-  return charities.map(({ data }) => {
-    return data.organizationName;
-  })
-}
 
 function getAllowedBrandInfo(campaigns) {
-  const currentWebsiteUrl = window.location.origin;
+  const currentWebsiteUrl = window.location.hostname;
+  let resultCampaign = null;
+  let resultSubDomain = null;
 
   for (let i = 0; i < campaigns.length; i++) {
-    const campaign = campaigns[i];
-    const urlHostname = new URL(campaign.advertiserURL);
-
-    if (currentWebsiteUrl.includes(urlHostname.origin)) {
-      return campaign;
+    if (resultCampaign) {
+      return {
+        allowedBrand: resultCampaign,
+        allowedSubDomain: resultSubDomain,
+      }
     }
+
+    const campaign = campaigns[i];
+    const urlHostname = new URL(campaign.advertiserURL).hostname;
+    
+    // Check if window hostname matches campain hostname  
+    if (isMainDomain(currentWebsiteUrl, urlHostname)) {
+      return {
+        allowedBrand: campaign,
+        allowedSubDomain: null,
+      }
+    }
+
+    // Otherwiese check if window hostname matches campain's subdomain's hostname  
+    const allowedSubDomains = campaign.subDomains;
+    allowedSubDomains.forEach((allowedSubDomain)=> {
+      const allowedSubDomainHostname = new URL(allowedSubDomain).hostname;
+
+      if (isMainDomain(currentWebsiteUrl, allowedSubDomainHostname)) {
+        resultCampaign = campaign;
+        resultSubDomain = allowedSubDomain;
+      }
+    })
   }
 
-  return null;
+  return {
+        allowedBrand: null,
+        allowedSubDomain: null,
+      };
 }
 
-// function getAllowedBrandInfo(allowedDomainsWithIds) {
-//   const currentWebsiteUrl = window.location.hostname;
 
-//   for (const [url, id] of Object.entries(allowedDomainsWithIds)) {
-
-//     const urlHostname = new URL(url);
-//     if (currentWebsiteUrl.includes(urlHostname.hostname)) {
-//       return { url: urlHostname, id };
-//     }
-//   }
-
-//   return null;
-// }
-
-function getKeyByValue(object, value) {
-  return Object.keys(object).find(key => object[key] === value);
-}
-
-function isCouponedWebsite() {
+function isCouponedWebsiteCheckout() {
   // const COUPONED_BRANDS = ["lacoutts.com", "softstrokessilk.com", "lavenderpolo.com"]
   let couponInfo = null;
   const href = window.location.href;
@@ -266,106 +169,69 @@ function isCouponedWebsite() {
     }
   } 
 
-  // else if(href.includes("https://www.lavenderpolo.com/checkout")){
-  //   couponInfo = {
-  //     brand: "lavenderpolo.com",
-  //     couponCode: "LPOLO",
-  //     amount: "10%"
-  //   }
-  // }
+  return couponInfo;
+}
+
+function isCouponedWebsite(domain) {
+  let couponInfo = null;
+  const href = new URL(domain).href;
+
+  if (href.includes("https://lacoutts.com")) {
+    couponInfo = {
+      brand: "lacoutts.com",
+      couponCode: "LaCouttsSC20",
+      amount: "20%"
+    }
+  } else if (href.includes("https://www.softstrokessilk.com")) {
+    couponInfo = {
+      brand: "softstrokessilk.com",
+      couponCode: "LOVESILK",
+      amount: "10%"
+    }
+  } 
 
   return couponInfo;
 }
 
 ///////////////////////////// INITIALIZE ////////////////////////////////
 async function initialize() {
-
   const closedDiv = createClosedDiv();
   document.body.appendChild(closedDiv);
 
-  // If Couponsed Website show coupon view
-  const couponInfo = isCouponedWebsite();
-  if (couponInfo) {
-    await createApplyCouponCodeContainer(couponInfo, closedDiv);
-  } else {
-    const campaigns = await fetchCampaigns();
+  const campaigns = await fetchCampaigns();
 
     // GOOGLE SEARCH
-    const isGoogleSearch = window.location.href.includes('https://www.google.com/search') || window.location.href.includes('https://www.google.ca/search');
-
+    const isGoogleSearch = window.location.href.includes('https://www.google.com/search') ||
+                           window.location.href.includes('https://www.google.ca/search');
     if (isGoogleSearch) {
       await applyGoogleSearchDiscounts(campaigns);
-      return
+      return;
     }
 
     // BRAND PAGES
-    let isCookieExpired;
-    let codeAlreadyAppliedToURL;
-    const allowedBrand = getAllowedBrandInfo(campaigns);
+    const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
+    
+    if (!allowedBrand) return;
+    
+    let codeAlreadyAppliedToBrand = isCodeAlreadyAppliedToWebsite();
 
-    if (allowedBrand) {
-      isCookieExpired = await checkCookieExpiration(window.location.origin, "irclickid");
-      codeAlreadyAppliedToURL = window.location.href.includes("irclickid") || window.location.href.includes("clickid");
+    // Coupon Container
+    const couponInfo = isCouponedWebsiteCheckout();
+    if (couponInfo) {
+      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand);
+    } else {
+      // SHOW APPLIED POPUP
+      if (codeAlreadyAppliedToBrand) {
+        await createAppliedLinkPageContainer(allowedBrand, closedDiv);
+      }
+
+      // Regular Affilicate Link Container
+      if (!couponInfo && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
+        await createActivatePageContainer(allowedBrand, closedDiv);
+      }
     }
-
-    if ((allowedBrand && !codeAlreadyAppliedToURL && !isCookieExpired)) {
-      await createActivatePageContainer(allowedBrand, closedDiv);
-    }
-
-    if (allowedBrand && codeAlreadyAppliedToURL) {
-      await createAppliedLinkPageContainer(allowedBrand, closedDiv);
-    }
-
-  }
-
-  // if (matchedDomain && matchedDomain?.couponCode) {
-  //   if (window.location.href.includes("checkouts")) {
-  //     const div = createDivContainer();
-
-  //     // const dropdown = createDropdownWithOptions(allowedTeams);
-
-  //     const button = createButton();
-  //     button.addEventListener('click', () => handleApplyCouponCode(matchedDomain.couponCode, div));
-
-  //     // div.appendChild(dropdown);
-  //     div.appendChild(button);
-  //     document.body.appendChild(div);
-  //   }
-  // } else {
-  //   const appliedURL = window.location.href.includes("irclickid");
-  //   if (matchedDomain && !appliedURL) {
-  //     const div = createDivContainer();
-      
-  //     const dropdown = createDropdownWithOptions(allowedTeams);
-      
-  //     const button = createButton();
-  //     button.addEventListener('click', () => handleButtonClick(matchedDomain.affiliateLink));
-      
-  //     div.appendChild(dropdown);
-  //     div.appendChild(button);
-  //     document.body.appendChild(div);
-  //   }
-  // }
 }
 
-function getUserInfo() {
-
-  console.log("chrome ----->", chrome);
-  // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  //   const activeTab = tabs[0];
-  //   chrome.tabs.sendMessage(activeTab.id, { type: 'USER_EMAIL', payload: 'user@example.com' });
-  // });
-}
-
-function greetUser() {
-  const userEmail = localStorage.getItem('sponsorcircle-useremail');
-  if (userEmail) {
-    const div = document.createElement('div');
-    div.innerText = `Hello ${userEmail}`;
-
-    return div;
-  }
-}
 
 initialize().then(() => {
   console.log("INITIALZIED")
@@ -373,107 +239,25 @@ initialize().then(() => {
 
 
 
+function isCodeAlreadyAppliedToWebsite() {
+    let codeAlreadyAppliedToBrand;
+    const href = window.location.href;
+    const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
+    
+    const validIrclickid = getCookie("irclickid");
+    const validClickid = getCookie("clickid");
+    const validScCoupon = getCookie("sc-coupon");
 
-// TODO: 
-function createCloseButton(iframe) {
-    const closeButton = document.createElement('div');
-    closeButton.innerHTML = 'X';
-    closeButton.style.position = 'absolute';
-    closeButton.style.top = '5px';
-    closeButton.style.right = '5px';
-    closeButton.style.cursor = 'pointer';
-    closeButton.style.padding = '5px';
-    closeButton.style.backgroundColor = 'red';
-    closeButton.style.color = 'white';
-    closeButton.addEventListener('click', function() {
-        iframe.style.display = 'none'; // Hide the iframe when close button is clicked
-    });
-    return closeButton;
-}
+    const isValidCookie = validIrclickid || validClickid || validScCoupon;
 
+    codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
 
-function generateLoginForm() {
-  // Create form element
-  const form = document.createElement('form');
-
-  // Create header
-  const header = document.createElement('div');
-  header.innerText = "LOGIN";
-
-  // Create email input
-  const emailInput = document.createElement('input');
-  emailInput.setAttribute('type', 'email');
-  emailInput.setAttribute('placeholder', 'Email');
-  emailInput.setAttribute('name', 'email');
-  
-  // Create password input
-  const passwordInput = document.createElement('input');
-  passwordInput.setAttribute('type', 'password');
-  passwordInput.setAttribute('placeholder', 'Password');
-  passwordInput.setAttribute('name', 'password');
-  
-  // Create submit button
-  const submitButton = document.createElement('button');
-  submitButton.textContent = 'Submit';
-  
-  // Add event listener to submit button
-  submitButton.addEventListener('click', async function(event) {
-      event.preventDefault();
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      await loginUser(email, password);
-  });
-
-  // Create Register link
-  const register = document.createElement('a');
-  register.innerText = "Register";
-  register.setAttribute('target','_blank');
-  register.href = 'https://sponsorcircle-affiliate.vercel.app/register';
-
-  // Append inputs and button to form
-  form.appendChild(header);
-  form.appendChild(emailInput);
-  form.appendChild(passwordInput);
-  form.appendChild(submitButton);
-  form.appendChild(register);
-  
-  return form;
-}
-
-
-async function loginUser(email, password) {
-    const url = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/loginUser': "https://loginuser-6n7me4jtka-uc.a.run.app";
-
-    const data = {
-        email: email,
-        password: password
-    };
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to login');
-        }
-
-        if (response.ok) {
-          localStorage.setItem('sponsorcircle-useremail', email);
-          location.reload();
-        }
-
-        return await response.json();
-    } catch (error) {
-        alert('Failed to login');
-        return { error };
+    if (codeInUrl && !isValidCookie) {
+      saveClickIdToCookie()
     }
-}
 
+    return codeAlreadyAppliedToBrand;
+}
 
 async function applyAffiliateLink(allowedBrand, selectedTeam){
   // if (selectedTeam === "------Your Teams-----" || selectedTeam === "-----Default Charities-----") {
@@ -500,33 +284,8 @@ async function applyAffiliateLink(allowedBrand, selectedTeam){
 }
 
 
-// applyGoogleSearchDiscounts();
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', applyImpactLink);
-}
-
-async function fetchAllowedDomains() {
-  let allowedDomains = JSON.parse(localStorage.getItem('sc-allowed-domains')) || null;
-  const cachedTimestamp = localStorage.getItem('sc-cache-timestamp');
-  const currentTime = new Date().getTime();
-
-  if (allowedDomains && Object.keys(allowedDomains).length !== 0 && cachedTimestamp) {
-    // Check if cache is still valid (within 24 hours)
-    const cacheExpiryTime = parseInt(cachedTimestamp) + 24 * 60 * 60 * 1000;
-    if (currentTime < cacheExpiryTime) {
-      return allowedDomains;
-    }
-  }
-
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/allowedDomains" : "https://alloweddomains-6n7me4jtka-uc.a.run.app";
-  allowedDomains = await fetchDataFromServer(url) || [];
-  
-  // Update cache with new data and timestamp
-  localStorage.setItem('sc-allowed-domains', JSON.stringify(allowedDomains));
-  localStorage.setItem('sc-cache-timestamp', currentTime.toString());
-
-  return allowedDomains;
 }
 
 async function fetchCampaigns() {
@@ -549,86 +308,79 @@ function extractUrlFromCite(divElement) {
 }
 
 
-// function getAllowedMainDomains(campaigns){
-//   return campaigns.map((campaign)=> {
-//     const hostname = new URL(campaign?.advertiserURL)?.hostname;
-//     const mainDomain = hostname.split('.').slice(-2).join('.');
-//     return mainDomain;
-//   })
-// }
+function applyGoogleSearchDiscounts(campaigns) {
+  const searchResults = document.querySelectorAll('div.g');
 
-// async function main(){
-  function applyGoogleSearchDiscounts(campaigns) {
-    const searchResults = document.querySelectorAll('div.g');
+  searchResults.forEach(result => {
+    const href = result.querySelector('a[href^="http"]')?.href;
+    const url = href || extractUrlFromCite(result);
 
-    searchResults.forEach(result => {
-      const href = result.querySelector('a[href^="http"]')?.href;
-      const url = href || extractUrlFromCite(result);
+    if (!url) return;
 
-      if (!url) {
-        console.log("url-->", url);
-        console.log("asdasd-->", result.querySelector('a[href^="http"]'));
-        console.log("123123-->", extractUrlFromCite(result));
-        return
+    const domain = new URL(url).hostname;
+
+    campaigns.map(campaign => {
+      const allowedDomain = new URL(campaign.advertiserURL).hostname;
+      const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
+
+      if (!isMainDomain(domain, allowedDomain)) {
+        const allowedSubDomains = campaign.subDomains;
+
+        if (!allowedSubDomains || allowedSubDomains.length === 0) return;
+
+        let matched = false;
+        allowedSubDomains.forEach(allowedSubDomain => {
+          const allowedDomainHostname = new URL(allowedSubDomain).hostname;
+          if (isMainDomain(domain, allowedDomainHostname)) {
+            matched = true;
+          }
+        });
+        if (!matched) return;
       }
 
-      const domain = new URL(url).hostname;
+      const mainDiv = document.createElement('div');
+      mainDiv.style.color = '#1a0dab';
+      mainDiv.style.background = '#eeeeee';
+      mainDiv.style.fontSize = '14px';
+      mainDiv.style.lineHeight = '27px';
+      mainDiv.style.height = '37px';
+      mainDiv.style.margin = '0 0 7px 0';
+      mainDiv.style.padding = '6px 0 0 8px';
+      mainDiv.style.boxSizing = 'border-box';
+      mainDiv.style.width = '100%';
+      mainDiv.style.borderRadius = '5px';
+      mainDiv.style.fontFamily = "'Cerebri Sans', sans-serif";
+      mainDiv.style.minWidth = '542px';
+      mainDiv.style.cursor = 'pointer';
 
-      campaigns.map((campaign) => {
-        const allowedDomain = new URL(campaign.advertiserURL).hostname;
-        const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
+      const logoDiv = document.createElement('div');
+      logoDiv.style.width = '33px';
+      logoDiv.style.height = '25px';
+      logoDiv.style.float = 'left';
+      logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
+      logoDiv.style.backgroundSize = 'contain';
 
-        if (!domain.includes(allowedDomain)) {
-          return
-        }
+      const textDiv = document.createElement('a');
+      textDiv.style.whiteSpace = 'nowrap';
+      textDiv.textContent = `Give ${percentage} to your cause 💜`;
+      textDiv.href = campaign.trackingLink;
+      textDiv.target = "_blank";
 
-        if (domain.includes(allowedDomain)) {
-          const mainDiv = document.createElement('div');
-          mainDiv.style.color = '#1a0dab';
-          mainDiv.style.background = '#eeeeee';
-          mainDiv.style.fontSize = '14px';
-          mainDiv.style.lineHeight = '27px';
-          mainDiv.style.height = '37px';
-          mainDiv.style.margin = '0 0 7px 0';
-          mainDiv.style.padding = '6px 0 0 8px';
-          mainDiv.style.boxSizing = 'border-box';
-          mainDiv.style.width = '100%';
-          mainDiv.style.borderRadius = '5px';
-          mainDiv.style.fontFamily = "'Cerebri Sans', sans-serif";
-          mainDiv.style.minWidth = '542px';
-          mainDiv.style.cursor = 'pointer';
+      mainDiv.appendChild(logoDiv);
+      mainDiv.appendChild(textDiv);
 
-          const logoDiv = document.createElement('div');
-          logoDiv.style.width = '33px';
-          logoDiv.style.height = '25px';
-          logoDiv.style.float = 'left';
-          logoDiv.style.background = "url(https://i.imgur.com/GDbtHnR.png) no-repeat";
-          logoDiv.style.backgroundSize = 'contain';
-
-          const textDiv = document.createElement('a');
-          textDiv.style.whiteSpace = 'nowrap';
-          textDiv.textContent = `Give ${percentage} to your cause 💜`
-          textDiv.href = campaign.trackingLink;
-          textDiv.target = "_blank";
-
-          mainDiv.appendChild(logoDiv);
-          mainDiv.appendChild(textDiv);
-
-          result.insertBefore(mainDiv, result.firstChild);
-          return
-        }
-      })
+      result.insertBefore(mainDiv, result.firstChild);
+      return
     });
-  }
+  });
+}
+
 
 
 
 ///////////////////////////// NEW DESIGN //////////////////////////////////
 function createIsolatedIframe(width, height) {
-  // Create a new iframe element
   const iframe = document.createElement('iframe');
-
-  // Set attributes for the iframe
   iframe.setAttribute('src', 'about:blank'); // Load a blank page initially
 
   // Set initial inline styles for the iframe
@@ -643,7 +395,7 @@ function createIsolatedIframe(width, height) {
   iframe.style.borderRadius = '16px';
   iframe.style.boxShadow = '0px 4px 4px 0px rgba(0, 0, 0, 0.25)';
   iframe.style.display = 'flex';
-  iframe.style.zIndex = 10000;
+  iframe.style.zIndex = 20000;
   iframe.style.transition = 'top 0.75s ease-out'; // Animation for moving down
 
   // Access the document within the iframe
@@ -659,12 +411,9 @@ function createIsolatedIframe(width, height) {
     iframeDocument.body.style.color = '#333';
   }
 
-  // // Append the iframe to the document body
-  // document.body.appendChild(iframe);
-
   // Trigger the animation after appending
   setTimeout(() => {
-    iframe.style.top = '30%'; // Move down to the final position
+    iframe.style.top = '35%'; // Move down to the final position
 
     let link = iframe.contentDocument.createElement('link');
     link.href = 'https://fonts.cdnfonts.com/css/montserrat';
@@ -699,10 +448,6 @@ function createClosedDiv() {
   img.style.cursor = 'pointer';
   img.style.display = 'none';
 
-  // Add the onClick event
-  img.onclick = function() {
-      isolatedIframe.style.visibility = 'visible';
-  };
 
   // Return the img
   return img;
@@ -789,7 +534,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     closedDiv.onclick = function () {
       isolatedIframe.style.display = '';
       closedDiv.style.display = 'none';
-      localStorage.setItem('sc-minimize', false);
+      setCookie("sc-minimize", false);
     }
 
     var div = document.createElement("div");
@@ -809,7 +554,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
     closeButton.style.fontSize = '15px';
     closeButton.style.color = '#333';
     closeButton.onclick = function() {
-      window.localStorage.setItem('sc-minimize', true);
+      setCookie("sc-minimize", true);
       isolatedIframe.style.display = 'none';
       closedDiv.style.display = '';
     };
@@ -841,17 +586,18 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
             button.style.cursor = "not-allowed";
             button.textContent = "Loading...";
 
-            if (allowedBrand) {
+            if (allowedBrand && allowedBrand.discountType === "Coupon") {
+              if (isCouponedWebsiteCheckout()) {
+                await handleApplyCouponCodeOnCheckout(couponInfo?.couponCode, isolatedIframe);
+              } else {
+                window.location.href = allowedBrand.trackingLink;
+              }
+            } else {
               await applyAffiliateLink(allowedBrand);
-              localStorage.setItem('sc-minimize', false);
-              localStorage.setItem('sc-activated', true);
-            } 
-
-            if (couponInfo) {
-              await handleApplyCouponCode(couponInfo?.couponCode, isolatedIframe);
-              localStorage.setItem('sc-minimize', false);
-              localStorage.setItem('sc-activated', true);
             }
+  
+            setCookie("sc-minimize", false);
+
         } catch (error) {
             console.error("Error activating to give:", error);
         } finally {
@@ -885,13 +631,20 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv){
     iframeDocument.body.appendChild(middleSection);
   };
   document.body.appendChild(isolatedIframe);
+
+  const isMinimized = getCookie("sc-minimize"); 
+  
+  if (isMinimized === "true") {
+    closedDiv.style.display = 'flex';
+    isolatedIframe.style.display = 'none';
+  }
 }
 
 function createNavbar(isolatedIframe, closedDiv) {
     closedDiv.onclick = function () {
       isolatedIframe.style.display = '';
       closedDiv.style.display = 'none';
-      localStorage.setItem('sc-minimize', false);
+      setCookie("sc-minimize", false);
     }
 
     var div = document.createElement("div");
@@ -923,7 +676,7 @@ function createNavbar(isolatedIframe, closedDiv) {
     closeButton.style.color = 'white';
     closeButton.onclick = function() {
       isolatedIframe.style.display = 'none';
-      window.localStorage.setItem('sc-minimize', true);
+      setCookie("sc-minimize", true);
       closedDiv.style.display = '';
     };
     div.appendChild(closeButton);
@@ -943,7 +696,7 @@ function createMiddleSection(allowedBrand) {
     div.style.justifyContent = "center";
 
     var img = document.createElement("img");
-    img.src = "https://i.imgur.com/WGbvcpd.png";
+    img.src = AIESEC_ICON;
     img.style.width = "51.324px";
     img.style.height = "49px";
     img.style.margin = "20px";
@@ -981,11 +734,11 @@ function createMiddleSection(allowedBrand) {
 
 
 ///////////////////// COUPON CODE ////////////////////////////
-async function createApplyCouponCodeContainer(couponInfo, closedDiv){
+async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand){
   const isolatedIframe = createIsolatedIframe('400px', '100px');
   isolatedIframe.onload = async function() {
     const leftDiv = createLeftDiv();
-    const rightDiv = createRightDiv(isolatedIframe, undefined, couponInfo, closedDiv);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
@@ -996,4 +749,47 @@ async function createApplyCouponCodeContainer(couponInfo, closedDiv){
     iframeDocument.body.appendChild(rightDiv);
   };
   document.body.appendChild(isolatedIframe);
+}
+
+
+/////////// COOKIES /////////////
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function getQueryParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+function saveClickIdToCookie() {
+  const irclickid = getQueryParameter("irclickid");
+  const clickid = getQueryParameter("clickid");
+  const scCoupon = getQueryParameter("sc-coupon");
+
+  if (irclickid) {
+      setCookie("irclickid", irclickid, 7);
+  }
+
+  if (clickid) {
+      setCookie("clickid", clickid, 7);
+  }
+
+  if (scCoupon && scCoupon === "activated") {
+      setCookie("sc-coupon", scCoupon, 7);
+  }
 }
