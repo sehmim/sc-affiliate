@@ -2,10 +2,9 @@
   "manifest_version": 3,
   "name": "Sponsor Circle Affiliate",
   "version": "1.0",
-  "description": "Tracks brands that give you discounts",
+  "description": "Tracks brands that give you discounts. Click here to view our privacy policy: https://sponsorcircle.com/privacy-policy",
   "permissions": [
-    "activeTab", 
-    "storage", 
+    "tabs", 
     "cookies"
   ],
   "action": {
@@ -43,7 +42,6 @@
   "host_permissions": [
     "https://www.adidas.com.au/*",
     "https://anthologybrands.com/*",
-    "https://anthologybrands.com/*",
     "https://www.decathlon.ca/*",
     "https://www.easyship.com//*",
     "https://www.fanatics.com/*",
@@ -77,7 +75,8 @@
     "https://www.southwest.com/*",
     "https://buymiles.mileageplus.com/*",
     "https://lacoutts.com/*",
-    "https://www.softstrokessilk.com/*"
+    "https://www.softstrokessilk.com/*",
+    "https://*.google.com/search/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'",
