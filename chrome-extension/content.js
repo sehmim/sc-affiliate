@@ -1,6 +1,6 @@
 const LOCAL_ENV = false;
-const SELECTED_TEAM = 'AIESEC Canada';
-const AIESEC_ICON = "https://i.imgur.com/SxAYeEl.png";
+const SELECTED_TEAM = 'The Busby Centre';
+const SELECTED_TEAM_ICON = "https://i.imgur.com/JGT9FfJ.png";
 const COMMISSION_RATE = 0.50;
 const DOMAINS = [
   'https://www.adidas.com.au',
@@ -696,7 +696,7 @@ function createMiddleSection(allowedBrand) {
     div.style.justifyContent = "center";
 
     var img = document.createElement("img");
-    img.src = AIESEC_ICON;
+    img.src = SELECTED_TEAM_ICON;
     img.style.width = "51.324px";
     img.style.height = "49px";
     img.style.margin = "20px";

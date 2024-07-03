@@ -291,6 +291,7 @@ export default function ExtensionSettings(props) {
               {
                 defaultCharities && defaultCharities.map(({data: defaultCharity}) => {
                   return(
+                    defaultCharity.isActive &&
                     <MenuItem  key={1} value={defaultCharity.organizationName}>
                       {defaultCharity.organizationName}
                     </MenuItem>
@@ -310,6 +311,7 @@ export default function ExtensionSettings(props) {
             {
               defaultCharities && defaultCharities.map(({data: defaultCharity}) => {
                 return (
+                  defaultCharity?.isActive && 
                 <div
                   style={{
                     border: "1px solid",

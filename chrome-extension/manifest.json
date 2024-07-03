@@ -3,10 +3,7 @@
   "name": "Sponsor Circle Affiliate",
   "version": "1.0",
   "description": "Tracks brands that give you discounts. Click here to view our privacy policy: https://sponsorcircle.com/privacy-policy",
-  "permissions": [
-    "tabs", 
-    "cookies"
-  ],
+  "permissions": ["cookies"],
   "action": {
     "default_popup": "popup.html"
   },
