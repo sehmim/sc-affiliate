@@ -1,3 +1,4 @@
+    /*global chrome*/
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
@@ -37,7 +38,7 @@ const Navbar = () => {
   )
 };
 
-const EXTENSION_ID = 'ciakmmjmafmpbpbgfihlfdaalipkohbm';
+const EXTENSION_ID = 'peghdomcocfapnefecheageicmcjheke';
 
 const getUserByEmail = async (email) => {
   try {
@@ -74,7 +75,6 @@ const getDefaultCharities = async () => {
     }
 
     const data = await response.json();
-    console.log("DATA --->", data)
 
     return data;
   } catch (error) {
@@ -105,19 +105,19 @@ const getDefaultCharities = async () => {
     }
   };
 
-// function sendMessageToExtension(data) {
-//   if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
-//     chrome.runtime.sendMessage(
-//       EXTENSION_ID, 
-//       { action: "sendData", data: data },
-//       (response) => {
-//         console.log("Response from extension:", response);
-//       }
-//     );
-//   } else {
-//     console.log("Chrome extension not detected.");
-//   }
-// }
+function sendMessageToExtension(data) {
+  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage(
+      EXTENSION_ID, 
+      { action: "sendData", data: data },
+      (response) => {
+        console.log("Response from extension:", response);
+      }
+    );
+  } else {
+    console.log("Chrome extension not detected.");
+  }
+}
 
 export default function ExtensionSettings(props) {
   const location = useLocation();
@@ -131,17 +131,14 @@ export default function ExtensionSettings(props) {
 
   //TODO: Replace the following line with the line after
   // when the email is passed from the previous page
-  console.log("--->", location.state?.email);
   const [email] = useState(location.state?.email);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        console.log("EMAIL -->", email)
         const userData = await getUserByEmail(email);
         const fetchedCharities = await getDefaultCharities();
-        console.log("-2222---->", fetchedCharities);
         setDefaultCharities(fetchedCharities);
         setFirstName(userData?.firstName);
         setLastName(userData?.lastName);
@@ -155,15 +152,40 @@ export default function ExtensionSettings(props) {
     fetchUserData();
   }, [email]);
 
+  useEffect(() => {
+    let selectedCharityObject;
+
+    selectedCharity && defaultCharities && defaultCharities.map(({ data: charity }) => {
+      if(charity?.organizationName === selectedCharity){
+        selectedCharityObject = charity;
+      }
+    })
+
+    const updates = {
+      firstName, lastName, selectedCharityObject
+    }
+
+    sendMessageToExtension({...updates, email});
+  }, [selectedCharity, defaultCharities])
 
   const handleSave = async () => {
+
+    let selectedCharityObject;
+
+    defaultCharities.map(({ data: charity }) => {
+      if(charity?.organizationName === selectedCharity){
+        selectedCharityObject = charity;
+      }
+    })
+
     const updates = {
-      firstName, lastName, selectedCharity
+      firstName, lastName, selectedCharityObject
     }
     
     try {
       setLoading(true);
-      await updateUser(email, updates)
+      sendMessageToExtension({...updates, email});
+      // await updateUser(email, updates)
       console.log("User Updated")
     } catch (error) {
       console.log("ERROR")
