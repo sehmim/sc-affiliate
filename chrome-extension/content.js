@@ -1,33 +1,31 @@
-const LOCAL_ENV = false;
-const SELECTED_TEAM = 'The Busby Centre';
-const SELECTED_TEAM_ICON = "https://i.imgur.com/JGT9FfJ.png";
+const LOCAL_ENV = true;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
-const DOMAINS = [
-  'https://www.adidas.com.au',
-  'https://anthologybrands.com',
-  'https://www.decathlon.ca',
-  'https://www.easyship.com/',
-  'https://www.fanatics.com',
-  'https://www.impact.com',
-  'https://internationalopenacademy.com',
-  'https://www.invideo.io',
-  'https://livwellnutrition.com',
-  'https://lumierehairs.com',
-  'https://www.marks.com',
-  'https://www.moosejaw.com/',
-  'https://packedwithpurpose.gifts',
-  'https://atlasvpn.com',
-  'https://www.points.com',
-  'https://www.prohockeylife.com/',
-  'https://www.springfreetrampoline.com',
-  'https://us.cocoandeve.com',
-  'https://www.sandandsky.com',
-  'https://www.curiositybox.com/',
-  'https://www.ravpower.com',
-  'https://wish.com',
-  'https://lacoutts.com/'
-];
+// const DOMAINS = [
+//   'https://www.adidas.com.au',
+//   'https://anthologybrands.com',
+//   'https://www.decathlon.ca',
+//   'https://www.easyship.com/',
+//   'https://www.fanatics.com',
+//   'https://www.impact.com',
+//   'https://internationalopenacademy.com',
+//   'https://www.invideo.io',
+//   'https://livwellnutrition.com',
+//   'https://lumierehairs.com',
+//   'https://www.marks.com',
+//   'https://www.moosejaw.com/',
+//   'https://packedwithpurpose.gifts',
+//   'https://atlasvpn.com',
+//   'https://www.points.com',
+//   'https://www.prohockeylife.com/',
+//   'https://www.springfreetrampoline.com',
+//   'https://us.cocoandeve.com',
+//   'https://www.sandandsky.com',
+//   'https://www.curiositybox.com/',
+//   'https://www.ravpower.com',
+//   'https://wish.com',
+//   'https://lacoutts.com/'
+// ];
 
 ///////////////////////////////////
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -35,6 +33,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("Data received in content script:", message.data);
   }
 });
+
+function getDataFromStorage() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get("userSettings", function(data) {
+            console.log("data ->", data);
+            if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError));
+            } else {
+                resolve(data.userSettings);
+            }
+        });
+    });
+}
 
 ////////////////////////////////////
 async function fetchDataFromServer(url) {
@@ -196,6 +207,9 @@ function isCouponedWebsite(domain) {
 
 ///////////////////////////// INITIALIZE ////////////////////////////////
 async function initialize() {
+
+  const userSettings = await getDataFromStorage();
+
   const closedDiv = createClosedDiv();
   document.body.appendChild(closedDiv);
 
@@ -205,6 +219,10 @@ async function initialize() {
     const isGoogleSearch = window.location.href.includes('https://www.google.com/search') ||
                            window.location.href.includes('https://www.google.ca/search');
     if (isGoogleSearch) {
+      if (!userSettings || !userSettings.email) {
+        createLoginContainer();
+        return
+      }
       await applyGoogleSearchDiscounts(campaigns);
       return;
     }
@@ -213,22 +231,27 @@ async function initialize() {
     const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
     
     if (!allowedBrand) return;
+
+    if (!userSettings || !userSettings.email) {
+      createLoginContainer();
+      return
+    }
     
     let codeAlreadyAppliedToBrand = isCodeAlreadyAppliedToWebsite();
 
     // Coupon Container
     const couponInfo = isCouponedWebsiteCheckout();
     if (couponInfo) {
-      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand);
+      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, userSettings?.selectedCharityObject);
     } else {
       // SHOW APPLIED POPUP
       if (codeAlreadyAppliedToBrand) {
-        await createAppliedLinkPageContainer(allowedBrand, closedDiv);
+        await createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings?.selectedCharityObject);
       }
 
       // Regular Affilicate Link Container
       if (!couponInfo && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
-        await createActivatePageContainer(allowedBrand, closedDiv);
+        await createActivatePageContainer(allowedBrand, closedDiv, userSettings?.selectedCharityObject);
       }
     }
 }
@@ -260,15 +283,15 @@ function isCodeAlreadyAppliedToWebsite() {
     return codeAlreadyAppliedToBrand;
 }
 
-async function applyAffiliateLink(allowedBrand, selectedTeam){
+async function applyAffiliateLink(allowedBrand, selectedCharityObject){
   // if (selectedTeam === "------Your Teams-----" || selectedTeam === "-----Default Charities-----") {
   //   alert("PICK A TEAM");
   //   return
   // }
 
   const programId = allowedBrand.campaignID;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${SELECTED_TEAM}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${SELECTED_TEAM}`;
+  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject?.organizationName}` 
+      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject?.organizationName}`;
 
   // const data = await fetchDataFromServer(url);
   try {
@@ -455,13 +478,13 @@ function createClosedDiv() {
 }
 
 
-async function createActivatePageContainer(allowedBrand, closedDiv){
+async function createActivatePageContainer(allowedBrand, closedDiv, selectedCharityObject){
 
   const isolatedIframe = createIsolatedIframe('400px', '100px');
 
   isolatedIframe.onload = async function() {
-    const leftDiv = createLeftDiv();
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, undefined, closedDiv);
+    const leftDiv = createLeftDiv(selectedCharityObject);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, undefined, closedDiv, selectedCharityObject);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
@@ -474,7 +497,7 @@ async function createActivatePageContainer(allowedBrand, closedDiv){
   document.body.appendChild(isolatedIframe);
 } 
 
-function createLeftDiv() {
+function createLeftDiv(selectedCharityObject) {
     var div = document.createElement("div");
     div.style.width = "35%";
     div.style.height = "100%";
@@ -506,7 +529,7 @@ function createLeftDiv() {
     image2Wrapper.style.marginLeft = "5px";
 
     var image2 = document.createElement("img");
-    image2.src = SELECTED_TEAM;
+    image2.src = selectedCharityObject.logo;
     image2.style.borderRadius = "8px";
     image2.style.width = "37px";
     image2.style.margin = "auto";
@@ -529,7 +552,7 @@ function createLeftDiv() {
     return div;
 }
 
-function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
+function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, selectedCharityObject) {
     const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.discountPercentage * COMMISSION_RATE)+"%";
 
     closedDiv.onclick = function () {
@@ -594,7 +617,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
                 window.location.href = allowedBrand.trackingLink;
               }
             } else {
-              await applyAffiliateLink(allowedBrand);
+              await applyAffiliateLink(allowedBrand, selectedCharityObject);
             }
   
             setCookie("sc-minimize", false);
@@ -615,11 +638,11 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv) {
 }
 
 
-async function createAppliedLinkPageContainer(allowedBrand, closedDiv){
+async function createAppliedLinkPageContainer(allowedBrand, closedDiv, selectedCharityObject){
   const isolatedIframe = createIsolatedIframe('400px', '280px');
   isolatedIframe.onload = async function() {
     const navbar = createNavbar(isolatedIframe, closedDiv);
-    const middleSection = createMiddleSection(allowedBrand);
+    const middleSection = createMiddleSection(allowedBrand, selectedCharityObject);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
@@ -689,7 +712,7 @@ function createNavbar(isolatedIframe, closedDiv) {
     return div;
 }
 
-function createMiddleSection(allowedBrand) {
+function createMiddleSection(allowedBrand, selectedCharityObject) {
     var div = document.createElement("div");
     div.style.display = "flex";
     div.style.flexDirection = "column";
@@ -697,7 +720,7 @@ function createMiddleSection(allowedBrand) {
     div.style.justifyContent = "center";
 
     var img = document.createElement("img");
-    img.src = SELECTED_TEAM_ICON;
+    img.src = selectedCharityObject.logo;
     img.style.width = "51.324px";
     img.style.height = "49px";
     img.style.margin = "20px";
@@ -716,7 +739,7 @@ function createMiddleSection(allowedBrand) {
 
 
     var p = document.createElement("p");
-    p.textContent = `Your purchases will now give up to ${allowedBrand.discountPercentage * COMMISSION_RATE}% to \n` + SELECTED_TEAM;
+    p.textContent = `Your purchases will now give up to ${allowedBrand.discountPercentage * COMMISSION_RATE}% to \n` + selectedCharityObject.organizationName;
     p.style.textAlign = "center";
     p.style.margin = "0px";
     p.style.fontFamily = "Montserrat";
@@ -735,11 +758,71 @@ function createMiddleSection(allowedBrand) {
 
 
 ///////////////////// COUPON CODE ////////////////////////////
-async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand){
+async function createLoginContainer(){
   const isolatedIframe = createIsolatedIframe('400px', '100px');
   isolatedIframe.onload = async function() {
-    const leftDiv = createLeftDiv();
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv);
+
+    var div = document.createElement("div");
+    div.style.width = "35%";
+    div.style.height = "100%";
+    div.style.display = "flex"; // Use flexbox
+    div.style.alignItems = "center"; // Center the content vertically
+    div.style.justifyContent = "center"; // Center the content horizontally
+    div.style.flexDirection = "column";
+    div.style.background = "#2C0593";
+
+    // Create a div to wrap the first two images
+    var imagesWrapper = document.createElement("div");
+    imagesWrapper.style.display = "flex"; // Use flexbox
+    imagesWrapper.style.flexDirection = "row"; // Arrange images horizontally
+    imagesWrapper.style.alignItems = "center"; // Center the images vertically
+
+    // Create the first image
+    var image1 = document.createElement("img");
+    image1.src = SPONSOR_CIRCLE_ICON;
+    image1.style.borderRadius = "8px";
+    image1.style.width = "47px";
+
+    imagesWrapper.appendChild(image1);
+    // Create the third image
+    var image3 = document.createElement("img");
+    image3.src = "https://i.imgur.com/xobrrSH.png";
+    image3.style.width = "90%";
+
+    var button = document.createElement("a");
+    button.style.borderRadius = "21px";
+    button.style.border = "1px solid rgb(0, 0, 0)";
+    button.style.height = "40px";
+    button.style.width = "50%";
+    button.style.margin = "auto";
+    button.style.cursor = "pointer";
+    button.style.display = "flex";
+    button.style.alignItems = "center";
+    button.style.justifyContent = "center";
+    button.style.textDecoration = "solid";
+    button.textContent = `Login`;
+    button.target = "_blank"; 
+    button.href = LOCAL_ENV ? "https://localhost:3000/onboard" : "https://sc-affiliate.vercel.app/onboard"; 
+
+    div.appendChild(imagesWrapper);
+    div.appendChild(image3);
+
+    const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
+    iframeDocument.body.innerHTML = '';
+    iframeDocument.body.style.display = 'flex';
+    iframeDocument.body.style.margin = '0px';
+
+    iframeDocument.body.appendChild(div);
+    iframeDocument.body.appendChild(button);
+  };
+  document.body.appendChild(isolatedIframe);
+}
+
+async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, selectedCharityObject){
+  const isolatedIframe = createIsolatedIframe('400px', '100px');
+  isolatedIframe.onload = async function() {
+    const leftDiv = createLeftDiv(selectedCharityObject);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, selectedCharityObject);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';

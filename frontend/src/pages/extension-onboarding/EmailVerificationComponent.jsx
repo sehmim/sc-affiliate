@@ -10,15 +10,6 @@ export const getUserByEmailUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircl
 export const updateUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/updateUser": "https://updateuser-6n7me4jtka-uc.a.run.app";
 export const defaultCharitiesUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getDefaultCharities" : "https://getdefaultcharities-6n7me4jtka-uc.a.run.app";
 
-// function send(extensionId, msg, callback, retry = 20) {
-//   const timer = setTimeout(send, 100, extensionId, msg, callback, retry - 1);
-//   chrome.runtime.sendMessage(extensionId, msg, (response) => {
-//     if (!chrome.runtime.lastError || !retry) {
-//       clearTimeout(timer);
-//       callback(response);
-//     }
-//   });
-// }
 
 const EmailVerificationComponent = () => {
   const [email, setEmail] = useState("");
