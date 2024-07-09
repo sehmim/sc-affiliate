@@ -40,8 +40,29 @@ async function fetchCampaigns() {
   return campaigns;
 }
 
+function showPinSuggestion() {
+  document.getElementById('pinSuggestion').style.display = 'block';
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
+
+  const closePinningSuggestion = document.getElementById('closePinSuggesstion');
+
+  if (closePinningSuggestion) {
+    closePinningSuggestion.addEventListener('click', function() {
+    
+      const pinSuggestion = document.getElementById('pinSuggestion');
+      pinSuggestion.style.display = 'none';
+      chrome.storage.local.set({ isFirstInstall: false }, function() {
+        if (chrome.runtime.lastError) {
+          console.error('Error setting isFirstInstall to false:', chrome.runtime.lastError.message);
+        } else {
+          console.log('isFirstInstall set to false successfully.');
+        }
+      });
+    });
+  }
 
   if (merchantsContainer) {
     const campaigns = await fetchCampaigns();
@@ -60,4 +81,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   } else {
     console.error('Merchants container not found');
   }
+
+  // Show pin suggestion on first installation
+  chrome.storage.local.get('isFirstInstall', function(data) {
+    if (data.isFirstInstall) {
+      showPinSuggestion();
+    }
+  });
 });

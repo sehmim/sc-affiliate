@@ -8,9 +8,9 @@ const BottomRightComponent = () => {
 
   const hoverCards = [
     {
-      title: "AIESEC Canada",
+      title: "The Busby Centre",
       subTitle: "Upto 7% donated",
-      imgSrc: IMAGE1
+      imgSrc: "https://i.imgur.com/JGT9FfJ.png"
     },
     {
       title: "SoapForHope",

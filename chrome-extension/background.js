@@ -1,4 +1,22 @@
+const LOCAL_ENV = false;
+
 console.log('Background script loaded.');
+
+chrome.runtime.onInstalled.addListener(function(details) {
+  if (details.reason === 'install') {
+    chrome.windows.create({
+      url: 'popup.html',
+      type: 'popup',
+      width: 540,
+      height: 510,
+    })
+
+    const onboardingUrl = LOCAL_ENV ? "https://localhost:3000/onboard" : "https://sc-affiliate.vercel.app/onboard"; 
+    chrome.tabs.create({ url: onboardingUrl });
+
+    chrome.storage.local.set({ isFirstInstall: true });
+  }
+});
 
 // chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
 //     console.log(message, sender);

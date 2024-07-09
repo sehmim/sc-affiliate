@@ -1,7 +1,8 @@
 const LOCAL_ENV = false;
 const SELECTED_TEAM = 'The Busby Centre';
 const SELECTED_TEAM_ICON = "https://i.imgur.com/JGT9FfJ.png";
-const COMMISSION_RATE = 0.50;
+const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
+const COMMISSION_RATE = 1;
 const DOMAINS = [
   'https://www.adidas.com.au',
   'https://anthologybrands.com',
@@ -491,7 +492,7 @@ function createLeftDiv() {
 
     // Create the first image
     var image1 = document.createElement("img");
-    image1.src = "https://i.imgur.com/Oj6PnUe.png";
+    image1.src = SPONSOR_CIRCLE_ICON;
     image1.style.borderRadius = "8px";
     image1.style.width = "47px";
 
@@ -505,7 +506,7 @@ function createLeftDiv() {
     image2Wrapper.style.marginLeft = "5px";
 
     var image2 = document.createElement("img");
-    image2.src = "https://i.imgur.com/BntBs75.png";
+    image2.src = SELECTED_TEAM;
     image2.style.borderRadius = "8px";
     image2.style.width = "37px";
     image2.style.margin = "auto";
