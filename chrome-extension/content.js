@@ -544,6 +544,8 @@ function createLeftDiv(selectedCharityObject) {
     var image3 = document.createElement("img");
     image3.src = "https://i.imgur.com/xobrrSH.png"; // Replace with actual image URL
     image3.style.width = "90%";
+    image3.style.paddingTop = "7px";
+
 
     // Append the images wrapper and the third image to the left div
     div.appendChild(imagesWrapper);

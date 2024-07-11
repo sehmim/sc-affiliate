@@ -18,7 +18,10 @@
     }
   ],
   "externally_connectable": {
-    "matches": ["*://localhost/*"]
+    "matches": [
+      "*://localhost/*",
+      "*://sc-affiliate.vercel.app/*"
+    ]
   },
   "web_accessible_resources": [
     {
