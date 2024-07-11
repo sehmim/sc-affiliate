@@ -60,7 +60,7 @@ const EmailVerificationComponent = () => {
       if (isVerified) {
         try {
           await createUser(email);
-          localStorage.setItem('sc-user', email)
+          localStorage.setItem('sc-user', email);
           navigate("/extension-settings", { state: { email: email } });
         } catch (error) {
           console.error("Error creating user:", error);

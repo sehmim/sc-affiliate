@@ -41,6 +41,9 @@ const Navbar = () => {
 const EXTENSION_ID = 'peghdomcocfapnefecheageicmcjheke';
 
 const getUserByEmail = async (email) => {
+  if(!email){
+    throw new Error("NO EMAIL PROVIDED")
+  }
   try {
     const response = await fetch(`${getUserByEmailUrl}?email=${email}`, {
       method: 'GET',
@@ -131,18 +134,20 @@ export default function ExtensionSettings(props) {
 
   //TODO: Replace the following line with the line after
   // when the email is passed from the previous page
-  const [email] = useState(location.state?.email);
+  const [email, setEmail] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const userData = await getUserByEmail(email);
+        const savedEmail = location.state?.email || localStorage.getItem('sc-user');
+        const userData = await getUserByEmail(savedEmail);
         const fetchedCharities = await getDefaultCharities();
         setDefaultCharities(fetchedCharities);
         setFirstName(userData?.firstName);
         setLastName(userData?.lastName);
         setSelectedCharity(userData?.selectedCharity);
+        setEmail(userData?.email);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -150,7 +155,7 @@ export default function ExtensionSettings(props) {
       }
     };
     fetchUserData();
-  }, [email]);
+  }, []);
 
   useEffect(() => {
     let selectedCharityObject;
@@ -162,10 +167,12 @@ export default function ExtensionSettings(props) {
     })
 
     const updates = {
-      firstName, lastName, selectedCharityObject
+      firstName, lastName, selectedCharityObject, email
     }
 
-    sendMessageToExtension({...updates, email});
+    console.log("UPDATES: ", updates)
+
+    sendMessageToExtension({...updates});
   }, [selectedCharity, defaultCharities])
 
   const handleSave = async () => {
@@ -179,12 +186,14 @@ export default function ExtensionSettings(props) {
     })
 
     const updates = {
-      firstName, lastName, selectedCharityObject
+      firstName, lastName, selectedCharityObject, email
     }
+
+    console.log("UPDATES: ", updates)
     
     try {
       setLoading(true);
-      sendMessageToExtension({...updates, email});
+      sendMessageToExtension({...updates});
       // await updateUser(email, updates)
       console.log("User Updated")
     } catch (error) {
@@ -285,7 +294,7 @@ export default function ExtensionSettings(props) {
             <TextField
               id="standard-basic"
               variant="standard"
-              value={location.state?.email}
+              value={email}
               disabled={true}
               sx={{ width: "100%" }}
             />

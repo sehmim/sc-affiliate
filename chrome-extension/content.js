@@ -220,7 +220,7 @@ async function initialize() {
                            window.location.href.includes('https://www.google.ca/search');
     if (isGoogleSearch) {
       if (!userSettings || !userSettings.email) {
-        createLoginContainer();
+        createLoginContainer(closedDiv);
         return
       }
       await applyGoogleSearchDiscounts(campaigns);
@@ -233,7 +233,7 @@ async function initialize() {
     if (!allowedBrand) return;
 
     if (!userSettings || !userSettings.email) {
-      createLoginContainer();
+      createLoginContainer(closedDiv);
       return
     }
     
@@ -756,38 +756,41 @@ function createMiddleSection(allowedBrand, selectedCharityObject) {
     return div;
 }
 
-
-///////////////////// COUPON CODE ////////////////////////////
-async function createLoginContainer(){
-  const isolatedIframe = createIsolatedIframe('400px', '100px');
-  isolatedIframe.onload = async function() {
-
+function createLoginMiddleSection() {
     var div = document.createElement("div");
-    div.style.width = "35%";
-    div.style.height = "100%";
-    div.style.display = "flex"; // Use flexbox
-    div.style.alignItems = "center"; // Center the content vertically
-    div.style.justifyContent = "center"; // Center the content horizontally
+    div.style.display = "flex";
     div.style.flexDirection = "column";
-    div.style.background = "#2C0593";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
 
-    // Create a div to wrap the first two images
-    var imagesWrapper = document.createElement("div");
-    imagesWrapper.style.display = "flex"; // Use flexbox
-    imagesWrapper.style.flexDirection = "row"; // Arrange images horizontally
-    imagesWrapper.style.alignItems = "center"; // Center the images vertically
+    var img = document.createElement("img");
+    img.src = SPONSOR_CIRCLE_ICON;
+    img.style.width = "51.324px";
+    img.style.height = "49px";
+    img.style.margin = "20px";
+    img.style.padding = "10px";
+    img.style.borderRadius = "10px";
+    img.style.boxShadow = '0px 4px 4px 0px rgba(0, 0, 0, 0.25)';
 
-    // Create the first image
-    var image1 = document.createElement("img");
-    image1.src = SPONSOR_CIRCLE_ICON;
-    image1.style.borderRadius = "8px";
-    image1.style.width = "47px";
 
-    imagesWrapper.appendChild(image1);
-    // Create the third image
-    var image3 = document.createElement("img");
-    image3.src = "https://i.imgur.com/xobrrSH.png";
-    image3.style.width = "90%";
+    var h1 = document.createElement("h1");
+    h1.textContent = "Welcome! You’re almost there";
+    h1.style.margin = "0px";
+    h1.style.fontFamily = "Montserrat";
+    h1.style.fontSize = "18px";
+    h1.style.fontStyle = "normal";
+    h1.style.fontWeight = "600";
+
+    var p = document.createElement("p");
+    p.textContent = `Click the “Get Started” button, register, and select your favourite charity. Then, begin shopping!`
+    p.style.textAlign = "center";
+    p.style.marginBottom = "15px";
+    p.style.fontFamily = "Montserrat";
+    p.style.fontSize = "14px";
+    p.style.fontStyle = "normal";
+    p.style.fontWeight = "400";
+    p.style.lineHeight = "normal";
+    p.style.padding = "0px 20px";
 
     var button = document.createElement("a");
     button.style.borderRadius = "21px";
@@ -800,22 +803,43 @@ async function createLoginContainer(){
     button.style.alignItems = "center";
     button.style.justifyContent = "center";
     button.style.textDecoration = "solid";
-    button.textContent = `Login`;
+    button.textContent = `Get Started`;
     button.target = "_blank"; 
     button.href = LOCAL_ENV ? "https://localhost:3000/onboard" : "https://sc-affiliate.vercel.app/onboard"; 
 
-    div.appendChild(imagesWrapper);
-    div.appendChild(image3);
+    div.appendChild(img);
+    div.appendChild(h1);
+    div.appendChild(p);
+    div.appendChild(button);
+
+    return div;
+}
+
+///////////////////// COUPON CODE ////////////////////////////
+async function createLoginContainer(closedDiv) {
+  const isolatedIframe = createIsolatedIframe('400px', '330px');
+  isolatedIframe.onload = async function() {
+    const navbar = createNavbar(isolatedIframe, closedDiv);
+    const middleSection = createLoginMiddleSection();
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
     iframeDocument.body.style.display = 'flex';
+    iframeDocument.body.style.flexDirection = 'column';
     iframeDocument.body.style.margin = '0px';
+    iframeDocument.body.style.fontFamily = "Montserrat";
 
-    iframeDocument.body.appendChild(div);
-    iframeDocument.body.appendChild(button);
+    iframeDocument.body.appendChild(navbar);
+    iframeDocument.body.appendChild(middleSection);
   };
   document.body.appendChild(isolatedIframe);
+
+  const isMinimized = getCookie("sc-minimize"); 
+  
+  if (isMinimized === "true") {
+    closedDiv.style.display = 'flex';
+    isolatedIframe.style.display = 'none';
+  }
 }
 
 async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, selectedCharityObject){
