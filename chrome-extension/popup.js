@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
       for (const campaign of campaigns) {
-        const subTitle = `up to ${campaign.discountPercentage * 0.50}%`;
+        const subTitle = `up to ${campaign.discountPercentage}%`;
 
         const newMerchantDiv = createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.advertiserURL);
         merchantsContainer.appendChild(newMerchantDiv);
