@@ -19,6 +19,26 @@ function createMerchantContainer(title, subtitle, imageSrc, href) {
   return newDiv;
 }
 
+function createHeaderContent(name, charity) {
+    return `
+        <div style="margin: 0;" class="merchant-img-wrapper">
+            <img class="merchant-img" src=${charity.logo}></img>
+        </div>
+        <h3>${name}, you are supporting ${charity.organizationName}</h3>
+        <div class="sub-text">Checkout our featured merchants to start raising</div>
+    `;
+}
+
+function createHeaderContentLogin() {
+    return `
+        <div style="margin: 0;" class="merchant-img-wrapper">
+            <img class="merchant-img" src="https://i.imgur.com/Oj6PnUe.png"></img>
+        </div>
+        <h3><a target="_blank" href="https://sc-affiliate.vercel.app/onboard">Get started</a> and start raising</h3>
+        <div class="sub-text">with our featured merchants</div>
+    `;
+}
+
 async function fetchDataFromServer(url) {
   try {
     const response = await fetch(url);
@@ -46,6 +66,22 @@ function showPinSuggestion() {
 
 document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
+
+  const welcomeContainer = document.getElementById('welcomeDiv');
+
+  if (welcomeContainer) {
+    chrome.storage.local.get('userSettings', function(result) {
+      console.log(result.userSettings);
+      if (!result.userSettings || !result.userSettings.firstName || !result.userSettings.selectedCharityObject.logo) {
+        const headerContent = createHeaderContentLogin();
+        welcomeContainer.innerHTML = headerContent;
+      } else {
+        const { firstName, selectedCharityObject} = result.userSettings;
+        const headerContent = createHeaderContent(firstName, selectedCharityObject)
+        welcomeContainer.innerHTML = headerContent;
+      }
+    });
+  }
 
   const closePinningSuggestion = document.getElementById('closePinSuggesstion');
 
