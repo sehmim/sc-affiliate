@@ -77,6 +77,42 @@ export const verifyVerificationCode = onRequest(async (req: any, res: any) => {
   });
 });
 
+// NOT IN USE
+export const addInstalledExtension = onRequest(async (req: any, res: any) => {
+  handleCorsMiddleware(req, res, async () => {
+    const extensionId = req.query.extensionId;
+    const db = admin.firestore();
+
+    if (!extensionId) {
+      return res.status(400).send("extensionId is required in query params");
+    }
+
+    try {
+      // Check if extensionId already exists
+      const existingExtensionSnapshot = await db.collection('installedExtensions')
+        .where('extensionId', '==', extensionId)
+        .limit(1)
+        .get();
+
+      if (!existingExtensionSnapshot.empty) {
+        // ExtensionId already exists, do not add again
+        return res.status(400).send("ExtensionId already exists in the database");
+      }
+
+      const newEntry = {
+        extensionId,
+      };
+
+      await db.collection('installedExtensions').add(newEntry);
+
+      res.status(200).send('Extension added successfully');
+    } catch (error) {
+      console.error("Error adding extension:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
 export const sendVerificationCode = onRequest(async (req, res) => {
     handleCorsMiddleware(req, res, async () => {
         const email = req.query.email;
@@ -513,6 +549,7 @@ async function generateLink(programId: string, teamName: string) {
     console.error("Error making POST request:", error);
   }
 }
+
 
 interface LoginRequest {
   email: string;

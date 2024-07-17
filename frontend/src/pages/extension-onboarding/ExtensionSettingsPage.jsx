@@ -108,10 +108,11 @@ const getDefaultCharities = async () => {
     }
   };
 
-function sendMessageToExtension(data) {
+function sendMessageToExtension(data, extensinoId) {
+  
   if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
     chrome.runtime.sendMessage(
-      EXTENSION_ID, 
+      extensinoId, 
       { action: "sendData", data: data },
       (response) => {
         console.log("Response from extension:", response);
@@ -121,6 +122,24 @@ function sendMessageToExtension(data) {
     console.log("Chrome extension not detected.");
   }
 }
+
+const DEFAULT_CHARITY = {
+  address: "PO BOX 1055 STN MAIN",
+  category: "0001",
+  charityType: "Relief of Poverty",
+  city: "Barrie",
+  country: "CA",
+  effectiveDateOfStatus: "", 
+  isActive: true,
+  logo: "https://i.imgur.com/JGT9FfJ.png",
+  organizationName: "The Busby Centre",
+  postalCode: "L4M 5E1",
+  provinceTerritoryOutsideOfCanada: "ON",
+  registrationNumber: "892557752RR0001",
+  sanctionDesignation: "0001",
+  status: "Registered",
+  typeOfQualifiedDone: "Charity"
+};
 
 export default function ExtensionSettings(props) {
   const location = useLocation();
@@ -146,7 +165,7 @@ export default function ExtensionSettings(props) {
         setDefaultCharities(fetchedCharities);
         setFirstName(userData?.firstName);
         setLastName(userData?.lastName);
-        setSelectedCharity(userData?.selectedCharity);
+        setSelectedCharity(userData?.selectedCharityObject?.organizationName || DEFAULT_CHARITY.organizationName);
         setEmail(userData?.email);
       } catch (error) {
         setError(error.message);
@@ -172,7 +191,9 @@ export default function ExtensionSettings(props) {
 
     console.log("UPDATES: ", updates)
 
-    sendMessageToExtension({...updates});
+    const extensinoId = localStorage.getItem('sc-extensionId');
+
+    sendMessageToExtension({...updates}, extensinoId);
   }, [selectedCharity, defaultCharities])
 
   const handleSave = async () => {
@@ -190,20 +211,23 @@ export default function ExtensionSettings(props) {
     }
 
     console.log("UPDATES: ", updates)
-    
+    const extensinoId = localStorage.getItem('sc-extensionId');
+
     try {
       setLoading(true);
-      sendMessageToExtension({...updates});
-      // await updateUser(email, updates)
+      sendMessageToExtension({...updates}, extensinoId);
+      await updateUser(email, updates)
       console.log("User Updated")
+      setLoading(false);
+      window.open('https://sponsorcircle.com/shopforgood/', '_blank');
     } catch (error) {
-      console.log("ERROR")
+      console.log("ERROR", error)
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   if(loading){
-    <div>Loading...</div>
+    return (<div>Loading...</div>)
   }
 
   return (
@@ -312,7 +336,7 @@ export default function ExtensionSettings(props) {
             </div>
             <TextField
               select
-              defaultValue={selectedCharity}
+              defaultValue={DEFAULT_CHARITY.organizationName}
               onChange={(event) => setSelectedCharity(event.target.value)}
               value={selectedCharity}
               variant="standard"
@@ -388,7 +412,7 @@ export default function ExtensionSettings(props) {
           </div>
         </div>
 
-        <div style={{ textAlign: "center", marginTop: "100px" }}>
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
           <button
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
             onClick={handleSave}

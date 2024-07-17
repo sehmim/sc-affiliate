@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Sponsor Circle Affiliate",
-  "version": "1.3",
+  "version": "1.4",
   "description": "Tracks brands that give you discounts. Click here to view our privacy policy: https://sponsorcircle.com/privacy-policy",
   "permissions": ["cookies", "storage"],
   "action": {

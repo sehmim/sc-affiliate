@@ -30,11 +30,13 @@ function createHeaderContent(name, charity) {
 }
 
 function createHeaderContentLogin() {
+  const url = LOCAL_ENV ? `https://localhost:3000/onboard?extensionId=${chrome.runtime.id}` : `https://sc-affiliate.vercel.app/onboard?extensionId=${chrome.runtime.id}`
+
     return `
         <div style="margin: 0;" class="merchant-img-wrapper">
             <img class="merchant-img" src="https://i.imgur.com/Oj6PnUe.png"></img>
         </div>
-        <h3><a target="_blank" href="https://sc-affiliate.vercel.app/onboard">Get started</a> and start raising</h3>
+        <h3><a target="_blank" href=${url}>Get started</a> and start raising</h3>
         <div class="sub-text">with our featured merchants</div>
     `;
 }
@@ -64,21 +66,41 @@ function showPinSuggestion() {
   document.getElementById('pinSuggestion').style.display = 'block';
 }
 
+function getDataFromStorage() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get("userSettings", function(data) {
+            console.log("data ->", data);
+            if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError));
+            } else {
+                resolve(data.userSettings);
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
 
   const welcomeContainer = document.getElementById('welcomeDiv');
 
+  const userSettings = await getDataFromStorage();
+
   if (welcomeContainer) {
     chrome.storage.local.get('userSettings', function(result) {
-      console.log(result.userSettings);
-      if (!result.userSettings || !result.userSettings.firstName || !result.userSettings.selectedCharityObject.logo) {
-        const headerContent = createHeaderContentLogin();
-        welcomeContainer.innerHTML = headerContent;
-      } else {
-        const { firstName, selectedCharityObject} = result.userSettings;
+
+      if (userSettings && userSettings.selectedCharityObject && userSettings.firstName) {
         const headerContent = createHeaderContent(firstName, selectedCharityObject)
         welcomeContainer.innerHTML = headerContent;
+      } else {
+        if (!result.userSettings || !result.userSettings.firstName || !result.userSettings.selectedCharityObject.logo) {
+          const headerContent = createHeaderContentLogin();
+          welcomeContainer.innerHTML = headerContent;
+        } else {
+          const { firstName, selectedCharityObject} = result.userSettings;
+          const headerContent = createHeaderContent(firstName, selectedCharityObject)
+          welcomeContainer.innerHTML = headerContent;
+        } 
       }
     });
   }

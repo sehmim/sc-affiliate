@@ -807,7 +807,7 @@ function createLoginMiddleSection() {
     button.style.textDecoration = "solid";
     button.textContent = `Get Started`;
     button.target = "_blank"; 
-    button.href = LOCAL_ENV ? "https://localhost:3000/onboard" : "https://sc-affiliate.vercel.app/onboard"; 
+    button.href = LOCAL_ENV ? `https://localhost:3000/onboard?extensionId=${chrome.runtime.id}` : `https://sc-affiliate.vercel.app/onboard?extensionId=${chrome.runtime.id}`; 
 
     div.appendChild(img);
     div.appendChild(h1);

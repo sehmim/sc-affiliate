@@ -11,7 +11,7 @@ chrome.runtime.onInstalled.addListener(function(details) {
       height: 510,
     })
 
-    const onboardingUrl = LOCAL_ENV ? "https://localhost:3000/onboard" : "https://sc-affiliate.vercel.app/onboard"; 
+    const onboardingUrl = LOCAL_ENV ? `https://localhost:3000/onboard?extensionId=${chrome.runtime.id}` : `https://sc-affiliate.vercel.app/onboard?extensionId=${chrome.runtime.id}`; 
     chrome.tabs.create({ url: onboardingUrl });
 
     chrome.storage.local.set({ isFirstInstall: true });

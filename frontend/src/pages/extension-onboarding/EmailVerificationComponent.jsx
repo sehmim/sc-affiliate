@@ -57,10 +57,19 @@ const EmailVerificationComponent = () => {
 
       const isVerified = await verifyCode(email, verificationCode);
 
+      const params = new URLSearchParams(window.location.search);
+      let extensionId = params.get('extensionId');
+
+      if(!extensionId){
+        extensionId = localStorage.getItem('sc-extensionId')
+      }
+
+
       if (isVerified) {
         try {
           await createUser(email);
           localStorage.setItem('sc-user', email);
+          localStorage.setItem('sc-extensionId', extensionId);
           navigate("/extension-settings", { state: { email: email } });
         } catch (error) {
           console.error("Error creating user:", error);
