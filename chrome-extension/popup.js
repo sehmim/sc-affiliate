@@ -86,18 +86,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   const userSettings = await getDataFromStorage();
 
+  console.log("userSettings ->", userSettings)
+
   if (welcomeContainer) {
-    chrome.storage.local.get('userSettings', function(result) {
+    chrome.storage.local.get('userSettings', function() {
 
       if (userSettings && userSettings.selectedCharityObject && userSettings.firstName) {
-        const headerContent = createHeaderContent(firstName, selectedCharityObject)
+        const headerContent = createHeaderContent(userSettings.firstName, userSettings.selectedCharityObject)
         welcomeContainer.innerHTML = headerContent;
       } else {
-        if (!result.userSettings || !result.userSettings.firstName || !result.userSettings.selectedCharityObject.logo) {
+        if (!userSettings || !userSettings.firstName || !userSettings.selectedCharityObject.logo) {
           const headerContent = createHeaderContentLogin();
           welcomeContainer.innerHTML = headerContent;
         } else {
-          const { firstName, selectedCharityObject} = result.userSettings;
+          const { firstName, selectedCharityObject} = userSettings;
           const headerContent = createHeaderContent(firstName, selectedCharityObject)
           welcomeContainer.innerHTML = headerContent;
         } 
