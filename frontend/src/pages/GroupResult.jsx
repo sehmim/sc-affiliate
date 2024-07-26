@@ -60,10 +60,7 @@ const GroupResult = () => {
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (!user) {
-        alert("please log in first!");
-        navigate("/login");
       } else {
-        // console.log("user = ", user);
         setUser(user.toJSON());
         getDetail();
       }

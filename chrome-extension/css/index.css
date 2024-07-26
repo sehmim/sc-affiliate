@@ -96,3 +96,72 @@
   width: 100%;
   text-overflow: ellipsis;
 }
+
+
+
+/* //////////////// ADs /////////////// */
+.boosted-ad-container {
+    height: 120px;
+    border-radius: 8px;
+    background: rgba(242, 239, 253, 1);
+    padding: 30px;
+}
+
+.boosted-ad-container:hover {
+  background: rgba(44, 5, 147, 0.21);
+}
+
+.boosted-ad-inner {
+  align-items: center;
+  background: rgba(255, 255, 255, 1) !important;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+
+.boosted-ad-header {
+    display: flex;
+    align-items: center;
+}
+
+.boosted-ad-logo {
+    width: 30px;
+    margin-right: 10px;
+}
+
+.boosted-ad-logo-img {
+    width: 100%;
+}
+
+.boosted-ad-title {
+    color: black;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.boosted-ad-link {
+    text-decoration: underline;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.boosted-ad-additional {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.boosted-ad-description {
+    color: black;
+    font-size: 13px;
+    font-weight: 400;
+    margin-right: 10px;
+}
+
+.boosted-ad-sponsor-logo {
+    width: 100px;
+}
+
+.boosted-ad-sponsor-logo-img {
+    width: 100%;
+}
