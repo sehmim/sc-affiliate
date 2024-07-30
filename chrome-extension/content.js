@@ -1,31 +1,6 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
-// const DOMAINS = [
-//   'https://www.adidas.com.au',
-//   'https://anthologybrands.com',
-//   'https://www.decathlon.ca',
-//   'https://www.easyship.com/',
-//   'https://www.fanatics.com',
-//   'https://www.impact.com',
-//   'https://internationalopenacademy.com',
-//   'https://www.invideo.io',
-//   'https://livwellnutrition.com',
-//   'https://lumierehairs.com',
-//   'https://www.marks.com',
-//   'https://www.moosejaw.com/',
-//   'https://packedwithpurpose.gifts',
-//   'https://atlasvpn.com',
-//   'https://www.points.com',
-//   'https://www.prohockeylife.com/',
-//   'https://www.springfreetrampoline.com',
-//   'https://us.cocoandeve.com',
-//   'https://www.sandandsky.com',
-//   'https://www.curiositybox.com/',
-//   'https://www.ravpower.com',
-//   'https://wish.com',
-//   'https://lacoutts.com/'
-// ];
 
 ///////////////////////////////////
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -333,6 +308,7 @@ function extractUrlFromCite(divElement) {
 
 
 function applyGoogleSearchDiscounts(campaigns) {
+  applyBoostedAd();
   const searchResults = document.querySelectorAll('div.g');
 
   searchResults.forEach(result => {
@@ -405,7 +381,7 @@ function applyGoogleSearchDiscounts(campaigns) {
 ///////////////////////////// NEW DESIGN //////////////////////////////////
 function createIsolatedIframe(width, height) {
   const iframe = document.createElement('iframe');
-  iframe.setAttribute('src', 'about:blank'); // Load a blank page initially
+  iframe.setAttribute('src', 'ShopForGood'); // Load a blank page initially
 
   // Set initial inline styles for the iframe
   iframe.style.position = 'fixed';
@@ -902,4 +878,100 @@ function saveClickIdToCookie() {
   if (scCoupon && scCoupon === "activated") {
       setCookie("sc-coupon", scCoupon, 7);
   }
+}
+
+
+//////////// Boosted Ads ///////////////////
+function isSearchQueryBarrie() {
+    // Check if the URL contains a query parameter with the search term "Barrie"
+    const queryParam = new URLSearchParams(window.location.search);
+    const query = queryParam.get('q');
+
+    return query && query.toLowerCase().includes('barrie');
+}
+
+function boostedAdContainer() {
+    // Create the outer container
+    const container = document.createElement('div');
+    container.className = 'boosted-ad-container';
+
+    // Create the inner content container
+    const inner = document.createElement('div');
+    inner.className = 'boosted-ad-inner';
+
+    // Create the header section
+    const header = document.createElement('div');
+    header.className = 'boosted-ad-header';
+
+    // Create the logo container
+    const logo = document.createElement('div');
+    logo.className = 'boosted-ad-logo';
+
+    // Create and append the logo image
+    const logoImg = document.createElement('img');
+    logoImg.className = 'boosted-ad-logo-img';
+    logoImg.src = 'https://i.imgur.com/JGT9FfJ.png';
+    logoImg.alt = 'Busby Centre';
+    logo.appendChild(logoImg);
+
+    // Create and append the title
+    const title = document.createElement('p');
+    title.className = 'boosted-ad-title';
+    title.textContent = 'The Busby Centre';
+    header.appendChild(logo);
+    header.appendChild(title);
+
+    // Create and append the link
+    const link = document.createElement('a');
+    link.className = 'boosted-ad-link';
+    link.target = '_blank';
+    link.href = 'https://www.busbycentre.ca';
+    link.textContent = 'The Busby Centre | Support Busby Centre today 💜';
+
+    // Create and append the new section
+    const additionalSection = document.createElement('div');
+    additionalSection.className = 'boosted-ad-additional';
+
+    // Create and append the description paragraph
+    const description = document.createElement('p');
+    description.className = 'boosted-ad-description';
+    description.textContent = 'This advertisement is created by';
+    additionalSection.appendChild(description);
+
+    // Create and append the sponsor logo
+    const sponsorLogoContainer = document.createElement('div');
+    sponsorLogoContainer.className = 'boosted-ad-sponsor-logo';
+
+    const sponsorLogoImg = document.createElement('img');
+    sponsorLogoImg.className = 'boosted-ad-sponsor-logo-img';
+    sponsorLogoImg.src = 'https://sponsorcircle.com/wp-content/uploads/2021/02/sponsor-circle-black-transparent-1.png';
+    sponsorLogoContainer.appendChild(sponsorLogoImg);
+
+    additionalSection.appendChild(sponsorLogoContainer);
+
+    // Append all sections to the inner container
+    inner.appendChild(header);
+    inner.appendChild(link);
+
+    // Append the inner container to the outer container
+    container.appendChild(inner);
+    container.appendChild(additionalSection);
+
+    return container;
+}
+
+function applyBoostedAd() {
+    const showContainer = isSearchQueryBarrie();
+
+    if (!showContainer) {
+      return
+    }
+
+    const adContainer = boostedAdContainer();
+    // Find the rcnt container
+    const centerColContainer = document.getElementById('center_col');
+
+    if (centerColContainer) {
+      centerColContainer.insertAdjacentElement('afterbegin', adContainer);
+    }
 }
