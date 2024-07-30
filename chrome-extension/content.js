@@ -381,7 +381,7 @@ function applyGoogleSearchDiscounts(campaigns) {
 ///////////////////////////// NEW DESIGN //////////////////////////////////
 function createIsolatedIframe(width, height) {
   const iframe = document.createElement('iframe');
-  iframe.setAttribute('src', 'about:blank'); // Load a blank page initially
+  iframe.setAttribute('src', 'ShopForGood'); // Load a blank page initially
 
   // Set initial inline styles for the iframe
   iframe.style.position = 'fixed';
