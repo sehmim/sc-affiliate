@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAdminDashboard } from './useAdminDashboard';
-
+import { AddCharityModalForm } from './AddCharityModalForm';
 
 const EditableTable = () => {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [newCharity, setNewCharity] = useState({});
   const { data, loading, setData } = useAdminDashboard();
 
   if(loading){
@@ -33,6 +35,17 @@ const EditableTable = () => {
 
   const handleCancel = () => {
     setEditId(null);
+  };
+  
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setNewCharity((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleModalSave = () => {
+    setData((prev) => [...prev, { id: Date.now(), data: newCharity }]);
+    setShowModal(false);
+    setNewCharity({});
   };
 
   return (
@@ -265,6 +278,14 @@ const EditableTable = () => {
           ))}
         </tbody>
       </Table>
+      <Button onClick={() => setShowModal(true)}>Add Charity</Button>
+      <AddCharityModalForm
+        showModal={showModal}
+        setShowModal={setShowModal}
+        newCharity={newCharity}
+        handleModalChange={handleModalChange}
+        handleModalSave={handleModalSave}
+      />
     </div>
   );
 };
