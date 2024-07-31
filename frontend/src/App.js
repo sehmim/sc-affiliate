@@ -21,6 +21,7 @@ import ExtensionSettings from './pages/extension-onboarding/ExtensionSettingsPag
 
 function App() {
 
+  // Group results
   return (
       <Router>
           <Routes>

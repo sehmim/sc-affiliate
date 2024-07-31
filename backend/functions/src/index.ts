@@ -3,6 +3,7 @@ import * as admin from "firebase-admin";
 import { parseString } from "xml2js";
 import { handleCorsMiddleware } from "./corsMiddleware";
 import * as mandrill from 'mandrill-api/mandrill';
+import { Timestamp } from "firebase-admin/firestore";
 
 //Initialize Firebase and get Firestore instance
 admin.initializeApp();
@@ -373,6 +374,36 @@ export const applyTrackingLink = onRequest((req, res) => {
     }
   });
 });
+
+/**
+ * @NOTE this is not fully done yet I'm serving this as a reminder
+ * - Julio
+ */
+export const populatePaymentData = onRequest(async (req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const { CampaignId, Amount, SubId1 } = req.query;
+
+      if (!CampaignId || !Amount || !SubId1) {
+        return res.status(400).send("CampaignId, Amount, and SubId1 are required.");
+      }
+
+      const paymentData = {
+        CampaignId: CampaignId as string,
+        amount: parseFloat(Amount as string),
+        charity: SubId1 as string,
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      await admin.firestore().collection("payments").add(paymentData);
+
+      return res.status(200).send("Payment data added successfully.");
+    } catch (error : any) {
+      console.error("Error in populatePaymentData:", error);
+      res.status(500).json({ error: "Failed to save payment data", details: error.message });
+    }
+  })
+})
 
 // export const fetchAds = onRequest(async (req, res) => {
 
