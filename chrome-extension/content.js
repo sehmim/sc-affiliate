@@ -283,6 +283,29 @@ async function applyAffiliateLink(allowedBrand, selectedCharityObject){
 }
 
 
+/**
+ * @TEST
+ * It works so far Julio. 
+ */
+async function sendPaymentData(campaignId, amount, subId1) {
+  const url = LOCAL_ENV 
+    ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/populatePaymentData?campaignId=${campaignId}&amount=${amount}&subId1=${subId1}`
+    : `fake`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; // Propagate the error to the caller if needed
+  }
+}
+
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', applyImpactLink);
 }
