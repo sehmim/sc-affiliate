@@ -118,7 +118,7 @@ export const sendVerificationCode = onRequest(async (req, res) => {
         const email = req.query.email;
 
         if (!email) {
-            res.status(400).send('No Email Found');
+            res.status(400).send('No Email Found In the query param');
             return;
         }
 
@@ -146,7 +146,7 @@ export const createUser = onRequest((req, res) => {
     handleCorsMiddleware(req, res, async () => {
         try {
             const db = admin.firestore();
-            const { email, firstName, lastName, activeCharity } = req.body;
+            const { email, firstName, lastName } = req.body;
 
             if (!email) {
                 res.status(400).send('Email is required.');
@@ -166,7 +166,6 @@ export const createUser = onRequest((req, res) => {
             const userRef = await db.collection('users').add({
                 firstName: firstName || "",
                 lastName: lastName || "",
-                activeCharity: activeCharity || "",
                 email: email,
             });
 
@@ -336,6 +335,8 @@ export const applyTrackingLink = onRequest((req, res) => {
     try {
       const teamName = req.query.teamName;
       const programId = req.query.programId;
+      const email = req.query.email;
+
 
       if (!teamName || !programId) {
         return res.status(400).send("teamName and programId query parameters are required.");
@@ -356,12 +357,14 @@ export const applyTrackingLink = onRequest((req, res) => {
       }
 
       // If no matching document is found, generate a new trackingLink
-      const responseData = await generateLink(programId as any, teamName as any);
-
+      const responseData = await generateLink(programId as string, teamName as string, email as string);
+      
       // Save the new trackingLink and teamName to Firestore
       await admin.firestore().collection("trackingLinks").add({
         teamName,
         programId,
+        linkInitiallyGeneratedBy: email,
+        appliedDate: new Date(),
         trackingLink: responseData.TrackingURL,
       });
 
@@ -374,64 +377,7 @@ export const applyTrackingLink = onRequest((req, res) => {
   });
 });
 
-// export const fetchAds = onRequest(async (req, res) => {
 
-//     try {
-//         const adsWithPercent: any[] = [];
-        
-//         ADS.map((ad) => {
-//             if (ad.DiscountPercent !== "" || ad.DiscountAmount !== "") {
-//                 adsWithPercent.push(ad)
-//             }
-//         })
-        
-//         res.status(200).json(adsWithPercent);
-
-//     } catch (error) {
-//         res.status(500).send('Error:'+ error);
-//     }
-
-
-
-// //   try {
-// //     const username = 'IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1';
-// //     const password = 'kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y';
-// //     const base64Auth = Buffer.from(`${username}:${password}`).toString('base64');
-
-// //     const response = await fetch(`https://api.impact.com/Mediapartners/${username}/Ads`, {
-// //       method: 'GET',
-// //       headers: {
-// //         'Authorization': `Basic ${base64Auth}`,
-// //         'Accept': 'application/xml' // Specify XML content type
-// //       },
-// //     });
-
-// //     if (!response.ok) {
-// //       throw new Error(`HTTP error! Status: ${response.status}`);
-// //     }
-
-// //     // Parse the XML response and convert it to JSON
-// //     const xmlData = await response.text();
-// //     parseString(xmlData, { explicitArray: false }, (err, result) => {
-// //       if (err) {
-// //         console.error('Error parsing XML:', err);
-// //         res.status(500).send('Error parsing XML');
-// //       } else {
-// //         if (result && result.ImpactRadiusResponse && result.ImpactRadiusResponse.Ads && result.ImpactRadiusResponse.Ads.Ad) {
-// //           const ads = result.ImpactRadiusResponse.Ads.Ad;
-// //           res.status(200).json(ads);
-// //         } else {
-// //           res.status(500).send('Unexpected XML structure');
-// //         }
-// //       }
-// //     });
-// //   } catch (error) {
-// //     console.error('Error fetching data:', error);
-// //     res.status(500).send('Error fetching data');
-// //   }
-// });
-
-// ------------ NOT USED BY THE EXTENSION DIRECTLY ------------
 export const fetchCampaignsData = onRequest(async (req, res) => {
   try {
     const base64Auth = Buffer.from(
@@ -471,22 +417,6 @@ export const fetchCampaignsData = onRequest(async (req, res) => {
   }
 });
 
-// export const createAllowedDomainsCollection = onRequest(async (req, res) => {
-//     try {
-//         const db = admin.firestore();
-
-//         const allowedDomainsRef = db.collection('allowedDomains');
-
-//         await Promise.all(DUMMY_DATA.map(async (data) => {
-//             await allowedDomainsRef.add(data);
-//         }));
-
-//         res.status(200).send("Collection 'allowedDomains' created and populated successfully.");
-//     } catch (error) {
-//         console.error("Error creating 'allowedDomains' collection:", error);
-//         res.status(500).send("Error creating 'allowedDomains' collection.");
-//     }
-// });
 
 export const generateTrackingLink = onRequest(async (req, res) => {
   try {
@@ -497,9 +427,10 @@ export const generateTrackingLink = onRequest(async (req, res) => {
     // Extract programId and subId1 from the query parameters
     const programId = req.query.programId;
     const subId1 = req.query.teamName;
+    const subId2 = req.query.email;
 
     // Construct the URL with the injected programId and subId1
-    const url = `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${subId1}`;
+    const url = `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${subId1}&subId2=${subId2}`;
 
     const response = await fetch(url, {
       method: "POST",
@@ -522,13 +453,13 @@ export const generateTrackingLink = onRequest(async (req, res) => {
   }
 });
 
-async function generateLink(programId: string, teamName: string) {
+async function generateLink(programId: string, teamName: string, email: string) {
   try {
     const base64Auth = Buffer.from(
       `IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1:kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y`
     ).toString("base64");
 
-    const url = `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${teamName}`;
+    const url = `https://api.impact.com/Mediapartners/IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${teamName}&subId2=${email}`;
 
     const response = await fetch(url, {
       method: "POST",
