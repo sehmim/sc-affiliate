@@ -405,7 +405,24 @@ export const populatePaymentData = onRequest(async (req, res) => {
   });
 });
 
+export const retrievePaymentData = onRequest(async (req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    console.log("retrievePaymentData function started");
+    try {
+      const paymentsSnapshot = await admin.firestore().collection('payments').get();
+      const payments = paymentsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
+      console.log(`Retrieved ${payments.length} payment records`);
+      res.status(200).json(payments);
+    } catch (error: any) {
+      console.error("Error in retrievePaymentData:", error);
+      res.status(500).json({ error: "Failed to retrieve payment data", details: error.message });
+    }
+  });
+});
 
 // export const fetchAds = onRequest(async (req, res) => {
 

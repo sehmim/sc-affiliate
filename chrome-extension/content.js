@@ -305,6 +305,24 @@ async function sendPaymentData(campaignId, amount, subId1) {
   }
 }
 
+async function retrievePaymentData() {
+  const url = LOCAL_ENV 
+    ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/retrievePaymentData`
+    : `fake`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error fetching payment data:', error);
+    throw error;
+  }
+}
+
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', applyImpactLink);
