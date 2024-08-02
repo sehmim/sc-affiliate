@@ -261,6 +261,7 @@ function isCodeAlreadyAppliedToWebsite() {
 async function applyAffiliateLink(allowedBrand, userSettings){
   const { selectedCharityObject, email} = userSettings;
   const programId = allowedBrand.campaignID;
+  console.log("userSettings -->", userSettings);
   const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject?.organizationName}&email=${email}` 
       : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject?.organizationName}&email=${email}`;
 
@@ -591,8 +592,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
                 window.location.href = allowedBrand.trackingLink;
               }
             } else {
-              const { selectedCharityObject } = userSettings;
-              await applyAffiliateLink(allowedBrand, selectedCharityObject);
+              await applyAffiliateLink(allowedBrand, userSettings);
             }
   
             setCookie("sc-minimize", false);
