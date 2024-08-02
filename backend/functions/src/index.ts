@@ -4,8 +4,13 @@ import { parseString } from "xml2js";
 import { handleCorsMiddleware } from "./corsMiddleware";
 import * as mandrill from 'mandrill-api/mandrill';
 
+import { createCharity, deleteCharity } from "./admin/charitiesApi";
+
 //Initialize Firebase and get Firestore instance
 admin.initializeApp();
+export const db = admin.firestore();
+
+export { createCharity, deleteCharity };
 
 const mandrillClient = new mandrill.Mandrill('md-1P__LTE1pBx7CQJUxjBMlA');
 
