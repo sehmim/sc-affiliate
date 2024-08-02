@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
+import { LOCAL_ENV } from "../../api/env";
 
-const LOCAL_ENV = false;
 export const sendVerificationCodeUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/sendVerificationCode" : "https://sendverificationcode-6n7me4jtka-uc.a.run.app";
 export const verifyVerificationCode = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/verifyVerificationCode" : "https://verifyverificationcode-6n7me4jtka-uc.a.run.app";
 export const createUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/createUser" : "https://createuser-6n7me4jtka-uc.a.run.app";

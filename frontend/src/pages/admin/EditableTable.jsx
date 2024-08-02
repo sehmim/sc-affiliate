@@ -3,6 +3,7 @@ import { Table, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAdminDashboard } from './useAdminDashboard';
 import { AddCharityModalForm } from './AddCharityModalForm';
+import { createCharity, deleteCharity } from '../../api/charityApi';
 
 const EditableTable = () => {
   const [editId, setEditId] = useState(null);
@@ -10,6 +11,8 @@ const EditableTable = () => {
   const [showModal, setShowModal] = useState(false);
   const [newCharity, setNewCharity] = useState({});
   const { data, loading, setData } = useAdminDashboard();
+
+  const [ isActionLoading, setIsActionLoading ] = useState();
 
   if(loading){
     return (<div>Loading...</div>)
@@ -42,14 +45,37 @@ const EditableTable = () => {
     setNewCharity((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleModalSave = () => {
+  const handleDelete = async (item) => {
+    try {
+      console.log("DELETING ->", item.id);
+      const dataWithoutDeletedItem = data.filter(old => old.id !== item.id);
+      setData(dataWithoutDeletedItem);
+      
+      await deleteCharity(item.id);
+    } catch (error) {
+      console.log('error ->', error)
+    }
+  }
+
+  const handleModalSave = async () => {
     setData((prev) => [...prev, { id: Date.now(), data: newCharity }]);
-    setShowModal(false);
-    setNewCharity({});
+
+    try {
+      setIsActionLoading(true);
+      console.log("newCharity -->", newCharity);
+      const response = await createCharity(newCharity);
+      console.log('Charity created:', response);
+    } catch (error) {
+      console.error('Error creating charity:', error);
+    } finally {
+      setShowModal(false);
+      setNewCharity({});
+      setIsActionLoading(false)
+    }
   };
 
   return (
-    <div className="container mt-5">
+    <div className="m-4">
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -254,7 +280,7 @@ const EditableTable = () => {
                   (item.data.isActive ? 'Yes' : 'No')
                 )}
               </td>
-              <td>
+              {/* <td>
                 {editId === item.id ? (
                   <>
                     <Button
@@ -273,6 +299,13 @@ const EditableTable = () => {
                     Edit
                   </Button>
                 )}
+              </td> */}
+              <td>
+                  <>
+                    <Button variant="danger" onClick={() => handleDelete(item)}>
+                      Delete
+                    </Button>
+                  </>
               </td>
             </tr>
           ))}
@@ -281,10 +314,11 @@ const EditableTable = () => {
       <Button onClick={() => setShowModal(true)}>Add Charity</Button>
       <AddCharityModalForm
         showModal={showModal}
-        setShowModal={setShowModal}
         newCharity={newCharity}
+        isActionLoading={isActionLoading}
         handleModalChange={handleModalChange}
         handleModalSave={handleModalSave}
+        setShowModal={setShowModal}
       />
     </div>
   );

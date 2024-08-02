@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 
-const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalChange, handleModalSave }) => {
+const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalChange, handleModalSave, isActionLoading }) => {
   return (
     <Modal show={showModal} onHide={() => setShowModal(false)}>
       <Modal.Header closeButton>
@@ -150,7 +150,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
         <Button variant="secondary" onClick={() => setShowModal(false)}>
           Close
         </Button>
-        <Button variant="primary" onClick={handleModalSave}>
+        <Button disabled={isActionLoading} variant="primary" onClick={handleModalSave}>
           Save Changes
         </Button>
       </Modal.Footer>
