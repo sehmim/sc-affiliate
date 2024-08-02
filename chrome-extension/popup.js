@@ -56,7 +56,7 @@ async function fetchDataFromServer(url) {
 }
 
 async function fetchCampaigns() {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://getcampaigns-6n7me4jtka-uc.a.run.app";
+  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getCampaigns";
   const campaigns = await fetchDataFromServer(url);
 
   return campaigns;
