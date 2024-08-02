@@ -1,4 +1,4 @@
-# Sponsor Circle Affiliate - Shop for Good
+# Shop for Good
 
 ### For a quick like experience of the product go here: 
 https://chromewebstore.google.com/detail/sponsor-circle-affiliate/pifflcabiijbniniffeakhadehjilibi
