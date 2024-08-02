@@ -9,7 +9,10 @@ const EditableTable = () => {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [showModalEdit, setShowModalEdit] = useState(false);
   const [newCharity, setNewCharity] = useState({});
+  const [charityToEdit, setCharityToEdit] = useState();
+
   const { data, loading, setData } = useAdminDashboard();
 
   const [ isActionLoading, setIsActionLoading ] = useState();
@@ -19,9 +22,9 @@ const EditableTable = () => {
   }
 
 
-  const handleEditClick = (item) => {
-    setEditId(item.id);
-    setFormData(item.data);
+  const handleEditClick = ({ data }) => {
+    setCharityToEdit(data)
+    setShowModalEdit(true);
   };
 
   const handleChange = (e) => {
@@ -45,6 +48,11 @@ const EditableTable = () => {
     setNewCharity((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleEditModalChange = (e) => {
+    const { name, value } = e.target;
+    setCharityToEdit((prev) => ({ ...prev, [name]: value }));
+  }
+
   const handleDelete = async (item) => {
     try {
       console.log("DELETING ->", item.id);
@@ -57,7 +65,7 @@ const EditableTable = () => {
     }
   }
 
-  const handleModalSave = async () => {
+  const handleUploadNewCharity = async () => {
     setData((prev) => [...prev, { id: Date.now(), data: newCharity }]);
 
     try {
@@ -73,6 +81,22 @@ const EditableTable = () => {
       setIsActionLoading(false)
     }
   };
+
+  const handleUpdateCharity = async () => {
+
+    const id = charityToEdit.id;
+
+    console.log("id -->", id);
+
+    setData((prev) =>
+      prev.map((item) => (item.id === id ? { id, data: charityToEdit } : item))
+    );
+
+    setEditId(null);
+    setShowModalEdit(false);
+    setCharityToEdit({});
+    setIsActionLoading(false)
+  }
 
   return (
     <div className="m-4">
@@ -95,6 +119,7 @@ const EditableTable = () => {
             <th>Logo</th>
             <th>Is Active</th>
             <th>Actions</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -280,26 +305,11 @@ const EditableTable = () => {
                   (item.data.isActive ? 'Yes' : 'No')
                 )}
               </td>
-              {/* <td>
-                {editId === item.id ? (
-                  <>
-                    <Button
-                      variant="success"
-                      onClick={() => handleSave(item.id)}
-                      className="me-2"
-                    >
-                      Save
-                    </Button>
-                    <Button variant="secondary" onClick={handleCancel}>
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="warning" onClick={() => handleEditClick(item)}>
-                    Edit
-                  </Button>
-                )}
-              </td> */}
+              <td>
+                <Button variant="warning" onClick={() => handleEditClick(item)}>
+                  Edit
+                </Button>
+              </td>
               <td>
                   <>
                     <Button variant="danger" onClick={() => handleDelete(item)}>
@@ -312,12 +322,25 @@ const EditableTable = () => {
         </tbody>
       </Table>
       <Button onClick={() => setShowModal(true)}>Add Charity</Button>
+      
+      {/* // EDIT VIEW  */}
+      <AddCharityModalForm
+        showModal={showModalEdit}
+        newCharity={charityToEdit}
+        isActionLoading={isActionLoading}
+        handleModalChange={handleEditModalChange}
+        handleModalSave={handleUpdateCharity}
+        setShowModal={setShowModalEdit}
+        isEdit={true}
+      />
+
+      {/* // ADD VIEW  */}
       <AddCharityModalForm
         showModal={showModal}
         newCharity={newCharity}
         isActionLoading={isActionLoading}
         handleModalChange={handleModalChange}
-        handleModalSave={handleModalSave}
+        handleModalSave={handleUploadNewCharity}
         setShowModal={setShowModal}
       />
     </div>

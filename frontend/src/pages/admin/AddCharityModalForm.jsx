@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 
-const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalChange, handleModalSave, isActionLoading }) => {
+const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalChange, handleModalSave, isActionLoading, isEdit }) => {  
   return (
     <Modal show={showModal} onHide={() => setShowModal(false)}>
       <Modal.Header closeButton>
-        <Modal.Title>Add Charity</Modal.Title>
+        <Modal.Title>{isEdit ? `Edit Charaty` : `Add Charity`}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
@@ -14,7 +14,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="organizationName"
-              value={newCharity.organizationName || ''}
+              value={newCharity?.organizationName || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -23,7 +23,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="country"
-              value={newCharity.country || ''}
+              value={newCharity?.country || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -32,7 +32,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="provinceTerritoryOutsideOfCanada"
-              value={newCharity.provinceTerritoryOutsideOfCanada || ''}
+              value={newCharity?.provinceTerritoryOutsideOfCanada || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -41,7 +41,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="city"
-              value={newCharity.city || ''}
+              value={newCharity?.city || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -50,7 +50,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="address"
-              value={newCharity.address || ''}
+              value={newCharity?.address || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -59,7 +59,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="postalCode"
-              value={newCharity.postalCode || ''}
+              value={newCharity?.postalCode || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -68,7 +68,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="registrationNumber"
-              value={newCharity.registrationNumber || ''}
+              value={newCharity?.registrationNumber || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -77,7 +77,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="category"
-              value={newCharity.category || ''}
+              value={newCharity?.category || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -86,7 +86,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="charityType"
-              value={newCharity.charityType || ''}
+              value={newCharity?.charityType || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -95,7 +95,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="sanctionDesignation"
-              value={newCharity.sanctionDesignation || ''}
+              value={newCharity?.sanctionDesignation || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -104,7 +104,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="typeOfQualifiedDone"
-              value={newCharity.typeOfQualifiedDone || ''}
+              value={newCharity?.typeOfQualifiedDone || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -113,7 +113,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="date"
               name="effectiveDateOfStatus"
-              value={newCharity.effectiveDateOfStatus || ''}
+              value={newCharity?.effectiveDateOfStatus || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -122,7 +122,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="status"
-              value={newCharity.status || ''}
+              value={newCharity?.status || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -131,7 +131,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Control
               type="text"
               name="logo"
-              value={newCharity.logo || ''}
+              value={newCharity?.logo || ''}
               onChange={handleModalChange}
             />
           </Form.Group>
@@ -140,7 +140,7 @@ const AddCharityModalForm = ({ showModal, setShowModal, newCharity, handleModalC
             <Form.Check
               type="checkbox"
               name="isActive"
-              checked={newCharity.isActive || false}
+              checked={newCharity?.isActive || false}
               onChange={(e) => handleModalChange({ target: { name: 'isActive', value: e.target.checked } })}
             />
           </Form.Group>
