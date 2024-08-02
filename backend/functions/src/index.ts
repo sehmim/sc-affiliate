@@ -490,19 +490,19 @@ async function generateLink(programId: string, teamName: string, email: string) 
 }
 
 
-interface LoginRequest {
-  email: string;
-  password: string;
-}
+// interface LoginRequest {
+//   email: string;
+//   password: string;
+// }
 
-interface LoginResponseSuccess {
-  message: string;
-  uid: string;
-}
+// interface LoginResponseSuccess {
+//   message: string;
+//   uid: string;
+// }
 
-interface LoginResponseError {
-  error: string;
-}
+// interface LoginResponseError {
+//   error: string;
+// }
 
 // const CAMPAIGNS = [
 //   {
