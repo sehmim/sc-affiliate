@@ -409,7 +409,19 @@ export const retrievePaymentData = onRequest(async (req, res) => {
   handleCorsMiddleware(req, res, async () => {
     console.log("retrievePaymentData function started");
     try {
-      const paymentsSnapshot = await admin.firestore().collection('payments').get();
+      const { campaignId, charity } = req.query;
+
+      let query: admin.firestore.Query<admin.firestore.DocumentData> = admin.firestore().collection('payments');
+
+      if (campaignId) {
+        query = query.where('campaignId', '==', campaignId);
+      }
+      if (charity) {
+        query = query.where('charity', '==', charity);
+      }
+      
+
+      const paymentsSnapshot = await query.get();
       const payments = paymentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
