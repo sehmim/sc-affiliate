@@ -51,3 +51,23 @@ export const deleteCharity = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+export const updateCharity = functions.https.onRequest((req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const charityId: any = req.query.id;
+      const data: any = req.body;
+
+      if (!charityId) {
+        res.status(400).send('Charity ID is required');
+        return;
+      }
+
+      await db.collection('defaultCharities').doc(charityId).update(data);
+      res.status(200).send('Charity updated successfully');
+    } catch (error) {
+      console.error('Error updating charity:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});

@@ -1,4 +1,4 @@
-import { createCharityEndpoint, deleteCharityEndpoint } from "./env";
+import { createCharityEndpoint, deleteCharityEndpoint, updateCharityEndpoint } from "./env";
 
 
 export const createCharity = async (charity) => {
@@ -25,4 +25,23 @@ export const deleteCharity = async (id) => {
     throw new Error('Failed to delete charity');
   }
   return response.json();
+};
+
+export const updateCharity = async (id, updatedData) => {
+    try {
+        const response = await fetch(`${updateCharityEndpoint}?id=${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to update charity');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error updating charity:', error);
+        throw error;
+    }
 };

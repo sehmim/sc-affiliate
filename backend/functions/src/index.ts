@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import { createCharity, deleteCharity } from "./admin/charitiesApi";
+import { createCharity, deleteCharity, updateCharity } from "./admin/charitiesApi";
 import { getCampaigns, deleteCampaign, updateCampaign } from "./admin/campaignsApi";
 import { populateCampaignData } from "./cron/impactCampaigns";
 import { populatePaymentData, retrievePaymentData } from "./payments/paymentsApi";
@@ -15,6 +15,7 @@ export {
   updateUser,
   createCharity, 
   deleteCharity, 
+  updateCharity,
   populateCampaignData, 
   getCampaigns, 
   deleteCampaign, 

@@ -3,7 +3,7 @@ import { Table, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAdminDashboard } from './useAdminDashboard';
 import { AddCharityModalForm } from './AddCharityModalForm';
-import { createCharity, deleteCharity } from '../../api/charityApi';
+import { createCharity, deleteCharity, updateCharity } from '../../api/charityApi';
 
 const EditableTable = () => {
   const [editId, setEditId] = useState(null);
@@ -22,8 +22,9 @@ const EditableTable = () => {
   }
 
 
-  const handleEditClick = ({ data }) => {
-    setCharityToEdit(data)
+  const handleEditClick = (charity) => {
+    setEditId(charity.id);
+    setCharityToEdit(charity.data)
     setShowModalEdit(true);
   };
 
@@ -51,6 +52,8 @@ const EditableTable = () => {
   const handleEditModalChange = (e) => {
     const { name, value } = e.target;
     setCharityToEdit((prev) => ({ ...prev, [name]: value }));
+
+    console.log("char", charityToEdit)
   }
 
   const handleDelete = async (item) => {
@@ -84,18 +87,22 @@ const EditableTable = () => {
 
   const handleUpdateCharity = async () => {
 
-    const id = charityToEdit.id;
-
-    console.log("id -->", id);
+    console.log('editId ->', editId);
 
     setData((prev) =>
-      prev.map((item) => (item.id === id ? { id, data: charityToEdit } : item))
+      prev.map((item) => (item.id === editId ? { id: editId, data: charityToEdit } : item))
     );
 
-    setEditId(null);
-    setShowModalEdit(false);
-    setCharityToEdit({});
-    setIsActionLoading(false)
+    try {
+      await updateCharity(editId, charityToEdit);
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setEditId(null);
+      setShowModalEdit(false);
+      setCharityToEdit({});
+      setIsActionLoading(false)
+    }
   }
 
   return (
@@ -125,185 +132,57 @@ const EditableTable = () => {
         <tbody>
           {data.map((item) => (
             <tr key={item.id}>
+              <td>{item.data.organizationName}</td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="organizationName"
-                    value={formData.organizationName}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.organizationName
-                )}
+                {item.data.city}
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.city
-                )}
+                {item.data.provinceTerritoryOutsideOfCanada}
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="provinceTerritoryOutsideOfCanada"
-                    value={formData.provinceTerritoryOutsideOfCanada}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.provinceTerritoryOutsideOfCanada
-                )}
+                {item.data.country}
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.country
-                )}
+                {item.data.sanctionDesignation
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="sanctionDesignation"
-                    value={formData.sanctionDesignation}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.sanctionDesignation
-                )}
+                {item.data.typeOfQualifiedDone
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="typeOfQualifiedDone"
-                    value={formData.typeOfQualifiedDone}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.typeOfQualifiedDone
-                )}
+                {item.data.charityType
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="charityType"
-                    value={formData.charityType}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.charityType
-                )}
+                {item.data.status
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.status
-                )}
+                {item.data.effectiveDateOfStatus
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="date"
-                    name="effectiveDateOfStatus"
-                    value={formData.effectiveDateOfStatus}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.effectiveDateOfStatus
-                )}
+                {item.data.registrationNumber
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="registrationNumber"
-                    value={formData.registrationNumber}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.registrationNumber
-                )}
+                { item.data.address
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.address
-                )}
+                {item.data.postalCode
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.postalCode
-                )}
+                { item.data.category
+                }
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  item.data.category
-                )}
+                <img src={item.data.logo} alt="Logo" style={{ width: '50px' }} />
               </td>
               <td>
-                {editId === item.id ? (
-                  <Form.Control
-                    type="text"
-                    name="logo"
-                    value={formData.logo}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  <img src={item.data.logo} alt="Logo" style={{ width: '50px' }} />
-                )}
-              </td>
-              <td>
-                {editId === item.id ? (
-                  <Form.Check
-                    type="checkbox"
-                    name="isActive"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
-                  />
-                ) : (
-                  (item.data.isActive ? 'Yes' : 'No')
-                )}
+                  {(item.data.isActive ? 'Yes' : 'No')}
               </td>
               <td>
                 <Button variant="warning" onClick={() => handleEditClick(item)}>
