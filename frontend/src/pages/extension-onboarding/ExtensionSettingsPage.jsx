@@ -414,6 +414,7 @@ export default function ExtensionSettings(props) {
 
         <div style={{ textAlign: "center", marginTop: "20px" }}>
           <button
+            disabled={!selectedCharity || firstName === ''}
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
             onClick={handleSave}
             type="button"

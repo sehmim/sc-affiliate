@@ -217,16 +217,16 @@ async function initialize() {
     // Coupon Container
     const couponInfo = isCouponedWebsiteCheckout();
     if (couponInfo) {
-      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, userSettings?.selectedCharityObject);
+      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, userSettings);
     } else {
       // SHOW APPLIED POPUP
       if (codeAlreadyAppliedToBrand) {
-        await createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings?.selectedCharityObject);
+        await createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings);
       }
 
       // Regular Affilicate Link Container
       if (!couponInfo && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
-        await createActivatePageContainer(allowedBrand, closedDiv, userSettings?.selectedCharityObject);
+        await createActivatePageContainer(allowedBrand, closedDiv, userSettings);
       }
     }
 }
@@ -258,17 +258,13 @@ function isCodeAlreadyAppliedToWebsite() {
     return codeAlreadyAppliedToBrand;
 }
 
-async function applyAffiliateLink(allowedBrand, selectedCharityObject){
-  // if (selectedTeam === "------Your Teams-----" || selectedTeam === "-----Default Charities-----") {
-  //   alert("PICK A TEAM");
-  //   return
-  // }
-
+async function applyAffiliateLink(allowedBrand, userSettings){
+  const { selectedCharityObject, email} = userSettings;
   const programId = allowedBrand.campaignID;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject?.organizationName}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject?.organizationName}`;
+  console.log("userSettings -->", userSettings);
+  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject?.organizationName}&email=${email}` 
+      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject?.organizationName}&email=${email}`;
 
-  // const data = await fetchDataFromServer(url);
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -329,7 +325,7 @@ if (document.readyState === 'loading') {
 }
 
 async function fetchCampaigns() {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://getcampaigns-6n7me4jtka-uc.a.run.app"; 
+  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getCampaigns"; 
   return await fetchDataFromServer(url) || [];
 }
 
@@ -422,7 +418,7 @@ function applyGoogleSearchDiscounts(campaigns) {
 ///////////////////////////// NEW DESIGN //////////////////////////////////
 function createIsolatedIframe(width, height) {
   const iframe = document.createElement('iframe');
-  iframe.setAttribute('src', 'ShopForGood'); // Load a blank page initially
+  iframe.setAttribute('src', 'about:blank'); // Load a blank page initially
 
   // Set initial inline styles for the iframe
   iframe.style.position = 'fixed';
@@ -495,13 +491,14 @@ function createClosedDiv() {
 }
 
 
-async function createActivatePageContainer(allowedBrand, closedDiv, selectedCharityObject){
+async function createActivatePageContainer(allowedBrand, closedDiv, userSettings){
 
   const isolatedIframe = createIsolatedIframe('400px', '100px');
 
   isolatedIframe.onload = async function() {
+    const { selectedCharityObject } = userSettings;
     const leftDiv = createLeftDiv(selectedCharityObject);
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, undefined, closedDiv, selectedCharityObject);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, undefined, closedDiv, userSettings);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
@@ -571,7 +568,7 @@ function createLeftDiv(selectedCharityObject) {
     return div;
 }
 
-function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, selectedCharityObject) {
+function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, userSettings) {
     const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.discountPercentage * COMMISSION_RATE)+"%";
 
     closedDiv.onclick = function () {
@@ -636,7 +633,7 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, sel
                 window.location.href = allowedBrand.trackingLink;
               }
             } else {
-              await applyAffiliateLink(allowedBrand, selectedCharityObject);
+              await applyAffiliateLink(allowedBrand, userSettings);
             }
   
             setCookie("sc-minimize", false);
@@ -657,7 +654,8 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, sel
 }
 
 
-async function createAppliedLinkPageContainer(allowedBrand, closedDiv, selectedCharityObject){
+async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
+  const { selectedCharityObject } = userSettings;
   const isolatedIframe = createIsolatedIframe('400px', '280px');
   isolatedIframe.onload = async function() {
     const navbar = createNavbar(isolatedIframe, closedDiv);
@@ -861,11 +859,12 @@ async function createLoginContainer(closedDiv) {
   }
 }
 
-async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, selectedCharityObject){
+async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, userSettings){
+  const { selectedCharityObject } = userSettings;
   const isolatedIframe = createIsolatedIframe('400px', '100px');
   isolatedIframe.onload = async function() {
     const leftDiv = createLeftDiv(selectedCharityObject);
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, selectedCharityObject);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, userSettings);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';

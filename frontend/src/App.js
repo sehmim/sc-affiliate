@@ -18,6 +18,7 @@ import Auth from './utils/Auth';
 import OnboardingPage from './pages/extension-onboarding/OnboardingPage';
 import ExtensionSettings from './pages/extension-onboarding/ExtensionSettingsPage';
 
+import AdminDashboard from './pages/admin/adminDashboard';
 
 function App() {
 
@@ -39,6 +40,7 @@ function App() {
             <Route path='/settings' element={<Auth><Settings /></Auth>}/>
             <Route path='/onboard' element={<OnboardingPage/>}></Route>
             <Route path='/extension-settings' element={<Auth><ExtensionSettings/></Auth>}></Route>
+            <Route path='/admin' element={<AdminDashboard />}></Route>
           </Routes>
       </Router>
       
