@@ -66,3 +66,35 @@ export const getUser = onRequest((req, res) => {
     }
   });
 });
+
+export const updateUser = onRequest((req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const { email, updates } = req.body;
+
+      // Basic validation
+      if (!email || !updates) {
+        res.status(400).send('Email and updates are required.');
+        return;
+      }
+
+      // Query the user document by email
+      const userRef = db.collection('users').where('email', '==', email);
+      const snapshot = await userRef.get();
+
+      if (snapshot.empty) {
+        res.status(404).send('User not found.');
+        return;
+      }
+
+      // Update the user document (assuming only one user per email)
+      const userId = snapshot.docs[0].id;
+      await db.collection('users').doc(userId).update(updates);
+
+      res.status(200).send('User updated successfully.');
+    } catch (error) {
+      console.error('Error updating user data: ', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});

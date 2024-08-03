@@ -22,15 +22,11 @@ const CampaignsTable = () => {
             <th>Campaign Name</th>
             <th>Campaign Logo</th>
             <th>Active Date</th>
-            <th>Insertion Order Name</th>
             <th>Status</th>
-            <th>Allows Deep Linking</th>
             <th>Payout</th>
-            <th>Performance Bonus</th>
-            <th>Click Referral Period</th>
-            <th>Action Locking</th>
             <th>Discount Percentage</th>
             <th>Discount Type</th>
+            <th>Advertiser URL</th>
             <th>Subdomains</th>
           </tr>
         </thead>
@@ -43,15 +39,11 @@ const CampaignsTable = () => {
                 <img src={campaign.campaignLogoURI} alt={campaign.campaignName} style={{ width: '100px' }} />
               </td>
               <td>{campaign.activeDate}</td>
-              <td>{campaign.insertionOrderName}</td>
               <td>{campaign.insertionOrderStatus}</td>
-              <td>{campaign.allowsDeepLinking ? 'Yes' : 'No'}</td>
               <td>{campaign.payout}</td>
-              <td>{campaign.performanceBonus}</td>
-              <td>{campaign.clickReferralPeriod}</td>
-              <td>{campaign.actionLocking}</td>
               <td>{campaign.discountPercentage}%</td>
               <td>{campaign.discountType}</td>
+              <td><a href={campaign.advertiserURL}>{campaign.advertiserURL}</a></td>
               <td>
                 {campaign.subDomains.map((domain, index) => (
                   <div key={index}>

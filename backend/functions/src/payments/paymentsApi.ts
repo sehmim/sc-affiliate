@@ -4,25 +4,21 @@ import { db } from '../index';
 import * as admin from 'firebase-admin';
 
 
-
-/**
- * @NOTE this is not fully done yet I'm serving this as a reminder
- * - Julio
- */
 export const populatePaymentData = onRequest(async (req, res) => {
   return handleCorsMiddleware(req, res, async () => {
     console.log("populatePaymentData function started");
     try {
-      const { campaignId, amount, subId1 } = req.query;
+      const { campaign_id, amount, sub_id1, currency} = req.query;
 
-      if (!campaignId || !amount || !subId1) {
-        return res.status(400).send("campaignId, amount, and subId1 are required.");
+      if (!campaign_id || !amount || !sub_id1 || !currency) {
+        return res.status(400).send("campaign_id, amount, sub_id1 and currency are required.");
       }
 
       const paymentData = {
-        campaignId: campaignId as string,
-        amount: parseFloat(amount as string),
-        charity: subId1 as string,
+        campaignId: campaign_id as string,
+        amount,
+        currency,
+        charity: sub_id1,
       };
 
       console.log("Saving payment data:", paymentData);

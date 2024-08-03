@@ -1,7 +1,7 @@
-import * as functions from 'firebase-functions';
 import { db } from '../index';
+import { onRequest } from 'firebase-functions/v2/https';
 
-export const populateCampaignData = functions.https.onRequest(async (req, res) => {
+export const populateCampaignData = onRequest(async (req, res) => {
   const batch = db.batch();
   const collectionRef = db.collection('impactCampaigns');
 
