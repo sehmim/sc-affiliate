@@ -22,6 +22,7 @@ import AdminDashboard from './pages/admin/adminDashboard';
 
 function App() {
 
+  // Group results
   return (
       <Router>
           <Routes>
