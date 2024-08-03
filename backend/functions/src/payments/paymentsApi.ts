@@ -1,6 +1,8 @@
 import { onRequest } from "firebase-functions/v2/https";
 import handleCorsMiddleware from "../corsMiddleware";
 import { db } from '../index';
+import * as admin from 'firebase-admin';
+
 
 
 /**
@@ -38,7 +40,19 @@ export const retrievePaymentData = onRequest(async (req, res) => {
   handleCorsMiddleware(req, res, async () => {
     console.log("retrievePaymentData function started");
     try {
-      const paymentsSnapshot = await db.collection('payments').get();
+      const { campaignId, charity } = req.query;
+
+      let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection('payments');
+
+      if (campaignId) {
+        query = query.where('campaignId', '==', campaignId);
+      }
+      if (charity) {
+        query = query.where('charity', '==', charity);
+      }
+
+
+      const paymentsSnapshot = await query.get();
       const payments = paymentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
