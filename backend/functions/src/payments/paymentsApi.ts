@@ -8,16 +8,16 @@ export const populatePaymentData = onRequest(async (req, res) => {
   return handleCorsMiddleware(req, res, async () => {
     console.log("populatePaymentData function started");
     try {
-      const { campaign_id, amount, sub_id1, currency} = req.query;
+      const { campaign_id, amount, sub_id1, campaign_name} = req.query;
 
-      if (!campaign_id || !amount || !sub_id1 || !currency) {
+      if (!campaign_id || !amount || !sub_id1 || !campaign_name) {
         return res.status(400).send("campaign_id, amount, sub_id1 and currency are required.");
       }
 
       const paymentData = {
         campaignId: campaign_id as string,
         amount,
-        currency,
+        campaignName: campaign_name,
         charity: sub_id1,
       };
 
