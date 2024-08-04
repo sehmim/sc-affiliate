@@ -19,6 +19,7 @@ import OnboardingPage from './pages/extension-onboarding/OnboardingPage';
 import ExtensionSettings from './pages/extension-onboarding/ExtensionSettingsPage';
 
 import AdminDashboard from './pages/admin/adminDashboard';
+import EmailVerificationComponent from './pages/extension-onboarding/EmailVerificationComponent';
 
 function App() {
 
@@ -26,7 +27,7 @@ function App() {
   return (
       <Router>
           <Routes>
-            <Route path='/login' element={<Login />}/>
+            <Route path='/login' element={<EmailVerificationComponent />}/>
             <Route path='/' element={ localStorage.getItem("user") ? <Home /> : <LandingPage />}/>
             <Route path='/creategroup' element={<Auth><CreateGroup /></Auth>}/>
             <Route path='/groupform' element={<Auth><GroupForm /></Auth>}/>

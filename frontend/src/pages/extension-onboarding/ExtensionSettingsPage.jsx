@@ -1,123 +1,109 @@
-    /*global chrome*/
+/*global chrome*/
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import { defaultCharitiesUrl, getUserByEmailUrl, updateUserUrl } from "./EmailVerificationComponent";
+import { defaultCharitiesUrl, getUserByEmailUrl, updateUserUrl } from "../../api/env";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.setItem('sc-user', null);
-    navigate('/onboard');
-  }
+    localStorage.setItem("sc-user", null);
+    navigate("/onboard");
+  };
 
   return (
-  <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
-    <div className="d-flex justify-content-between w-100">
-      <a href="/extension-settings">
-        <img
-          className="w-60"
-          src={"https://i.imgur.com/UItnKy8.png"}
-          alt="logo"
-        />
-      </a>
-      <div>
-        <span className="mr-4">Settings</span>
-        <button
-          onClick={handleLogout}
-          type="button"
-          className="btn btn-dark fw-bold"
-        >
-          Logout
-        </button>
+    <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
+      <div className="d-flex justify-content-between w-100">
+        <a href="/extension-settings">
+          <img className="w-60" src={"https://i.imgur.com/UItnKy8.png"} alt="logo" />
+        </a>
+        <div>
+          <span className="mr-4">Settings</span>
+          <button onClick={handleLogout} type="button" className="btn btn-dark fw-bold">
+            Logout
+          </button>
+        </div>
       </div>
-    </div>
-  </header>
-  )
+    </header>
+  );
 };
 
-const EXTENSION_ID = 'peghdomcocfapnefecheageicmcjheke';
+const EXTENSION_ID = "peghdomcocfapnefecheageicmcjheke";
 
 const getUserByEmail = async (email) => {
-  if(!email){
-    throw new Error("NO EMAIL PROVIDED")
+  if (!email) {
+    throw new Error("NO EMAIL PROVIDED");
   }
   try {
     const response = await fetch(`${getUserByEmailUrl}?email=${email}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch user data');
+      throw new Error("Failed to fetch user data");
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error("Error fetching user data:", error);
     throw error;
   }
 };
 
 const getDefaultCharities = async () => {
-    try {
+  try {
     const response = await fetch(`${defaultCharitiesUrl}?`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch user data');
+      throw new Error("Failed to fetch user data");
     }
 
     const data = await response.json();
 
     return data;
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error("Error fetching user data:", error);
     throw error;
   }
-}
+};
 
-  const updateUser = async (email, updates) => {
-    try {
-      const response = await fetch(updateUserUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, updates }),
-      });
+const updateUser = async (email, updates) => {
+  try {
+    const response = await fetch(updateUserUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, updates }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return response.status;
-
-    } catch (error) {
-      console.error('Error updating user:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    return response.status;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
 
 function sendMessageToExtension(data, extensinoId) {
-  
   if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
-    chrome.runtime.sendMessage(
-      extensinoId, 
-      { action: "sendData", data: data },
-      (response) => {
-        console.log("Response from extension:", response);
-      }
-    );
+    chrome.runtime.sendMessage(extensinoId, { action: "sendData", data: data }, (response) => {
+      console.log("Response from extension:", response);
+    });
   } else {
     console.log("Chrome extension not detected.");
   }
@@ -129,7 +115,7 @@ const DEFAULT_CHARITY = {
   charityType: "Relief of Poverty",
   city: "Barrie",
   country: "CA",
-  effectiveDateOfStatus: "", 
+  effectiveDateOfStatus: "",
   isActive: true,
   logo: "https://i.imgur.com/JGT9FfJ.png",
   organizationName: "The Busby Centre",
@@ -138,7 +124,7 @@ const DEFAULT_CHARITY = {
   registrationNumber: "892557752RR0001",
   sanctionDesignation: "0001",
   status: "Registered",
-  typeOfQualifiedDone: "Charity"
+  typeOfQualifiedDone: "Charity",
 };
 
 export default function ExtensionSettings(props) {
@@ -159,13 +145,15 @@ export default function ExtensionSettings(props) {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const savedEmail = location.state?.email || localStorage.getItem('sc-user');
+        const savedEmail = location.state?.email || localStorage.getItem("sc-user");
         const userData = await getUserByEmail(savedEmail);
         const fetchedCharities = await getDefaultCharities();
         setDefaultCharities(fetchedCharities);
         setFirstName(userData?.firstName);
         setLastName(userData?.lastName);
-        setSelectedCharity(userData?.selectedCharityObject?.organizationName || DEFAULT_CHARITY.organizationName);
+        setSelectedCharity(
+          userData?.selectedCharityObject?.organizationName || DEFAULT_CHARITY.organizationName,
+        );
         setEmail(userData?.email);
       } catch (error) {
         setError(error.message);
@@ -179,64 +167,68 @@ export default function ExtensionSettings(props) {
   useEffect(() => {
     let selectedCharityObject;
 
-    selectedCharity && defaultCharities && defaultCharities.map(({ data: charity }) => {
-      if(charity?.organizationName === selectedCharity){
-        selectedCharityObject = charity;
-      }
-    })
+    selectedCharity &&
+      defaultCharities &&
+      defaultCharities.map(({ data: charity }) => {
+        if (charity?.organizationName === selectedCharity) {
+          selectedCharityObject = charity;
+        }
+      });
 
     const updates = {
-      firstName, lastName, selectedCharityObject, email
-    }
+      firstName,
+      lastName,
+      selectedCharityObject,
+      email,
+    };
 
-    console.log("UPDATES: ", updates)
+    console.log("UPDATES: ", updates);
 
-    const extensinoId = localStorage.getItem('sc-extensionId');
+    const extensinoId = localStorage.getItem("sc-extensionId");
 
-    sendMessageToExtension({...updates}, extensinoId);
-  }, [selectedCharity, defaultCharities])
+    sendMessageToExtension({ ...updates }, extensinoId);
+  }, [selectedCharity, defaultCharities]);
 
   const handleSave = async () => {
-
     let selectedCharityObject;
 
     defaultCharities.map(({ data: charity }) => {
-      if(charity?.organizationName === selectedCharity){
+      if (charity?.organizationName === selectedCharity) {
         selectedCharityObject = charity;
       }
-    })
+    });
 
     const updates = {
-      firstName, lastName, selectedCharityObject, email
-    }
+      firstName,
+      lastName,
+      selectedCharityObject,
+      email,
+    };
 
-    console.log("UPDATES: ", updates)
-    const extensinoId = localStorage.getItem('sc-extensionId');
+    console.log("UPDATES: ", updates);
+    const extensinoId = localStorage.getItem("sc-extensionId");
 
     try {
       setLoading(true);
-      sendMessageToExtension({...updates}, extensinoId);
-      await updateUser(email, updates)
-      console.log("User Updated")
+      sendMessageToExtension({ ...updates }, extensinoId);
+      await updateUser(email, updates);
+      console.log("User Updated");
       setLoading(false);
-      window.open('https://sponsorcircle.com/shopforgood/', '_blank');
+      window.open("https://sponsorcircle.com/shopforgood/", "_blank");
     } catch (error) {
-      console.log("ERROR", error)
+      console.log("ERROR", error);
       setLoading(false);
     }
-  }
+  };
 
-  if(loading){
-    return (<div>Loading...</div>)
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   return (
     <>
       <Navbar />
-      <div
-        style={{ width: "1180px", margin: "auto" }}
-        className="h-full mt-20 p-10"
-      >
+      <div style={{ width: "1180px", margin: "auto" }} className="h-full mt-20 p-10">
         <div className="d-flex align-items-center justify-content-between">
           <div>
             <div className="fs-1 fw-bold pt-5">Your Settings</div>
@@ -250,16 +242,11 @@ export default function ExtensionSettings(props) {
                 wordWrap: "break-word",
               }}
             >
-              Add your profiles’s information and select a charity of your
-              choice.{" "}
+              Add your profiles’s information and select a charity of your choice.{" "}
             </div>
           </div>
           <div>
-            <img
-              style={{ width: "200px" }}
-              src="https://i.imgur.com/BO1v7ec.png"
-              alt="heart"
-            />
+            <img style={{ width: "200px" }} src="https://i.imgur.com/BO1v7ec.png" alt="heart" />
           </div>
         </div>
 
@@ -343,78 +330,78 @@ export default function ExtensionSettings(props) {
               placeholder="Search for a charity"
               sx={{ width: "100%" }}
             >
-              {
-                defaultCharities && defaultCharities.map(({data: defaultCharity}) => {
-                  return(
-                    defaultCharity.isActive &&
-                    <MenuItem  key={1} value={defaultCharity.organizationName}>
-                      {defaultCharity.organizationName}
-                    </MenuItem>
-                  )
-                })
-              }
+              {defaultCharities &&
+                defaultCharities.map(({ data: defaultCharity }) => {
+                  return (
+                    defaultCharity.isActive && (
+                      <MenuItem key={1} value={defaultCharity.organizationName}>
+                        {defaultCharity.organizationName}
+                      </MenuItem>
+                    )
+                  );
+                })}
             </TextField>
           </div>
         </div>
 
         <div>
           <div>Don’t have a charity in mind? Explore some charities below.</div>
-          <div
-            className="d-flex justify-content-space-between mt-3"
-            style={{ gap: 12 }}
-          >
-            {
-              defaultCharities && defaultCharities.map(({data: defaultCharity}) => {
+          <div className="d-flex justify-content-space-between mt-3" style={{ gap: 12 }}>
+            {defaultCharities &&
+              defaultCharities.map(({ data: defaultCharity }) => {
                 return (
-                  defaultCharity?.isActive && 
-                <div
-                  style={{
-                    border: "1px solid",
-                    width: "340px",
-                    height: "148px",
-                    borderRadius: "15px",
-                    padding: "12px",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <div
-                    className="container-row w-full"
-                    style={{ flexDirection: "row", display: "flex" }}
-                  >
-                    <img className="Rectangle22 w-[66.28px] h-[75px] bg-grey rounded-lg" src={defaultCharity.logo} />
+                  defaultCharity?.isActive && (
                     <div
                       style={{
-                        flexDirection: "column",
-                        display: "flex",
-                        alignItems: "flex-start",
+                        border: "1px solid",
+                        width: "340px",
+                        height: "148px",
+                        borderRadius: "15px",
+                        padding: "12px",
+                        boxSizing: "border-box",
                       }}
-                      className="w-full p-1"
                     >
-                      <div className="CharityName w-5/6 text-black text-lg font-bold font-['Inter'] truncate">
-                        {defaultCharity.organizationName}
+                      <div
+                        className="container-row w-full"
+                        style={{ flexDirection: "row", display: "flex" }}
+                      >
+                        <img
+                          className="Rectangle22 w-[66.28px] h-[75px] bg-grey rounded-lg"
+                          src={defaultCharity.logo}
+                        />
+                        <div
+                          style={{
+                            flexDirection: "column",
+                            display: "flex",
+                            alignItems: "flex-start",
+                          }}
+                          className="w-full p-1"
+                        >
+                          <div className="CharityName w-5/6 text-black text-lg font-bold font-['Inter'] truncate">
+                            {defaultCharity.organizationName}
+                          </div>
+                          <div className="truncate text-start Ein123456789 w-full text-sm font-semibold font-['Inter']">
+                            EIN: {defaultCharity.registrationNumber}
+                          </div>
+                          <div className="truncate text-start CityProvince w-full text-black text-sm font-semibold font-['Inter']">
+                            {defaultCharity?.city}, {defaultCharity?.country}
+                          </div>
+                        </div>
                       </div>
-                      <div className="truncate text-start Ein123456789 w-full text-sm font-semibold font-['Inter']">
-                        EIN: {defaultCharity.registrationNumber}
-                      </div>
-                      <div className="truncate text-start CityProvince w-full text-black text-sm font-semibold font-['Inter']">
-                        {defaultCharity?.city}, {defaultCharity?.country}
+                      <div className="text w-[fit-content] text-black text-sm font-light font-['Inter']">
+                        <div>Type: {defaultCharity.typeOfQualifiedDone}</div>
+                        <div>status: {defaultCharity.status}</div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text w-[fit-content] text-black text-sm font-light font-['Inter']">
-                      <div>Type: {defaultCharity.typeOfQualifiedDone}</div>
-                      <div>status: {defaultCharity.status}</div>
-                  </div>
-                </div>
-                )
-              })
-            }
+                  )
+                );
+              })}
           </div>
         </div>
 
         <div style={{ textAlign: "center", marginTop: "20px" }}>
           <button
-            disabled={!selectedCharity || firstName === ''}
+            disabled={!selectedCharity || firstName === ""}
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
             onClick={handleSave}
             type="button"

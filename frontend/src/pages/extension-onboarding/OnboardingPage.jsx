@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import BottomRightComponent from "./BottomRightComponent";
 import "./OnboardingPage.css";
 import SHELL_BROWSER from "./shell-broswer.png";
-import BottomRightComponent from "./BottomRightComponent";
-import EmailVerificationComponent from "./EmailVerificationComponent";
 
 export default function OnboardingPage(props) {
-  const [onboardingStep, setOnboardingStep] = useState(0);
+  const navigate = useNavigate();
 
-  if (onboardingStep === 0) {
     return (
       <div className="onboarding-page-container">
         <div className="body-conatiner">
@@ -25,7 +24,7 @@ export default function OnboardingPage(props) {
           </div>
 
           <button
-            onClick={() => setOnboardingStep(1)}
+            onClick={() => navigate('/login')}
             type="button"
             className="btn btn-dark btn-lg fw-bold pt-2"
             style={{ width: "300px" }}
@@ -40,9 +39,4 @@ export default function OnboardingPage(props) {
         <BottomRightComponent />
       </div>
     );
-  }
-
-  if (onboardingStep === 1) {
-    return <EmailVerificationComponent />;
-  }
 }

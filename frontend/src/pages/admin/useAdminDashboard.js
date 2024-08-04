@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { defaultCharitiesUrl } from "../extension-onboarding/EmailVerificationComponent";
+import { defaultCharitiesUrl } from "../../api/env";
 
 
 const useAdminDashboard = () => {
