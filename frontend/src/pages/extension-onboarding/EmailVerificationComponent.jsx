@@ -8,6 +8,7 @@ const EmailVerificationComponent = () => {
    const [verificationCode, setVerificationCode] = useState("");
    const [isVerificationCodeRequested, setVerificationCodeRequested] = useState(false);
    const [loading, setLoading] = useState(false);
+   const [error, setError] = useState();
    const navigate = useNavigate();
 
    const [isFirstTimeLogin] = useState(localStorage.getItem("sc-extensionId"));
@@ -38,6 +39,7 @@ const EmailVerificationComponent = () => {
       );
 
       if (!response.ok) {
+         setError('Something went wrong');
          throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -64,12 +66,15 @@ const EmailVerificationComponent = () => {
                localStorage.setItem("sc-extensionId", extensionId);
                navigate("/extension-settings", { state: { email: email } });
             } catch (error) {
+               setError('Something went wrong');
                console.error("Error creating user:", error);
             }
          } else {
+            setError('Something went wrong');
             console.error("OTP verification failed");
          }
       } catch (error) {
+         setError('Something went wrong');
          console.error("Error during login:", error);
       } finally {
          setLoading(false);
@@ -87,10 +92,12 @@ const EmailVerificationComponent = () => {
          });
 
          if (!response.ok) {
+            setError('Something went wrong');
             throw new Error("Failed to create user");
          }
          return response;
       } catch (error) {
+         setError('Something went wrong');
          console.error("Error creating user:", error);
          throw error;
       }
@@ -235,6 +242,9 @@ const EmailVerificationComponent = () => {
                      >
                         Resend Code
                      </span>
+                  </div>
+                  <div style={{ color: 'red', textAlign: 'center' }}>
+                     { error }
                   </div>
                </div>
             )}
