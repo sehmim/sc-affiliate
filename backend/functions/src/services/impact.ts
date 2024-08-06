@@ -1,4 +1,4 @@
-import { parseString } from 'xml2js';
+import { parseStringPromise } from 'xml2js';
 import { onRequest } from 'firebase-functions/v2/https';
 import handleCorsMiddleware from '../corsMiddleware';
 import { db } from '..';
@@ -8,7 +8,7 @@ const IMPACT_API_USERNAME = 'IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1';
 const IMPACT_API_PASSWORD = 'kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y';
 
 
-export const fetchCampaignsData = onRequest(async (req, res) => {
+export const fetchCampaignsData = async () => {
   try {
     const base64Auth = Buffer.from(
       `${IMPACT_API_USERNAME}:${IMPACT_API_PASSWORD}`
@@ -30,21 +30,13 @@ export const fetchCampaignsData = onRequest(async (req, res) => {
     }
 
     const xmlData = await response.text();
-    parseString(xmlData, (err: any, result: any) => {
-      if (err) {
-        console.error("Error parsing XML:", err);
-        res.status(500).send("Error parsing XML");
-      } else {
-        const campaigns =
-          result.ImpactRadiusResponse.Campaigns[0].Campaign.reverse();
-        res.status(200).json(campaigns);
-      }
-    });
+    
+    return await parseStringPromise(xmlData);
+
   } catch (error) {
     console.error("Error fetching data:", error);
-    res.status(500).send("Error fetching data");
   }
-});
+};
 
 // const normalizeCampaignData = (impactCampaignData: ImpactCampaignData[]): NormalizedCampaign[] => {
 
