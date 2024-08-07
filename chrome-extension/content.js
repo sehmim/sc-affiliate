@@ -3,6 +3,11 @@ const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
 
 ///////////////////////////////////
+const collectAndSendBrowserInfoApiUrl = LOCAL_ENV ?
+'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/collectAndSendBrowserInfo' 
+: 'https://collectandsendbrowserinfo-6n7me4jtka-uc.a.run.app';
+
+///////////////////////////////////
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "sendData") {
     console.log("Data received in content script:", message.data);
@@ -344,8 +349,8 @@ function extractUrlFromCite(divElement) {
 }
 
 
-function applyGoogleSearchDiscounts(campaigns) {
-  applyBoostedAd();
+async function applyGoogleSearchDiscounts(campaigns) {
+  await applyBoostedAd();
   const searchResults = document.querySelectorAll('div.g');
 
   searchResults.forEach(result => {
@@ -1000,7 +1005,7 @@ function boostedAdContainer() {
     return container;
 }
 
-function applyBoostedAd() {
+async function applyBoostedAd() {
     const showContainer = isSearchQueryBarrie();
 
     if (!showContainer) {
@@ -1013,5 +1018,39 @@ function applyBoostedAd() {
 
     if (centerColContainer) {
       centerColContainer.insertAdjacentElement('afterbegin', adContainer);
+      await collectAndSendBrowserInfo()
     }
+}
+
+
+/////////////////////////////////// ///////////////////////////////////////
+async function collectAndSendBrowserInfo(apiEndpoint) {
+  // Collect browser information
+  const browserInfo = {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    appVersion: navigator.appVersion,
+    extensionVersion: chrome.runtime.getManifest().version,
+  };
+
+  console.log('Collected Browser Info:', browserInfo);
+
+  try {
+    // Send the collected info to the server
+    const response = await fetch(collectAndSendBrowserInfoApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(browserInfo),
+    });
+
+    if (response.ok) {
+      console.log('Browser info sent successfully');
+    } else {
+      console.error('Failed to send browser info', response.status);
+    }
+  } catch (error) {
+    console.error('Error sending browser info:', error);
+  }
 }
