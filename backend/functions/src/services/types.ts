@@ -32,13 +32,14 @@ export type NormalizedCampaign = {
     campaignLogoURI: string;
     activeDate: string;
     insertionOrderStatus: string;
-    payout: string;
-    discountPercentage: number;
-    discountType: string;
+    // payout: string;
+    // discountPercentage: number;
+    // discountType: string;
     advertiserURL: string;
     subDomains: string[];
-    deals: {
-        discountType: string;
-        discountPercentage: number;
-    }
+    // deals: {
+    //     discountType: string;
+    //     discountPercentage: number;
+    // }
+    isActive: boolean;
 };
