@@ -37,4 +37,8 @@ export type NormalizedCampaign = {
     discountType: string;
     advertiserURL: string;
     subDomains: string[];
+    deals: {
+        discountType: string;
+        discountPercentage: number;
+    }
 };
