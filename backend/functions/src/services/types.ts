@@ -32,14 +32,61 @@ export type NormalizedCampaign = {
     campaignLogoURI: string;
     activeDate: string;
     insertionOrderStatus: string;
-    // payout: string;
-    // discountPercentage: number;
-    // discountType: string;
     advertiserURL: string;
     subDomains: string[];
-    // deals: {
-    //     discountType: string;
-    //     discountPercentage: number;
-    // }
+    deals: NormalizedDeal[]
     isActive: boolean;
+};
+
+
+export type NormalizedDeal = {
+    discountType: string;
+    discountPercentage: number;
+}
+
+
+export type RawDeal = {
+  Id: string;
+  Name: string;
+  Description: string;
+  CampaignId: string;
+  State: "ACTIVE" | "INACTIVE" | "EXPIRED" | "PENDING"; // Assuming potential states
+  Type: string;
+  Scope: string;
+  Public: "TRUE" | "FALSE"; // Assuming it's a boolean represented as a string
+  Products: any[]; // Assuming it's an array of products, replace `any` with a more specific type if known
+  Categories: string | string[]; // Assuming it could be a comma-separated string or an array
+  DiscountType: string;
+  DiscountAmount: string;
+  DiscountCurrency: string;
+  DiscountPercent: string;
+  DiscountMaximumPercent: string;
+  DiscountPercentRangeStart: string;
+  DiscountPercentRangeEnd: string;
+  Gift: string;
+  RebateAmount: string;
+  RebateCurrency: string;
+  DefaultPromoCode: string;
+  MinimumPurchaseAmount: string;
+  MinimumPurchaseAmountCurrency: string;
+  MaximumSavingsAmount: string;
+  MaximumSavingsCurrency: string;
+  BogoBuyQuantity: string;
+  BogoBuyScope: string;
+  BogoBuyName: string;
+  BogoBuyImageUrl: string;
+  BogoGetQuantity: string;
+  BogoGetScope: string;
+  BogoGetDiscountType: string;
+  BogoGetName: string;
+  BogoGetImageUrl: string;
+  BogoGetDiscountAmount: string;
+  BogoGetDiscountCurrency: string;
+  BogoGetDiscountPercent: string;
+  PurchaseLimitQuantity: string;
+  StartDate: string;
+  EndDate: string;
+  DateCreated: string; // ISO 8601 date string
+  DateLastUpdated: string; // ISO 8601 date string
+  Uri: string;
 };

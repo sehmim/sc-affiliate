@@ -1,6 +1,5 @@
-// import * as admin from 'firebase-admin'
 import { fetchCampaignsData, fetchCampainDeals } from './impact'
-import { ImpactCampaignData, NormalizedCampaign } from './types'
+import { ImpactCampaignData, NormalizedCampaign, NormalizedDeal, RawDeal } from './types'
 import { db } from '..'
 
 // if (!admin.apps.length) {
@@ -33,18 +32,18 @@ import { db } from '..'
  * a.campaignID === b.campaignID
  */
 
-function campaignsAreEqual(
-	a: NormalizedCampaign[],
-	b: NormalizedCampaign[]
-): boolean {
-	if (a.length !== b.length) return false
+// function campaignsAreEqual(
+// 	a: NormalizedCampaign[],
+// 	b: NormalizedCampaign[]
+// ): boolean {
+// 	if (a.length !== b.length) return false
 
-	for (let i = 0; i < a.length; i++) {
-		if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false
-	}
+// 	for (let i = 0; i < a.length; i++) {
+// 		if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false
+// 	}
 
-	return true
-}
+// 	return true
+// }
 
 async function syncImpactCampaigns() {
 	try {
@@ -74,16 +73,10 @@ async function syncImpactCampaigns() {
 		// Normalize the campaigns data
 		const normalizedCampaigns: NormalizedCampaign[] = await Promise.all(
 			campaigns.map(async (campaign) => {
-				const deals = await fetchCampainDeals(campaign.CampaignId[0])
+				const rawDeals = await fetchCampainDeals(campaign.CampaignId[0])
 				// Filter out the deals that are expired or have no discount
-				// const activeDeals =
-				// 	deals?.ImpactRadiusResponse?.Deals[0]?.Deal?.filter(
-				// 		(deal: any) =>
-				//             deal.State[0] !== 'Expired' &&
-				//             parseFloat(deal.DiscountPercent[0]) !== 0
-				// 	) || []
 				const hasActiveDeals =
-					deals?.ImpactRadiusResponse?.Deals[0]?.Deal?.some(
+					rawDeals?.ImpactRadiusResponse?.Deals[0]?.Deal?.some(
 						(deal: any) =>
 							deal.State[0] !== 'Expired' &&
 							parseFloat(deal.DiscountPercent[0]) !== 0
@@ -94,24 +87,37 @@ async function syncImpactCampaigns() {
 					return null
 				}
 
+				const activeDeals =
+					rawDeals?.ImpactRadiusResponse?.Deals[0]?.Deal?.filter(
+						(deal: any) =>
+				            deal.State[0] !== 'Expired' &&
+				            parseFloat(deal.DiscountPercent[0]) !== 0
+					) || []
+
+				const dealsToEnter: NormalizedDeal[] = activeDeals.map((deal: RawDeal) => { 
+						const discount = deal.DiscountType[0] === 'FIXED' ? parseFloat(deal.DiscountAmount) || 0 : parseFloat(deal.DiscountPercent[0])
+						
+						if (discount === 0 || Number.isNaN(discount)) return null;
+
+						return {
+							discount: deal.DiscountType[0] === 'FIXED' ? `${discount} ${deal.DiscountCurrency}` : `${discount}%`
+						}
+					}).filter((item: any) => item !== null)
+
+				if(dealsToEnter.length === 0) return null; 
+
 				return {
 					campaignID: campaign.CampaignId[0],
 					advertiserName: campaign.AdvertiserName[0],
 					campaignName: campaign.CampaignName[0],
 					campaignLogoURI: `https://cdn2.impact.com${campaign.CampaignLogoUri[0]}`,
-					activeDate: new Date().toISOString(), // Ask for clarification if I need to adjust this
+					activeDate: new Date().toISOString(),
 					insertionOrderStatus: campaign.ContractStatus[0],
-					// payout: '', // Definitely need to extract this from the deals
-					// discountPercentage: 0, // Have to extract this one as well
-					// discountType: '', // for sure this one too - Leaving this for now as is for testing.
 					advertiserURL: campaign.AdvertiserUrl[0].startsWith('http://')
 						? `https://${campaign.AdvertiserUrl[0].slice(7)}`
 						: campaign.AdvertiserUrl[0],
 					subDomains: campaign.DeeplinkDomains[0]?.DeeplinkDomain || [],
-					// deals: activeDeals.map((deal: any) => ({
-					// 	discountType: deal.DiscountType[0],
-					// 	discountPercentage: parseFloat(deal.DiscountPercent[0]) || 0,
-					// })),
+					deals: dealsToEnter,
 					isActive: false,
 				}
 			})
@@ -121,104 +127,119 @@ async function syncImpactCampaigns() {
 			)
 		)
 
-		const syncedCollection = db.collection('impactCampaignsSynced')
-		const syncDocRef = syncedCollection.doc('campaigns')
+		const latestEntry = await getLatestCampaignEntryInDB();
 
-		// get the current document
-		const syncDoc = await syncDocRef.get()
+		// TODO: areEqual always returns false. Check if areCampaignsEqual is really working
+		const areEqual = latestEntry && areCampaignsEqual(normalizedCampaigns, latestEntry)
 
-		let currentSyncs = []
-		if (syncDoc.exists) {
-			currentSyncs = syncDoc.data()?.campaigns || []
-		}
+		if (areEqual) return;
 
-		// check if the new campaigns are different from the most recent sync
-		if (
-			currentSyncs.length === 0 ||
-			!campaignsAreEqual(normalizedCampaigns, currentSyncs[0].campaigns)
-		) {
-			// create sync object
-			const newSync = {
-				timestamp: new Date().toISOString(),
-				campaigns: normalizedCampaigns,
-			}
-			// console.log('New Sync:', newSync)
+		await populateCollectionWithCampaigns(normalizedCampaigns);
 
-			// add the new sync object to the beginning of the array as per discussed on discord
-			currentSyncs.unshift(newSync)
-
-			// Update the document with the new array of sync objects
-			await syncDocRef.set({
-				syncs: currentSyncs,
-				lastUpdated: new Date().toISOString(),
-			})
-
-			console.log(`Synced ${normalizedCampaigns.length} campaigns`)
-		} else {
-            console.log('No changes in campaigns, sync is skipped')
-        }
-
-		// const batch = db.batch()
-		// const syncedCollection = db.collection('impactCampaignsSynced')
-
-		// /**
-		//  * @BUG
-		//  * There may have been a bug here as it is not creating the old collection database.
-		//  */
-		// const oldCollection = db.collection('impactCampaignsOld')
-		// console.log("Old Collection", oldCollection)
-
-		// // Get all existing campaigns
-		// const existingCampaigns = await syncedCollection.get()
-
-		// // Creating new set of new campaign IDs for quick lookup as per mentioned
-		// /**
-		//  * @BUG
-		//  * There may be a bug here it is creating new campaign IDs but not using it to compare with existing campaigns...?
-		//  */
-		// const newCampaignIDs = new Set(normalizedCampaigns.map(c => c.campaignID))
-		// // console.log("New Campaign IDs", newCampaignIDs)
-
-		// // Process Existing campaigns
-		// existingCampaigns.forEach(doc => {
-		//     const campaignData = doc.data() as NormalizedCampaign
-		//     if (!newCampaignIDs.has(campaignData.campaignID)) {
-		//         // Move to old collection if not in new set
-		//         console.log("Moving to old collection", campaignData.campaignID)
-		//         batch.set(oldCollection.doc(doc.id), campaignData)
-		//         batch.delete(syncedCollection.doc(doc.id))
-		//     }
-		// })
-
-		// // Process new and updated campaigns
-		// for (const campaign of normalizedCampaigns) {
-		//     const docRef = syncedCollection.doc(campaign.campaignID)
-		//     const existingDoc = await docRef.get()
-
-		//     if (existingDoc.exists) {
-		//         // console.log("Updating existing campaign", campaign.campaignID)
-		//         const existingData = existingDoc.data() as NormalizedCampaign
-		//         campaign.isActive = existingData.isActive // Preserve existing isActive status
-		//         batch.set(docRef, campaign, { merge: true })
-		//     } else {
-		//         batch.set(docRef, campaign)
-		//     }
-		// }
-
-		// // const campaignsCollection = db.collection('impactCampaignsSynced')
-
-		// // normalize the campaigns data and save it to Firestore
-		// // normalizedCampaigns.forEach((campaign) => {
-		// // 	const docRef = campaignsCollection.doc(campaign.campaignID)
-		// // 	batch.set(docRef, campaign, { merge: true })
-		// // })
-
-		// await batch.commit()
-
-		// console.log(`Synced ${normalizedCampaigns.length} campaigns`)
 	} catch (error) {
 		console.error('Error syncing Impact campaigns:', error)
 	}
 }
+
+async function getLatestCampaignEntryInDB(): Promise<NormalizedCampaign[] | null> {
+  try {
+    // Query the latest entry by ordering by document creation time
+    const snapshot = await db.collection("impactCampaignsSynced")
+      .orderBy("__name__", "desc") // Order by document ID to get the latest one
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      console.log("No campaigns found.");
+      return null;
+    }
+
+    // Extract the latest document data
+    const latestDoc = snapshot.docs[0];
+    const latestCampaigns = latestDoc.data().campaigns;
+
+    return latestCampaigns;
+  } catch (error) {
+    console.error("Error fetching the latest impact campaigns:", error);
+    throw new Error("Failed to fetch the latest impact campaigns.");
+  }
+}
+
+async function populateCollectionWithCampaigns(campaignsArray: NormalizedCampaign[]) {
+  try {
+    const docRef = db.collection("impactCampaignsSynced").doc(); // Create a new document reference
+
+    // Create the document with the campaigns array
+    await docRef.set({campaigns: campaignsArray});
+
+    console.log("Successfully populated campaigns into impactCampaignsSynced collection.");
+  } catch (error) {
+    console.error("Error populating campaigns:", error);
+    throw new Error("Failed to populate impact campaigns.");
+  }
+}
+
+
+function areCampaignsEqual(
+  array1: NormalizedCampaign[], 
+  array2: NormalizedCampaign[]
+): boolean {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  const sortedArray1 = array1.slice().sort((a, b) => a.campaignID.localeCompare(b.campaignID));
+  const sortedArray2 = array2.slice().sort((a, b) => a.campaignID.localeCompare(b.campaignID));
+
+  for (let i = 0; i < sortedArray1.length; i++) {
+    const campaign1 = sortedArray1[i];
+    const campaign2 = sortedArray2[i];
+
+    if (
+      campaign1.campaignID !== campaign2.campaignID ||
+      campaign1.advertiserName !== campaign2.advertiserName ||
+      campaign1.campaignName !== campaign2.campaignName ||
+      campaign1.campaignLogoURI !== campaign2.campaignLogoURI ||
+      campaign1.activeDate !== campaign2.activeDate ||
+      campaign1.insertionOrderStatus !== campaign2.insertionOrderStatus ||
+      campaign1.advertiserURL !== campaign2.advertiserURL ||
+      campaign1.isActive !== campaign2.isActive ||
+      !compareStringArrays(campaign1.subDomains, campaign2.subDomains) ||
+      !compareDealsArray(campaign1.deals, campaign2.deals)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// Helper function to compare two arrays of strings
+function compareStringArrays(array1: string[], array2: string[]): boolean {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+  const sortedArray1 = array1.slice().sort();
+  const sortedArray2 = array2.slice().sort();
+  return sortedArray1.every((value, index) => value === sortedArray2[index]);
+}
+
+// Helper function to compare two arrays of NormalizedDeal objects
+function compareDealsArray(array1: NormalizedDeal[], array2: NormalizedDeal[]): boolean {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+  const sortedArray1 = array1.slice().sort((a, b) => a.discountType.localeCompare(b.discountType));
+  const sortedArray2 = array2.slice().sort((a, b) => a.discountType.localeCompare(b.discountType));
+
+  return sortedArray1.every((deal1, index) => {
+    const deal2 = sortedArray2[index];
+    return (
+      deal1.discountType === deal2.discountType &&
+      deal1.discountPercentage === deal2.discountPercentage
+    );
+  });
+}
+
 
 export { syncImpactCampaigns }
