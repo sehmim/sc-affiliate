@@ -7,6 +7,14 @@ import SHELL_BROWSER from "./shell-broswer.png";
 export default function OnboardingPage(props) {
   const navigate = useNavigate();
 
+  const handleRedirect = () => {
+    const params = new URLSearchParams(window.location.search);
+    let extensionId = params.get("extensionId");
+
+    navigate(`/login?extensionId=${extensionId}`)
+  }
+
+
     return (
       <div className="onboarding-page-container">
         <div className="body-conatiner">
@@ -24,7 +32,7 @@ export default function OnboardingPage(props) {
           </div>
 
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => handleRedirect()}
             type="button"
             className="btn btn-dark btn-lg fw-bold pt-2"
             style={{ width: "300px" }}

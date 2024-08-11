@@ -7,7 +7,6 @@ import { createCharity, deleteCharity, updateCharity } from '../../api/charityAp
 
 const EditableTable = () => {
   const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [newCharity, setNewCharity] = useState({});
@@ -28,21 +27,21 @@ const EditableTable = () => {
     setShowModalEdit(true);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  // };
 
-  const handleSave = (id) => {
-    setData((prev) =>
-      prev.map((item) => (item.id === id ? { id, data: formData } : item))
-    );
-    setEditId(null);
-  };
+  // const handleSave = (id) => {
+  //   setData((prev) =>
+  //     prev.map((item) => (item.id === id ? { id, data: formData } : item))
+  //   );
+  //   setEditId(null);
+  // };
 
-  const handleCancel = () => {
-    setEditId(null);
-  };
+  // const handleCancel = () => {
+  //   setEditId(null);
+  // };
   
   const handleModalChange = (e) => {
     const { name, value } = e.target;
@@ -52,13 +51,10 @@ const EditableTable = () => {
   const handleEditModalChange = (e) => {
     const { name, value } = e.target;
     setCharityToEdit((prev) => ({ ...prev, [name]: value }));
-
-    console.log("char", charityToEdit)
   }
 
   const handleDelete = async (item) => {
     try {
-      console.log("DELETING ->", item.id);
       const dataWithoutDeletedItem = data.filter(old => old.id !== item.id);
       setData(dataWithoutDeletedItem);
       
@@ -86,8 +82,6 @@ const EditableTable = () => {
   };
 
   const handleUpdateCharity = async () => {
-
-    console.log('editId ->', editId);
 
     setData((prev) =>
       prev.map((item) => (item.id === editId ? { id: editId, data: charityToEdit } : item))
@@ -133,57 +127,22 @@ const EditableTable = () => {
           {data.map((item) => (
             <tr key={item.id}>
               <td>{item.data.organizationName}</td>
-              <td>
-                {item.data.city}
-              </td>
-              <td>
-                {item.data.provinceTerritoryOutsideOfCanada}
-              </td>
-              <td>
-                {item.data.country}
-              </td>
-              <td>
-                {item.data.sanctionDesignation
-                }
-              </td>
-              <td>
-                {item.data.typeOfQualifiedDone
-                }
-              </td>
-              <td>
-                {item.data.charityType
-                }
-              </td>
-              <td>
-                {item.data.status
-                }
-              </td>
-              <td>
-                {item.data.effectiveDateOfStatus
-                }
-              </td>
-              <td>
-                {item.data.registrationNumber
-                }
-              </td>
-              <td>
-                { item.data.address
-                }
-              </td>
-              <td>
-                {item.data.postalCode
-                }
-              </td>
-              <td>
-                { item.data.category
-                }
-              </td>
+              <td>{item.data.city}</td>
+              <td>{item.data.provinceTerritoryOutsideOfCanada}</td>
+              <td>{item.data.country}</td>
+              <td>{item.data.sanctionDesignation}</td>
+              <td>{item.data.typeOfQualifiedDone}</td>
+              <td>{item.data.charityType}</td>
+              <td>{item.data.status}</td>
+              <td>{item.data.effectiveDateOfStatus}</td>
+              <td>{item.data.registrationNumber}</td>
+              <td>{item.data.address}</td>
+              <td>{item.data.postalCode}</td>
+              <td>{item.data.category}</td>
               <td>
                 <img src={item.data.logo} alt="Logo" style={{ width: '50px' }} />
               </td>
-              <td>
-                  {(item.data.isActive ? 'Yes' : 'No')}
-              </td>
+              <td>{(item.data.isActive ? 'Yes' : 'No')}</td>
               <td>
                 <Button variant="warning" onClick={() => handleEditClick(item)}>
                   Edit
