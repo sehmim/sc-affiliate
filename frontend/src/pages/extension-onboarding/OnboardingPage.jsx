@@ -4,12 +4,22 @@ import BottomRightComponent from "./BottomRightComponent";
 import "./OnboardingPage.css";
 import SHELL_BROWSER from "./shell-broswer.png";
 
+
+const STORE_LINK = `https://chromewebstore.google.com/detail/shop-for-good/pifflcabiijbniniffeakhadehjilibi`;
+
 export default function OnboardingPage(props) {
   const navigate = useNavigate();
 
   const handleRedirect = () => {
     const params = new URLSearchParams(window.location.search);
     let extensionId = params.get("extensionId");
+
+    if(!extensionId){
+      extensionId = localStorage.getItem('sc-extensionId');
+    } 
+
+
+    if(!extensionId) return alert('Couldnt find extensionId. Please reinstall the app from: ' + STORE_LINK);
 
     navigate(`/login?extensionId=${extensionId}`)
   }
