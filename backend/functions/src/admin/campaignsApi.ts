@@ -7,7 +7,7 @@ import handleCorsMiddleware from '../corsMiddleware';
 export const getCampaigns = functions.https.onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
     try {
-      const campaignsSnapshot = await db.collection('impactCampaigns').get();
+      const campaignsSnapshot = await db.collection('ImpactCampaignsSynced').get();
       const campaigns = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
       res.status(200).send(campaigns);
@@ -58,3 +58,4 @@ export const deleteCampaign = functions.https.onRequest((req, res) => {
     }
   });
 });
+

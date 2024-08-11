@@ -324,6 +324,37 @@ async function retrievePaymentData() {
   }
 }
 
+/**
+ * @TEST
+ * Test for Julio to see syncImpactCampaigns
+ */
+async function testSyncImpactCampaigns() {
+  const url = LOCAL_ENV 
+    ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/triggerImpactCampaignSync"
+    : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/triggerImpactCampaignSync";
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('Sync Impact Campaigns result:', result);
+    return result;
+  } catch (error) {
+    console.error('Error syncing Impact campaigns:', error);
+    throw error;
+  }
+}
+
+
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', applyImpactLink);
