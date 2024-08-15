@@ -177,12 +177,11 @@ export default function ExtensionSettings(props) {
 
     const updates = {
       firstName,
-      lastName,
+      lastName, 
       selectedCharityObject,
       email,
     };
 
-    console.log("UPDATES: ", updates);
 
     const extensinoId = localStorage.getItem("sc-extensionId");
 
@@ -346,7 +345,7 @@ export default function ExtensionSettings(props) {
 
         <div>
           <div>Don’t have a charity in mind? Explore some charities below.</div>
-          <div className="d-flex justify-content-space-between mt-3" style={{ gap: 12 }}>
+          <div className="d-flex flex-wrap justify-content-space-between mt-3" style={{ gap: 12 }}>
             {defaultCharities &&
               defaultCharities.map(({ data: defaultCharity }) => {
                 return (
