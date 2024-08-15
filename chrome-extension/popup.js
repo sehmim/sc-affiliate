@@ -1,4 +1,4 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 
 function createMerchantContainer(title, subtitle, imageSrc, href) {
   const newDiv = document.createElement('a');
