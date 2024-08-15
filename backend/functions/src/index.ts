@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import { createCharity, deleteCharity, updateCharity } from "./admin/charitiesApi";
-import { getCampaigns, deleteCampaign, updateCampaign } from "./admin/campaignsApi";
+import { getCampaigns, deleteCampaign, updateCampaign, getSyncedCampaigns } from "./admin/campaignsApi";
 import { populatePaymentData, retrievePaymentData } from "./payments/paymentsApi";
 import { verifyVerificationCode, sendVerificationCode } from "./auth/authOTP";
 import { createUser, getUser, updateUser } from "./users/usersApi";
@@ -22,6 +22,7 @@ if (!admin.apps.length) {
 export const db = admin.firestore();
 
 export { 
+  getSyncedCampaigns,
   updateUser,
   createCharity, 
   deleteCharity, 

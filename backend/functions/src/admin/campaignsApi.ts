@@ -7,7 +7,7 @@ import handleCorsMiddleware from '../corsMiddleware';
 export const getCampaigns = functions.https.onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
     try {
-      const campaignsSnapshot = await db.collection('impactCampaignsSynced').get();
+      const campaignsSnapshot = await db.collection('impactCampaigns').get();
       const campaigns = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
       res.status(200).send(campaigns);
@@ -18,6 +18,22 @@ export const getCampaigns = functions.https.onRequest((req, res) => {
   });
 });
 
+export const getSyncedCampaigns = functions.https.onRequest((req, res) => {
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const campaignsSnapshot = await db.collection('impactCampaignsSynced')
+        .orderBy('__name__', 'desc') // Order by document ID in descending order (latest to oldest)
+        .get();
+
+      const campaigns = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      res.status(200).send(campaigns);
+    } catch (error) {
+      console.error('Error getting campaigns:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});
 
 // Update Endpoint
 export const updateCampaign = functions.https.onRequest((req, res) => {
@@ -58,4 +74,3 @@ export const deleteCampaign = functions.https.onRequest((req, res) => {
     }
   });
 });
-

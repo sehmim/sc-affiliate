@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCampaigns } from '../../api/env';
+import { getSyncedCampaigns } from '../../api/env';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 
 
@@ -9,7 +9,7 @@ const CampaignsTable = () => {
   console.log("campaigns ->", campaigns)
 
   useEffect(() => {
-    fetch(getCampaigns)
+    fetch(getSyncedCampaigns)
       .then(response => response.json())
       .then(data => {
         const latestCampaigns = data[0];

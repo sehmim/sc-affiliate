@@ -110,7 +110,7 @@ async function syncImpactCampaigns() {
 					campaignID: campaign.CampaignId[0],
 					advertiserName: campaign.AdvertiserName[0],
 					campaignName: campaign.CampaignName[0],
-					campaignLogoURI: `https://cdn2.impact.com${campaign.CampaignLogoUri[0]}`,
+					campaignLogoURI: `https://cdn2.impact.com/display-logo-via-campaign/${campaign.CampaignId[0]}.gif`,
 					activeDate: new Date().toISOString(),
 					insertionOrderStatus: campaign.ContractStatus[0],
 					advertiserURL: campaign.AdvertiserUrl[0].startsWith('http://')
@@ -178,8 +178,10 @@ async function populateCollectionWithCampaigns(campaignsArray: NormalizedCampaig
   try {
     const docRef = db.collection("impactCampaignsSynced").doc(); // Create a new document reference
 
-    // Create the document with the campaigns array
-    await docRef.set({campaigns: campaignsArray});
+    await docRef.set({
+      campaigns: campaignsArray,
+      createdAt: new Date().toISOString() // Add client-side timestamp
+    });
 
     console.log("Successfully populated campaigns into impactCampaignsSynced collection.");
   } catch (error) {
@@ -187,7 +189,6 @@ async function populateCollectionWithCampaigns(campaignsArray: NormalizedCampaig
     throw new Error("Failed to populate impact campaigns.");
   }
 }
-
 
 function areCampaignsEqual(
     array1: NormalizedCampaign[], 
