@@ -24,7 +24,7 @@ function createHeaderContent(name, charity) {
         <div style="margin: 0;" class="merchant-img-wrapper">
             <img class="merchant-img" src=${charity.logo}></img>
         </div>
-        <h3>${name}, you are supporting ${charity.organizationName}</h3>
+        <h4 style="margin-bottom: 5px;margin-top: 5px;">${name}, you are supporting ${charity.organizationName}</h4>
         <div class="sub-text">Checkout our featured merchants to start raising</div>
     `;
 }
@@ -81,12 +81,8 @@ function getDataFromStorage() {
 
 document.addEventListener('DOMContentLoaded', async function() {
   const merchantsContainer = document.querySelector('.merchants-container');
-
   const welcomeContainer = document.getElementById('welcomeDiv');
-
   const userSettings = await getDataFromStorage();
-
-  console.log("userSettings ->", userSettings)
 
   if (welcomeContainer) {
     chrome.storage.local.get('userSettings', function() {

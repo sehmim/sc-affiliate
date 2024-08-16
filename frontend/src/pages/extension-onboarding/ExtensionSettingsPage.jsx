@@ -37,7 +37,9 @@ const getUserByEmail = async (email) => {
     throw new Error("NO EMAIL PROVIDED");
   }
   try {
-    const response = await fetch(`${getUserByEmailUrl}?email=${email}`, {
+    // URL-encode the email to handle special characters like +
+    const encodedEmail = encodeURIComponent(email);
+    const response = await fetch(`${getUserByEmailUrl}?email=${encodedEmail}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -213,7 +215,7 @@ export default function ExtensionSettings(props) {
       await updateUser(email, updates);
       console.log("User Updated");
       setLoading(false);
-      window.open("https://sponsorcircle.com/shopforgood/", "_blank");
+      window.open("https://sponsorcircle.com/welcomeshop/", "_blank");
     } catch (error) {
       console.log("ERROR", error);
       setLoading(false);
@@ -333,7 +335,7 @@ export default function ExtensionSettings(props) {
                 defaultCharities.map(({ data: defaultCharity }) => {
                   return (
                     defaultCharity.isActive && (
-                      <MenuItem key={defaultCharity?.id} value={defaultCharity.organizationName}>
+                      <MenuItem key={defaultCharity.id} value={defaultCharity.organizationName}>
                         {defaultCharity.organizationName}
                       </MenuItem>
                     )
@@ -348,17 +350,20 @@ export default function ExtensionSettings(props) {
           <div className="d-flex flex-wrap justify-content-space-between mt-3" style={{ gap: 12 }}>
             {defaultCharities &&
               defaultCharities.map(({ data: defaultCharity }) => {
+
                 return (
                   defaultCharity?.isActive && (
                     <div
-                      key={defaultCharity?.id}
+                      onClick={()=> setSelectedCharity(defaultCharity.organizationName)}
+                      key={defaultCharity.id}
                       style={{
-                        border: "1px solid",
+                        border: `${defaultCharity.organizationName === selectedCharity ? '2px solid blue' : '1px solid'}`,
                         width: "340px",
                         height: "148px",
                         borderRadius: "15px",
                         padding: "12px",
                         boxSizing: "border-box",
+                        cursor: 'pointer'
                       }}
                     >
                       <div
