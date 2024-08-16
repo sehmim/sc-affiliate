@@ -333,7 +333,7 @@ export default function ExtensionSettings(props) {
                 defaultCharities.map(({ data: defaultCharity }) => {
                   return (
                     defaultCharity.isActive && (
-                      <MenuItem key={1} value={defaultCharity.organizationName}>
+                      <MenuItem key={defaultCharity?.id} value={defaultCharity.organizationName}>
                         {defaultCharity.organizationName}
                       </MenuItem>
                     )
@@ -351,6 +351,7 @@ export default function ExtensionSettings(props) {
                 return (
                   defaultCharity?.isActive && (
                     <div
+                      key={defaultCharity?.id}
                       style={{
                         border: "1px solid",
                         width: "340px",

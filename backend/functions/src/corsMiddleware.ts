@@ -1,6 +1,11 @@
 import * as cors from 'cors';
 
-const handleCors = cors({ origin: true });
+const handleCors = cors({
+  origin: '*',
+  methods: 'GET,PUT,POST,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+});
 
 export const handleCorsMiddleware = (req: any, res: any, next: () => void) => {
   if (req.method === 'OPTIONS') {

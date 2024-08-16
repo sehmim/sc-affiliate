@@ -51,14 +51,14 @@ export {
  * firebase functions is not currently installed in the project.
  * URL: https://firebase.google.com/docs/functions/schedule-functions?gen=1st
  */
-export const scheduledImpactCampaignSync = functions.pubsub
-  .schedule("every 7 days")
-  .onRun(async (context) => {
-    console.log("Running scheduledImpactCampaignSync");
-    await syncImpactCampaigns();
-    console.log("Finished scheduledImpactCampaignSync");
-    return null;
-})
+// export const scheduledImpactCampaignSync = functions.pubsub
+//   .schedule("every 7 days")
+//   .onRun(async (context) => {
+//     console.log("Running scheduledImpactCampaignSync");
+//     await syncImpactCampaigns();
+//     console.log("Finished scheduledImpactCampaignSync");
+//     return null;
+// })
 
 // Have to break the pattern that index.ts for now to see if I can even test the function
 
