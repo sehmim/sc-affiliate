@@ -30,8 +30,6 @@ const Navbar = () => {
   );
 };
 
-const EXTENSION_ID = "peghdomcocfapnefecheageicmcjheke";
-
 const getUserByEmail = async (email) => {
   if (!email) {
     throw new Error("NO EMAIL PROVIDED");
@@ -80,26 +78,27 @@ const getDefaultCharities = async () => {
   }
 };
 
-const updateUser = async (email, updates) => {
+async function updateUser(email, updates) {
   try {
     const response = await fetch(updateUserUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, updates }),
+      body: JSON.stringify({ email, ...updates }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Error: ${errorText}`);
     }
 
-    return response.status;
+    const result = await response.text();
+    console.log(result);
   } catch (error) {
-    console.error("Error updating user:", error);
-    throw error;
+    console.error('Failed to update user:', error.message);
   }
-};
+}
 
 function sendMessageToExtension(data, extensinoId) {
   if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
