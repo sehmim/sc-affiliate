@@ -1,8 +1,8 @@
 import React from "react";
 import { Card } from "react-bootstrap";
-import IMAGE1 from "./image1.png";
-import IMAGE2 from "./image2.png";
-import IMAGE3 from "./image3.png";
+import IMAGE1 from "../../img/image1.png";
+import IMAGE2 from "../../img/image2.png";
+import IMAGE3 from "../../img/image3.png";
 
 const BottomRightComponent = () => {
 

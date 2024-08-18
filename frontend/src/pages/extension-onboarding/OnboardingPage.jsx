@@ -1,60 +1,58 @@
-import React from "react";
+import React, { useState } from 'react';
+import './RegistrationBanner.css'; 
 import { useNavigate } from "react-router-dom";
-import BottomRightComponent from "./BottomRightComponent";
-import "./OnboardingPage.css";
-import SHELL_BROWSER from "./shell-broswer.png";
 
+import hand1 from '../../img/hand1.png';
+import hand2 from '../../img/hand2.png';
+import hand3 from '../../img/hand3.png';
 
 const STORE_LINK = `https://chromewebstore.google.com/detail/shop-for-good/pifflcabiijbniniffeakhadehjilibi`;
 
-export default function OnboardingPage(props) {
-  const navigate = useNavigate();
+const OnboardingPage = () => {
+    const navigate = useNavigate();
+    const [isFirstTimeLogin] = useState(!localStorage.getItem("sc-extensionId"));
 
-  const handleRedirect = () => {
-    const params = new URLSearchParams(window.location.search);
-    let extensionId = params.get("extensionId");
+    const handleRedirect = () => {
+        const params = new URLSearchParams(window.location.search);
+        let extensionId = params.get("extensionId");
 
-    if(!extensionId){
-      extensionId = localStorage.getItem('sc-extensionId');
-    } 
-
-
-    if(!extensionId) return alert('Couldnt find extensionId. Please reinstall the app from: ' + STORE_LINK);
-
-    navigate(`/login?extensionId=${extensionId}`)
-  }
+        if(!extensionId){
+        extensionId = localStorage.getItem('sc-extensionId');
+        } 
 
 
-    return (
-      <div className="onboarding-page-container">
-        <div className="body-conatiner">
-          <div className="fs-1 fw-bold text-center pt-5">
-            Empower Your Generosity <br></br>
-            Just One Click Away
-          </div>
-          <div className="text-center text-dark font-inter font-weight-light fs-6 text-muted pt-4">
-            Choose the Charity of your Choice.
-          </div>
+        if(!extensionId) return alert('Couldnt find extensionId. Please reinstall the app from: ' + STORE_LINK);
 
-          <div className="text-center py-5">
-            Quick and easy registration for impact-<br></br>
-            driven shopping experiences.
-          </div>
+        navigate(`/login?extensionId=${extensionId}`)
+    }
 
-          <button
-            onClick={() => handleRedirect()}
-            type="button"
-            className="btn btn-dark btn-lg fw-bold pt-2"
-            style={{ width: "300px" }}
-          >
-            Register Now
-          </button>
+
+
+  return (
+    <div className="registration-banner">
+      <div className="hands-container">
+        <div className="hand1-image-wrapper">
+            <img src={hand1} alt="Hand 1" className="hand-image" />
         </div>
-        <div>
-          <img src={SHELL_BROWSER}></img>
+        <div className="hand2-image-wrapper">
+            <img src={hand2} alt="Hand 2" className="hand-image" />
         </div>
-
-        <BottomRightComponent />
+        <div className="hand3-image-wrapper">
+            <img src={hand3} alt="Hand 3" className="hand-image" />
+        </div>
       </div>
-    );
-}
+      <div className="text-container">
+        <div className='text-main'>Empower Your Generosity</div>
+        {isFirstTimeLogin && <div className='text-main'>Just One Click Away</div>}
+        <div className='text-middle'>Choose the Charity of your Choice.</div>
+        <div className='text-bottom'>
+            <div>Quick and easy registration for impact-</div>
+            <div>driven shopping experiences.</div>
+        </div>
+        <button onClick={() => handleRedirect()} className="register-button">{ isFirstTimeLogin ? "Register Now" : "Get Back To It" }</button>
+      </div>
+    </div>
+  );
+};
+
+export default OnboardingPage;
