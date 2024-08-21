@@ -40,6 +40,37 @@ export const fetchCampaignsData = async () => {
   }
 };
 
+export const fetchContracts = async () => {
+    try {
+    const base64Auth = Buffer.from(
+      `${IMPACT_API_USERNAME}:${IMPACT_API_PASSWORD}`
+    ).toString("base64");
+
+    const response = await fetch(
+      `${IMPACT_BASE_URL}/Mediapartners/${IMPACT_API_USERNAME}/Contracts`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Basic ${base64Auth}`,
+          "Content-Type": "application/xml",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const xmlData = await response.text();
+    
+    const data = await parseStringPromise(xmlData);
+
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
 
 export const fetchCampainDeals = async (campaignId: string) => {
     try {

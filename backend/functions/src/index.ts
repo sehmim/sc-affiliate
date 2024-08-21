@@ -10,6 +10,7 @@ import { getDefaultCharities } from "./charities/charatyApi";
 import { populateCampaignData } from "./campaigns/impactCampaignsApi";
 import { collectAndSendBrowserInfo } from "./analytics/analytics";
 import { syncImpactCampaigns } from "./services/impactCampaignSync";
+import handleCorsMiddleware from "./corsMiddleware";
 
 
 // admin.initializeApp();
@@ -63,6 +64,7 @@ export {
 // Have to break the pattern that index.ts for now to see if I can even test the function
 
 export const triggerImpactCampaignSync = functions.https.onRequest(async (req, res) => {
+    return handleCorsMiddleware(req, res, async () => {
   try {
     await syncImpactCampaigns();
     res.status(200).send('Sync Impact Campaigns executed successfully.');
@@ -70,4 +72,4 @@ export const triggerImpactCampaignSync = functions.https.onRequest(async (req, r
     console.error('Error syncing Impact campaigns:', error);
     res.status(500).send('Error syncing Impact campaigns.');
   }
-});
+})});

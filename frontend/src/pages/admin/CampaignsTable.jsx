@@ -1,26 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { getSyncedCampaigns } from '../../api/env';
+import { getSyncedCampaigns, triggerImpactCampaignSync } from '../../api/env';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import { Button } from 'react-bootstrap';
 
 
 const CampaignsTable = () => {
   const [campaigns, setCampaigns] = useState([]);
-
-  console.log("campaigns ->", campaigns)
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch(getSyncedCampaigns)
       .then(response => response.json())
       .then(data => {
         const latestCampaigns = data[0];
-        const { campaigns } = latestCampaigns;
+        const { campaigns, createdAt } = latestCampaigns;
         setCampaigns(campaigns)
+        setLastUpdated(createdAt)
       })
       .catch(error => console.error('Error fetching campaigns:', error));
   }, []);
 
+  const sycCampaings = async () => {
+    setIsLoading(true)
+    await fetch(triggerImpactCampaignSync)
+    window.location.reload();
+  }
+
   return (
      <div className="m-4">
+      <p>Last updates: {lastUpdated}</p>
+      <Button disabled={isLoading} onClick={() => sycCampaings(true)}>Sync Campaigns</Button>
       <table className="table table-striped table-bordered">
         <thead className="thead-dark">
           <tr>
@@ -30,7 +40,7 @@ const CampaignsTable = () => {
             <th>Status</th>
             <th>Advertiser URL</th>
             <th>Subdomains</th>
-            <th>Deals</th>
+            <th>PayoutRate</th>
           </tr>
         </thead>
         <tbody>
@@ -53,9 +63,7 @@ const CampaignsTable = () => {
                 ))}
               </td>
               <td>
-                {
-                  campaign.deals.map(({discount})=> (<p>{ discount }</p>))
-                }
+                {campaign.defaultPayoutRate}%
               </td>
             </tr>
           ))}

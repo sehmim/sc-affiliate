@@ -56,7 +56,7 @@ async function fetchDataFromServer(url) {
 }
 
 async function fetchCampaigns() {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getCampaigns";
+  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns";
   const campaigns = await fetchDataFromServer(url);
 
   return campaigns;
@@ -121,11 +121,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   if (merchantsContainer) {
-    const campaigns = await fetchCampaigns();
+    const campaignsData = await fetchCampaigns();
+    const campaigns = campaignsData[0].campaigns;
 
     try {
       for (const campaign of campaigns) {
-        const subTitle = `up to ${campaign.discountPercentage}%`;
+        const subTitle = `up to ${campaign.defaultPayoutRate}%`;
 
         const newMerchantDiv = createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.advertiserURL);
         merchantsContainer.appendChild(newMerchantDiv);
