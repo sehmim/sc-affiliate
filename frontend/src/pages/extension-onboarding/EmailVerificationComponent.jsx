@@ -5,6 +5,7 @@ import { createUserUrl, sendVerificationCodeUrl, verifyVerificationCode } from "
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const EmailVerificationComponent = () => {
+   console.log("HELLOO FROM EMAIL VERIFICATION COMPONENT");
    const [email, setEmail] = useState("");
    const [verificationCode, setVerificationCode] = useState("");
    const [isVerificationCodeRequested, setVerificationCodeRequested] = useState(false);
