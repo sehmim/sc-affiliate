@@ -10,6 +10,7 @@ import { getDefaultCharities } from "./charities/charatyApi";
 import { populateCampaignData } from "./campaigns/impactCampaignsApi";
 import { collectAndSendBrowserInfo } from "./analytics/analytics";
 import { syncImpactCampaigns } from "./services/impactCampaignSync";
+import { getPayments } from "./payments/paymentsApi";
 
 
 // admin.initializeApp();
@@ -40,7 +41,8 @@ export {
   applyTrackingLink,
   getDefaultCharities,
   collectAndSendBrowserInfo,
-  syncImpactCampaigns
+  syncImpactCampaigns,
+  getPayments
 };
 
 // Schedule sync to run every 7 days as per discussed on github issue

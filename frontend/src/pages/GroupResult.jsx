@@ -18,6 +18,8 @@ import {
 } from "firebase/firestore";
 import { firestore, auth } from "../utils/firebase";
 import ProgressBar from "@ramonak/react-progress-bar";
+import { getPaymentsUrl } from "../api/env";
+
 
 const GroupResult = () => {
   const navigate = useNavigate();
@@ -26,7 +28,10 @@ const GroupResult = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [searchParams] = useSearchParams();
+  const [paymentData, setPaymentData] = useState([]);
+
   const id = searchParams.get("id") || localStorage.getItem('groupCode');
+
   const secondsToDays = (timestamp) => {
     const milliseconds = timestamp * 1000;
     const date = new Date(milliseconds);
@@ -36,6 +41,40 @@ const GroupResult = () => {
     return daysDiff;
   };
   //   console.log('secondsToDays() = ', secondsToDays(1697708380))
+
+
+  const fetchPaymentData = async () => {
+    console.log("TRYING TO GET")
+    try {
+       const accessToken = localStorage.getItem("accessToken");
+       if (!accessToken) {
+          throw new Error("No access token found");
+       }
+
+       const response = await fetch(`${getPaymentsUrl}?campaignId=${id}`, {
+          headers: {
+             'Authorization': `Bearer ${accessToken}`
+          }
+       });
+
+       if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+       }
+
+       const data = await response.json();
+       setPaymentData(data);
+    } catch (error) {
+       console.error("Error fetching payment data:", error);
+       message.error("Failed to fetch payment data");
+    }
+ };
+
+ useEffect(() => {
+  if (detail.id) {
+     fetchPaymentData();
+  }
+}, [detail.id]);
+
   const getDetail = async () => {
     try {
       const collectionGroups = collection(firestore, "groups");
@@ -72,6 +111,24 @@ const GroupResult = () => {
   });
   //   console.log("total = ", total);
 
+  const renderPaymentData = () => (
+    <div>
+       <h2>Payment Data</h2>
+       <List
+          dataSource={paymentData}
+          renderItem={(item) => (
+             <List.Item>
+                <List.Item.Meta
+                   title={`Campaign: ${item.campaignName}`}
+                   description={`Charity: ${item.charity}`}
+                />
+                <div>Amount: ${item.amount}</div>
+             </List.Item>
+          )}
+       />
+    </div>
+ );
+
   return (
     <div className="font-lato">
       <Header />
@@ -84,6 +141,8 @@ const GroupResult = () => {
           setIsModalOpen(false);
         }}
       >
+                 {renderPaymentData()}
+
         <List
           className="demo-loadmore-list"
           itemLayout="horizontal"

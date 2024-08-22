@@ -13,3 +13,6 @@ export const createUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f
 export const getUserByEmailUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getUser" : "https://getuser-6n7me4jtka-uc.a.run.app";
 export const updateUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/updateUser": "https://updateuser-6n7me4jtka-uc.a.run.app";
 export const defaultCharitiesUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getDefaultCharities" : "https://getdefaultcharities-6n7me4jtka-uc.a.run.app";
+
+
+export const getPaymentsUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getPayments" : "https://getPayments-6n7me4jtka-uc.a.run.app";

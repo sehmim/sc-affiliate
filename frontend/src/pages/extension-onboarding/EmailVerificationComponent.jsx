@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import { createUserUrl, sendVerificationCodeUrl, verifyVerificationCode } from "../../api/env";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const EmailVerificationComponent = () => {
    const [email, setEmail] = useState("");
@@ -9,6 +10,8 @@ const EmailVerificationComponent = () => {
    const [isVerificationCodeRequested, setVerificationCodeRequested] = useState(false);
    const [loading, setLoading] = useState(false);
    const navigate = useNavigate();
+
+   const auth = getAuth();
 
    const [isFirstTimeLogin] = useState(localStorage.getItem("sc-extensionId"));
 
@@ -57,18 +60,51 @@ const EmailVerificationComponent = () => {
             extensionId = localStorage.getItem("sc-extensionId");
          }
 
+         // if (isVerified) {
+         //    try {
+         //       await createUser(email);
+         //       localStorage.setItem("sc-user", email);
+         //       localStorage.setItem("sc-extensionId", extensionId);
+         //       navigate("/extension-settings", { state: { email: email } });
+         //    } catch (error) {
+         //       console.error("Error creating user:", error);
+         //    }
+         // } else {
+         //    console.error("OTP verification failed");
+         // }
+
          if (isVerified) {
             try {
+               // this is where we sign in
+               await signInWithEmailAndPassword(auth, email, verificationCode);
+
+            } catch (error) {
+               // if sign in fails, create a new user
+               await createUserWithEmailAndPassword(auth, email, verificationCode);
+               // await createUser(email);
+            }
+
+            const user = auth.currentUser;
+            if (user) {
+               const token = await user.getIdToken();
+               console.log("Token:", token);
+               localStorage.setItem("accessToken", token);
                await createUser(email);
                localStorage.setItem("sc-user", email);
+
+               const params = new URLSearchParams(window.location.search);
+               let extensionId = params.get("extensionId");
+               if (!extensionId) {
+                  extensionId = localStorage.getItem("sc-extensionId");
+               }
                localStorage.setItem("sc-extensionId", extensionId);
+
                navigate("/extension-settings", { state: { email: email } });
-            } catch (error) {
-               console.error("Error creating user:", error);
-            }
+            } 
          } else {
             console.error("OTP verification failed");
          }
+
       } catch (error) {
          console.error("Error during login:", error);
       } finally {

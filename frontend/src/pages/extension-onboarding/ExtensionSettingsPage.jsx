@@ -192,6 +192,8 @@ export default function ExtensionSettings(props) {
   const handleSave = async () => {
     let selectedCharityObject;
 
+    console.log("defaultCharities: ", defaultCharities);
+
     defaultCharities.map(({ data: charity }) => {
       if (charity?.organizationName === selectedCharity) {
         selectedCharityObject = charity;

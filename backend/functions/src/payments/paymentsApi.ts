@@ -62,3 +62,52 @@ export const retrievePaymentData = onRequest(async (req, res) => {
     }
   });
 });
+
+export const getPayments = onRequest(async (req, res) => {
+  return handleCorsMiddleware(req, res, async () => { 
+    try {
+      // verify the firebase ID token
+      const idToken = req.headers.authorization?.split('Bearer ')[1];
+      if (!idToken) {
+        res.status(401).send("Unauthorized");
+        return;
+      }
+
+      try {
+        await admin.auth().verifyIdToken(idToken);
+      } catch (error) {
+        console.error("Error verifying ID token:", error);
+        res.status(403).send('Unauthorized');
+        return;
+      }
+
+      const { charity } = req.query;
+
+      let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection('payments');
+
+      if (charity) {
+        query = query.where('charity', '==', charity);
+      }
+
+      const paymentsSnapshot = await query.get();
+      const payments = paymentsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }) as { id: string; charity: string; amount: string | number });
+
+      // aggregate payments
+      const aggregatedPayments = payments.reduce((acc: {[key: string]: number}, payment) => {
+        if (!acc[payment.charity]) {
+          acc[payment.charity] = 0;
+        }
+        acc[payment.charity] += Number(payment.amount);
+        return acc;
+      }, {});
+
+      res.status(200).json(aggregatedPayments);
+    } catch (error: any) {
+      console.error("Error in getPayments:", error);
+      res.status(500).json({ error: "Failed to retrieve payment data", details: error.message });
+    }
+  });
+});
