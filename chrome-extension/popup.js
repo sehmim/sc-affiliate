@@ -1,4 +1,4 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 
 // DUBLICATE CODE
 async function applyAffiliateLink(campaignID, userSettings){
