@@ -1,6 +1,8 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
+
+
 
 ///////////////////////////////////
 const collectAndSendBrowserInfoApiUrl = LOCAL_ENV ?
@@ -46,6 +48,15 @@ function isGoogle(url) {
     // Use a regular expression to match "http(s)://www.google." followed by any characters
     const pattern = /^https?:\/\/www\.google\.\w+/i;
     return pattern.test(url);
+}
+
+function ensureHttps(url) {
+  // Check if the URL starts with 'http://' or 'https://'
+  if (!/^https?:\/\//i.test(url)) {
+    // If not, prepend 'https://'
+    url = `https://${url}`;
+  }
+  return url;
 }
 
 function isMainDomain(currentUrl, mainDomain) {
@@ -113,10 +124,12 @@ function getAllowedBrandInfo(campaigns) {
     }
 
     const campaign = campaigns[i];
-    const urlHostname = new URL(campaign.advertiserURL).hostname;
+    const fullUrl = ensureHttps(campaign.advertiserURL);
+    const urlHostname = new URL(fullUrl).hostname;
     
     // Check if window hostname matches campain hostname  
-    if (isMainDomain(currentWebsiteUrl, urlHostname)) {
+    const domainMatched = isMainDomain(currentWebsiteUrl, urlHostname);
+    if (domainMatched) {
       return {
         allowedBrand: campaign,
         allowedSubDomain: null,
@@ -126,9 +139,12 @@ function getAllowedBrandInfo(campaigns) {
     // Otherwiese check if window hostname matches campain's subdomain's hostname  
     const allowedSubDomains = campaign.subDomains;
     allowedSubDomains.forEach((allowedSubDomain)=> {
-      const allowedSubDomainHostname = new URL(allowedSubDomain).hostname;
+      const fullUrl = ensureHttps(allowedSubDomain);
+      const allowedSubDomainHostname = new URL(fullUrl).hostname;
 
-      if (isMainDomain(currentWebsiteUrl, allowedSubDomainHostname)) {
+      const domainMatched = isMainDomain(currentWebsiteUrl, allowedSubDomainHostname);
+
+      if (domainMatched) {
         resultCampaign = campaign;
         resultSubDomain = allowedSubDomain;
       }
@@ -201,9 +217,10 @@ async function initialize() {
     if (isGoogleSearch) {
       if (!userSettings || !userSettings.email) {
         createLoginContainer(closedDiv);
-        return
+      } else {
+        await applyGoogleSearchDiscounts(campaigns);
       }
-      await applyGoogleSearchDiscounts(campaigns);
+
       return;
     }
 
@@ -235,13 +252,6 @@ async function initialize() {
       }
     }
 }
-
-
-initialize().then(() => {
-  console.log("INITIALZIED")
-});
-
-
 
 function isCodeAlreadyAppliedToWebsite() {
     let codeAlreadyAppliedToBrand;
@@ -361,8 +371,10 @@ if (document.readyState === 'loading') {
 }
 
 async function fetchCampaigns() {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getCampaigns"; 
-  return await fetchDataFromServer(url) || [];
+  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns"; 
+  const campaignsArray = await fetchDataFromServer(url);
+  const campaigns = campaignsArray[0].campaigns;
+  return campaigns || [];
 }
 
 function extractUrlFromCite(divElement) {
@@ -394,7 +406,7 @@ async function applyGoogleSearchDiscounts(campaigns) {
 
     campaigns.map(campaign => {
       const allowedDomain = new URL(campaign.advertiserURL).hostname;
-      const percentage = (campaign.discountPercentage * COMMISSION_RATE) + "%";
+      const percentage = (campaign.defaultPayoutRate * COMMISSION_RATE) + "%";
 
       if (!isMainDomain(domain, allowedDomain)) {
         const allowedSubDomains = campaign.subDomains;
@@ -438,6 +450,7 @@ async function applyGoogleSearchDiscounts(campaigns) {
       textDiv.textContent = `Give ${percentage} to your cause 💜`;
       textDiv.href = campaign.trackingLink;
       textDiv.target = "_blank";
+      textDiv.onclick
 
       mainDiv.appendChild(logoDiv);
       mainDiv.appendChild(textDiv);
@@ -605,7 +618,7 @@ function createLeftDiv(selectedCharityObject) {
 }
 
 function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, userSettings) {
-    const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.discountPercentage * COMMISSION_RATE)+"%";
+    const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.defaultPayoutRate * COMMISSION_RATE)+"%";
 
     closedDiv.onclick = function () {
       isolatedIframe.style.display = '';
@@ -792,7 +805,7 @@ function createMiddleSection(allowedBrand, selectedCharityObject) {
 
 
     var p = document.createElement("p");
-    p.textContent = `Your purchases will now give up to ${allowedBrand.discountPercentage * COMMISSION_RATE}% to \n` + selectedCharityObject.organizationName;
+    p.textContent = `Your purchases will now give up to ${allowedBrand.defaultPayoutRate * COMMISSION_RATE}% to \n` + selectedCharityObject.organizationName;
     p.style.textAlign = "center";
     p.style.margin = "0px";
     p.style.fontFamily = "Montserrat";
@@ -1085,3 +1098,9 @@ async function collectAndSendBrowserInfo(apiEndpoint) {
     console.error('Error sending browser info:', error);
   }
 }
+
+
+
+
+// ENTRY POINT TO THE APP
+initialize();
