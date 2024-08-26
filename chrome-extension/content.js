@@ -218,7 +218,7 @@ async function initialize() {
       if (!userSettings || !userSettings.email) {
         createLoginContainer(closedDiv);
       } else {
-        await applyGoogleSearchDiscounts(campaigns);
+        await applyGoogleSearchDiscounts(campaigns, userSettings);
       }
 
       return;
@@ -392,7 +392,7 @@ function extractUrlFromCite(divElement) {
 }
 
 
-async function applyGoogleSearchDiscounts(campaigns) {
+async function applyGoogleSearchDiscounts(campaigns, userSettings) {
   await applyBoostedAd();
   const searchResults = document.querySelectorAll('div.g');
 
@@ -413,12 +413,12 @@ async function applyGoogleSearchDiscounts(campaigns) {
       if (!isMainDomain(domain, allowedDomain)) return;
 
       // Check to see if main domain not included in subdomains to prevent mutiple re-renders
-      campaign.subDomains.forEach((subdomain) => {
-        const fullUrl = ensureHttps(subdomain);
-        const allowedSubdomainDomain = new URL(fullUrl).hostname;
+      // campaign.subDomains.forEach((subdomain) => {
+      //   const fullUrl = ensureHttps(subdomain);
+      //   const allowedSubdomainDomain = new URL(fullUrl).hostname;
 
-        if (isMainDomain(domain, allowedSubdomainDomain)) return;
-      })
+      //   if (isMainDomain(domain, allowedSubdomainDomain)) return;
+      // })
 
       const mainDiv = document.createElement('div');
       mainDiv.style.color = '#1a0dab';
@@ -445,9 +445,10 @@ async function applyGoogleSearchDiscounts(campaigns) {
       const textDiv = document.createElement('a');
       textDiv.style.whiteSpace = 'nowrap';
       textDiv.textContent = `Give ${percentage} to your cause 💜`;
-      textDiv.href = campaign.trackingLink;
       textDiv.target = "_blank";
-      textDiv.onclick
+      textDiv.onclick = function () {
+        applyAffiliateLink(campaign, userSettings)
+      }
 
       mainDiv.appendChild(logoDiv);
       mainDiv.appendChild(textDiv);
