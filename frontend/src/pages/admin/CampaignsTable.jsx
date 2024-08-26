@@ -39,7 +39,7 @@ const CampaignsTable = () => {
             <th>Active Date</th>
             <th>Status</th>
             <th>Advertiser URL</th>
-            <th>Subdomains</th>
+            <th>Subdomains/Deeplinks</th>
             <th>PayoutRate</th>
           </tr>
         </thead>

@@ -405,23 +405,20 @@ async function applyGoogleSearchDiscounts(campaigns) {
     const domain = new URL(url).hostname;
 
     campaigns.map(campaign => {
-      const allowedDomain = new URL(campaign.advertiserURL).hostname;
+      const fullUrl = ensureHttps(campaign.advertiserURL);
+      const allowedDomain = new URL(fullUrl).hostname;
       const percentage = (campaign.defaultPayoutRate * COMMISSION_RATE) + "%";
 
-      if (!isMainDomain(domain, allowedDomain)) {
-        const allowedSubDomains = campaign.subDomains;
+      // If the Url isnt in allowed domain skip html injection
+      if (!isMainDomain(domain, allowedDomain)) return;
 
-        if (!allowedSubDomains || allowedSubDomains.length === 0) return;
+      // Check to see if main domain not included in subdomains to prevent mutiple re-renders
+      campaign.subDomains.forEach((subdomain) => {
+        const fullUrl = ensureHttps(subdomain);
+        const allowedSubdomainDomain = new URL(fullUrl).hostname;
 
-        let matched = false;
-        allowedSubDomains.forEach(allowedSubDomain => {
-          const allowedDomainHostname = new URL(allowedSubDomain).hostname;
-          if (isMainDomain(domain, allowedDomainHostname)) {
-            matched = true;
-          }
-        });
-        if (!matched) return;
-      }
+        if (isMainDomain(domain, allowedSubdomainDomain)) return;
+      })
 
       const mainDiv = document.createElement('div');
       mainDiv.style.color = '#1a0dab';
@@ -651,7 +648,8 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
 
     var button = document.createElement("button");
     button.style.borderRadius = "21px";
-    button.style.border = "1px solid rgb(0, 0, 0)";
+    button.style.border = "none";
+    button.style.boxShadow = "rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px"
     button.style.height = "40px";
     button.style.width = "85%";
     button.style.margin = "auto";

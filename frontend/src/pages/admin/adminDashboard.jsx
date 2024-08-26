@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EditableTable from './EditableTable';
 import CampaignsTable from './CampaignsTable';
+import TrackingLinksTable from './Tables/TrackingLinksTable';
 
 const AdminDashboard = () => {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
@@ -57,6 +58,9 @@ const AdminDashboard = () => {
         <h4 className="m-4">Impact Campaigns/Brands</h4>
         <CampaignsTable />
       </div>
+
+      <hr></hr>
+      <TrackingLinksTable />
     </div>
   );
 };
