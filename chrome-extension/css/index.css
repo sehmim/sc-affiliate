@@ -65,6 +65,7 @@
   text-decoration: none;
   margin: 5px;
   padding: 10px 5px 5px 5px;
+  cursor: pointer;
 }
 
 .merchant-img-wrapper {
@@ -83,7 +84,6 @@
   width: 100%;
 }
 
-
 .merchant-header {
   color: #000;
   font-family: 'Montserrat';
@@ -91,7 +91,11 @@
   font-style: normal;
   font-weight: 500;
   width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   text-overflow: ellipsis;
+  overflow: auto;
 }
 
 .footer {

@@ -1,23 +1,63 @@
 const LOCAL_ENV = true;
 
-function createMerchantContainer(title, subtitle, imageSrc, href) {
+// DUBLICATE CODE
+async function applyAffiliateLink(campaignID, userSettings){
+  const { selectedCharityObject, email} = userSettings;
+  // NOTE: CampaignID is same as ProgramId;
+  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject?.organizationName}&email=${email}` 
+      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject?.organizationName}&email=${email}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; // Propagate the error to the caller if needed
+  }
+}
+
+async function createMerchantContainer(title, subtitle, imageSrc, campaignID, userSettings) {
   const newDiv = document.createElement('a');
+  newDiv.target = "_blank";
   newDiv.classList.add('merchant');
 
-  newDiv.href = href;
-  newDiv.target = "_blank";
+  // Create elements programmatically to avoid XSS risks
+  const headerDiv = document.createElement('div');
+  headerDiv.classList.add('merchant-header');
+  headerDiv.textContent = title;
 
-  // Set innerHTML for the new div with the provided parameters
-  newDiv.innerHTML = `
-    <div class="merchant-header">${title}</div>
-    <div class="merchant-discount">${subtitle}</div>
-    <div class="merchant-img-wrapper">
-        <img class="merchant-img" src="${imageSrc}">
-    </div>
-  `;
+  const discountDiv = document.createElement('div');
+  discountDiv.classList.add('merchant-discount');
+  discountDiv.textContent = subtitle;
+
+  const imgWrapperDiv = document.createElement('div');
+  imgWrapperDiv.classList.add('merchant-img-wrapper');
+
+  const imgElement = document.createElement('img');
+  imgElement.classList.add('merchant-img');
+  imgElement.src = imageSrc;
+  imgElement.alt = title;
+  imgElement.onerror = function() {
+    imgElement.style.display = 'none'; // Hide the image if it fails to load
+  };
+
+  imgWrapperDiv.appendChild(imgElement);
+  newDiv.appendChild(headerDiv);
+  newDiv.appendChild(discountDiv);
+  newDiv.appendChild(imgWrapperDiv);
+
+  newDiv.onclick = async function () {
+    const responseData = await applyAffiliateLink(campaignID, userSettings)
+    chrome.tabs.create({ url: "http://" + responseData });
+  }
 
   return newDiv;
 }
+
 
 function createHeaderContent(name, charity) {
     return `
@@ -41,6 +81,7 @@ function createHeaderContentLogin() {
     `;
 }
 
+// DUBLICATE CODE
 async function fetchDataFromServer(url) {
   try {
     const response = await fetch(url);
@@ -128,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       for (const campaign of campaigns) {
         const subTitle = `up to ${campaign.defaultPayoutRate}%`;
 
-        const newMerchantDiv = createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.advertiserURL);
+        const newMerchantDiv = await createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.campaignID, userSettings);
         merchantsContainer.appendChild(newMerchantDiv);
       }
 
