@@ -322,12 +322,20 @@ import { getPaymentsUrl } from "../api/env";
 // };
 
 const GroupResult = () => {
-  const [detail, setDetail] = useState({ teamName: "Test Team", money: 1000 });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [paymentData, setPaymentData] = useState({});
+  const [paymentData, setPaymentData] = useState([]);
   const [searchParams] = useSearchParams();
 
-  const id = searchParams.get("id") || "TestCharity";
+  // const id = searchParams.get("id") || "TestCharity";
+
+  /**
+   * @NOTE I left this hardcoded for now, because I assume that 
+   * we are going to want to pull the payments data via campaignId
+   * that is stored in the users collection.
+   * 
+   * - Julio
+   */
+  const campaignId = 1967;
 
   const fetchPaymentData = async () => {
     console.log("Fetching payment data");
@@ -337,7 +345,7 @@ const GroupResult = () => {
         throw new Error("No access token found");
       }
 
-      const response = await fetch(`${getPaymentsUrl}`, {
+      const response = await fetch(`${getPaymentsUrl}?campaignId=${campaignId}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -364,10 +372,10 @@ const GroupResult = () => {
     <div>
       <h2>Payment Data</h2>
       <List
-        dataSource={Object.entries(paymentData)}
-        renderItem={([charity, amount]) => (
+        dataSource={paymentData}
+        renderItem={({ charity, totalAmount }) => (
           <List.Item>
-            <strong>{charity}:</strong> {amount}
+            <strong>{charity}:</strong> ${totalAmount}
           </List.Item>
         )}
       />
@@ -390,11 +398,21 @@ const GroupResult = () => {
       </Modal>
 
       <div>
-        Team Name: {detail.teamName}
+        {paymentData.length > 0 ? (
+          <div>
+            Charity Name: {paymentData[0].charity}
+          </div>
+        ) : (
+          <div>No charity data available</div>
+        )}
       </div>
       <div className="px-8 flex flex-col h-screen items-center justify-center">
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-montserrat font-bold">{detail.teamName}</h1>
+          {paymentData.length > 0 ? (
+            <h1 className="text-4xl font-montserrat font-bold">{paymentData[0].charity}</h1>
+          ) : (
+            <h1 className="text-4xl font-montserrat font-bold">No charity data available</h1>
+          )}
           <p className="text-grey">
             Funds will be collected to purchase equipment, costumes and
             uniforms.
@@ -431,7 +449,7 @@ const GroupResult = () => {
             }}
           >
             <p className="text-royal-purple font-bold text-4xl">
-              $ {paymentData.TestCharity4 || 0}
+              $ {paymentData[0]?.totalAmount || 0}
             </p>
             <div
               style={{

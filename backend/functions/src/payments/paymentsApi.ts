@@ -32,6 +32,9 @@ export const populatePaymentData = onRequest(async (req, res) => {
   });
 });
 
+/**
+ * @Note I can actually just make this work.
+ */
 export const retrievePaymentData = onRequest(async (req, res) => {
   handleCorsMiddleware(req, res, async () => {
     console.log("retrievePaymentData function started");
@@ -81,12 +84,13 @@ export const getPayments = onRequest(async (req, res) => {
         return;
       }
 
-      const { charity } = req.query;
+      const { campaignId } = req.query;
 
       let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection('payments');
 
-      if (charity) {
-        query = query.where('charity', '==', charity);
+      // Update the query to filter by campaignId
+      if (campaignId) {
+        query = query.where('campaignId', '==', campaignId);
       }
 
       const paymentsSnapshot = await query.get();
@@ -104,7 +108,13 @@ export const getPayments = onRequest(async (req, res) => {
         return acc;
       }, {});
 
-      res.status(200).json(aggregatedPayments);
+      // Convert aggregatedPayments to an array of objects
+      const response = Object.entries(aggregatedPayments).map(([charity, amount]) => ({
+        charity,
+        totalAmount: amount
+      }));
+
+      res.status(200).json(response);
     } catch (error: any) {
       console.error("Error in getPayments:", error);
       res.status(500).json({ error: "Failed to retrieve payment data", details: error.message });
