@@ -49,7 +49,7 @@ const OnboardingPage = () => {
             <div>Quick and easy registration for impact-</div>
             <div>driven shopping experiences.</div>
         </div>
-        <button onClick={() => handleRedirect()} className="register-button">{ isFirstTimeLogin ? "Register Now" : "Get Back To It" }</button>
+        <button onClick={() => handleRedirect()} className="register-button">{ isFirstTimeLogin ? "Register Now" : "Sign In Now" }</button>
       </div>
     </div>
   );

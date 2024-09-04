@@ -9,8 +9,10 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    const extensinoId = localStorage.getItem("sc-extensionId");
+    sendMessageToExtension(null, extensinoId);
     localStorage.setItem("sc-user", null);
-    navigate("/onboard");
+    navigate(`/onboard?extensinoId=${extensinoId}`);
   };
 
   return (
@@ -100,7 +102,7 @@ async function updateUser(email, updates) {
   }
 }
 
-function sendMessageToExtension(data, extensinoId) {
+export function sendMessageToExtension(data, extensinoId) {
   if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
     chrome.runtime.sendMessage(extensinoId, { action: "sendData", data: data }, (response) => {
       console.log("Response from extension:", response);
