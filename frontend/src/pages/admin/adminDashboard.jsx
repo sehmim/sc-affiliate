@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import EditableTable from './EditableTable';
 import CampaignsTable from './CampaignsTable';
 import TrackingLinksTable from './Tables/TrackingLinksTable';
+import NavigationComponent from './AdminNavigation';
 
 const AdminDashboard = () => {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
@@ -46,21 +47,12 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <header className="admin-dashboard-header">
         <h1 className="m-5 text-center">Admin Dashboard</h1>
-        <div>
-          <button onClick={()=> handleLogout()}>Logout</button>
+        <div className='w-full'> 
+          <button className="m-auto flex" onClick={()=> handleLogout()}>Logout</button>
         </div>
         <hr />
+        <NavigationComponent />
       </header>
-      <h4 className="m-4">Charities</h4>
-      <EditableTable />
-      <hr />
-      <div>
-        <h4 className="m-4">Impact Campaigns/Brands</h4>
-        <CampaignsTable />
-      </div>
-
-      <hr></hr>
-      <TrackingLinksTable />
     </div>
   );
 };
