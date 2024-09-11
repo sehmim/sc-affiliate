@@ -31,7 +31,7 @@ export type NormalizedCampaign = {
     campaignName: string;
     campaignLogoURI: string;
     activeDate: string;
-    insertionOrderStatus: string;
+    contractStatus: string;
     advertiserURL: string;
     subDomains: string[];
     // deals: NormalizedDeal[]

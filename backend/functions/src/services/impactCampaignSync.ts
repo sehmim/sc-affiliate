@@ -1,10 +1,10 @@
-import { fetchCampaignsData, fetchContracts } from './impact'
+import { fetchImpactCampaignsData, fetchContracts } from './impact'
 import { ImpactCampaignData, NormalizedCampaign } from './types';
 import { db } from '..'
 
 async function syncImpactCampaigns() {
 	try {
-		const campaignsData = await fetchCampaignsData()
+		const campaignsData = await fetchImpactCampaignsData()
     const campaigns: ImpactCampaignData[] =
 			campaignsData.ImpactRadiusResponse.Campaigns[0].Campaign.filter(
 				(campaign: any) => campaign.ContractStatus[0] === 'Active'
@@ -38,7 +38,7 @@ async function syncImpactCampaigns() {
               campaignName: campaign.CampaignName[0],
               campaignLogoURI: `https://cdn2.impact.com/display-logo-via-campaign/${campaign.CampaignId[0]}.gif`,
               activeDate: new Date().toISOString(),
-              insertionOrderStatus: campaign.ContractStatus[0],
+              contractStatus: campaign.ContractStatus[0],
               advertiserURL: campaign.AdvertiserUrl[0].startsWith('http://')
                 ? `https://${campaign.AdvertiserUrl[0].slice(7)}`
                 : campaign.AdvertiserUrl[0],
@@ -141,7 +141,7 @@ function areCampaignsEqual(
         campaign1.advertiserName !== campaign2.advertiserName ||
         campaign1.campaignName !== campaign2.campaignName ||
         campaign1.campaignLogoURI !== campaign2.campaignLogoURI ||
-        campaign1.insertionOrderStatus !== campaign2.insertionOrderStatus ||
+        campaign1.contractStatus !== campaign2.contractStatus ||
         campaign1.advertiserURL !== campaign2.advertiserURL ||
         campaign1.isActive !== campaign2.isActive ||
         campaign1.defaultPayoutRate !== campaign2.defaultPayoutRate ||

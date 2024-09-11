@@ -8,7 +8,7 @@ const IMPACT_API_USERNAME = 'IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1';
 const IMPACT_API_PASSWORD = 'kYSeQ-vzgstPBUan9YZqWzCwRpkD~h7Y';
 
 
-export const fetchCampaignsData = async () => {
+export const fetchImpactCampaignsData = async () => {
   try {
     const base64Auth = Buffer.from(
       `${IMPACT_API_USERNAME}:${IMPACT_API_PASSWORD}`

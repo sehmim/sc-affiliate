@@ -1,4 +1,4 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
 
@@ -376,9 +376,7 @@ if (document.readyState === 'loading') {
 
 async function fetchCampaigns() {
   const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns"; 
-  const campaignsArray = await fetchDataFromServer(url);
-  const campaigns = campaignsArray[0].campaigns;
-  return campaigns || [];
+  return await fetchDataFromServer(url);
 }
 
 function extractUrlFromCite(divElement) {

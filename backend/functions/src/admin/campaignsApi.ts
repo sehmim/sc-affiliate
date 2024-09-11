@@ -1,31 +1,21 @@
 import * as functions from 'firebase-functions';
 import { db } from '../index';
 import handleCorsMiddleware from '../corsMiddleware';
+import { sortByIsFeatured } from './helper';
+import { ImpactCampaigns } from './types';
 
 
 // Read Endpoint
-export const getCampaigns = functions.https.onRequest((req, res) => {
-  handleCorsMiddleware(req, res, async () => {
-    try {
-      const campaignsSnapshot = await db.collection('impactCampaigns').get();
-      const campaigns = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      res.status(200).send(campaigns);
-    } catch (error) {
-      console.error('Error getting campaigns:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-});
-
 export const getSyncedCampaigns = functions.https.onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
     try {
       const campaignsSnapshot = await db.collection('impactCampaignsSynced')
-        .orderBy('__name__', 'desc') // Order by document ID in descending order (latest to oldest)
+        .orderBy('__name__', 'asc') // Order by document ID in descending order (latest to oldest)
         .get();
 
-      const campaigns = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const impactCampaigns: any = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const latestImpactCampaign: ImpactCampaigns[] = impactCampaigns[0].campaigns;
+      const campaigns = sortByIsFeatured(latestImpactCampaign);
 
       res.status(200).send(campaigns);
     } catch (error) {

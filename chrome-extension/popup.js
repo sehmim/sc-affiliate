@@ -1,4 +1,4 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 
 // DUBLICATE CODE
 async function applyAffiliateLink(campaignID, userSettings){
@@ -103,9 +103,7 @@ async function fetchDataFromServer(url) {
 
 async function fetchCampaigns() {
   const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns";
-  const campaigns = await fetchDataFromServer(url);
-
-  return campaigns;
+  return await fetchDataFromServer(url);
 }
 
 function showPinSuggestion() {
@@ -167,8 +165,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   if (merchantsContainer) {
-    const campaignsData = await fetchCampaigns();
-    const campaigns = campaignsData[0].campaigns;
+    const campaigns = await fetchCampaigns();    
 
     try {
       for (const campaign of campaigns) {

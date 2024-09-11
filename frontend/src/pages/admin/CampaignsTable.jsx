@@ -13,16 +13,43 @@ const CampaignsTable = () => {
   const [featureLoading, setFeatureLoading] = useState({});
   
   useEffect(() => {
-    fetch(getSyncedCampaigns)
-      .then((response) => response.json())
-      .then((data) => {
-        const latestCampaigns = data[data.length -1];
+    const fetchCampaigns = async () => {
+      try {
+        setIsLoading(true);
+        const campaignsCollection = collection(firestore, "impactCampaignsSynced");
+        const snapshot = await getDocs(campaignsCollection);
+
+        const campaignsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        const latestCampaigns = campaignsList[0];
         const { campaigns, createdAt } = latestCampaigns;
+
+
         setCampaigns(campaigns);
         setLastUpdated(createdAt);
-      })
-      .catch((error) => console.error('Error fetching campaigns:', error));
-  }, []);
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCampaigns();
+  }, [featureLoading]);
+
+  // useEffect(() => {
+  //   fetch(getSyncedCampaigns)
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       const latestCampaigns = data[0];
+  //       const { campaigns, createdAt } = latestCampaigns;
+  //       setCampaigns(campaigns);
+  //       setLastUpdated(createdAt);
+  //     })
+  //     .catch((error) => console.error('Error fetching campaigns:', error));
+  // }, []);
 
   const syncCampaigns = async () => {
     setIsLoading(true);
@@ -62,10 +89,11 @@ const addToFeatureInCampaignsArray = async (campaignID) => {
   }
 };
 
+if(isLoading) return <div>Loading...</div>
   return (
     <div className="m-4">
       <p>Last updates: {lastUpdated}</p>
-      <Button disabled={isLoading} onClick={() => syncCampaigns()}>
+      <Button className='mb-3' onClick={() => syncCampaigns()}>
         Sync Campaigns
       </Button>
       <table className="table table-striped table-bordered">

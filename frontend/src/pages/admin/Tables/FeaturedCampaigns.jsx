@@ -7,7 +7,6 @@ import { firestore } from '../../../utils/firebase';
 const FeaturedCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [featureLoading, setFeatureLoading] = useState({});
 
   useEffect(() => {
@@ -72,7 +71,8 @@ const FeaturedCampaigns = () => {
 
   return (
     <div className="m-4">
-      <p>Last updates: {lastUpdated}</p>
+        <h3 className='mb-4'>Featured Campaigns/Brands</h3>
+
       <table className="table table-striped table-bordered">
         <thead className="thead-dark">
           <tr>
