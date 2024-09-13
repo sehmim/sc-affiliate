@@ -3,6 +3,7 @@ import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from 'fire
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { Button } from 'react-bootstrap';
 import { firestore } from '../../../utils/firebase';
+import FeaturedRakutenCampaigns from './FeaturedRakutenCampaigns';
 
 const FeaturedCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -72,7 +73,8 @@ const FeaturedCampaigns = () => {
   return (
     <div className="m-4">
         <h3 className='mb-4'>Featured Campaigns/Brands</h3>
-
+      <hr></hr>
+      <h5 className='mb-4'>Featured Brands from Impact:</h5>
       <table className="table table-striped table-bordered">
         <thead className="thead-dark">
           <tr>
@@ -127,6 +129,9 @@ const FeaturedCampaigns = () => {
           ))}
         </tbody>
       </table>
+
+      <h5 className='mb-4'>Featured Brands from Rakuten:</h5>
+      <FeaturedRakutenCampaigns />
     </div>
   );
 };

@@ -39,18 +39,6 @@ const CampaignsTable = () => {
     fetchCampaigns();
   }, [featureLoading]);
 
-  // useEffect(() => {
-  //   fetch(getSyncedCampaigns)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       const latestCampaigns = data[0];
-  //       const { campaigns, createdAt } = latestCampaigns;
-  //       setCampaigns(campaigns);
-  //       setLastUpdated(createdAt);
-  //     })
-  //     .catch((error) => console.error('Error fetching campaigns:', error));
-  // }, []);
-
   const syncCampaigns = async () => {
     setIsLoading(true);
     await fetch(triggerImpactCampaignSync);
@@ -143,13 +131,13 @@ if(isLoading) return <div>Loading...</div>
                   variant="primary"
                   disabled={campaign.isFeatured}
                 >
-                  {featureLoading[campaign.campaignID] ? 'Adding...' : 'Add to Feature'}
+                  {featureLoading[campaign.campaignID] ? 'Adding...' : '⭐️'}
                 </Button> :                 <Button
                   variant="primary"
                   onClick={() => addToFeatureInCampaignsArray(campaign.campaignID)}
                   disabled={featureLoading[campaign.campaignID]}
                 >
-                  {featureLoading[campaign.campaignID] ? 'Adding...' : 'Add to Feature'}
+                  {featureLoading[campaign.campaignID] ? 'Adding...' : '⭐️'}
                 </Button>
                 }
               </td>

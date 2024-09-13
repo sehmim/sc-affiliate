@@ -10,6 +10,7 @@ import { getDefaultCharities } from "./charities/charatyApi";
 import { collectAndSendBrowserInfo } from "./analytics/analytics";
 import { syncImpactCampaigns } from "./services/impactCampaignSync";
 import handleCorsMiddleware from "./corsMiddleware";
+import { getRakutenCampagins } from './services/rakuten/rakuten';
 
 
 // admin.initializeApp();
@@ -22,6 +23,7 @@ if (!admin.apps.length) {
 export const db = admin.firestore();
 
 export { 
+  getRakutenCampagins,
   getSyncedCampaigns,
   updateUser,
   createCharity, 
