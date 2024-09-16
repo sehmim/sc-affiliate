@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import EditableTable from './EditableTable';
-import CampaignsTable from './CampaignsTable';
-import TrackingLinksTable from './Tables/TrackingLinksTable';
 import NavigationComponent from './AdminNavigation';
 
 const AdminDashboard = () => {

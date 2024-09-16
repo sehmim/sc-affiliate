@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import { createCharity, deleteCharity, updateCharity } from "./admin/charitiesApi";
-import { deleteCampaign, updateCampaign, getSyncedCampaigns } from "./admin/campaignsApi";
+import { deleteCampaign, updateCampaign, getSyncedCampaigns, triggerRakutenCampaigns, applyRakutenDeepLink } from "./admin/campaignsApi";
 import { populatePaymentData, retrievePaymentData } from "./payments/paymentsApi";
 import { verifyVerificationCode, sendVerificationCode } from "./auth/authOTP";
 import { createUser, getUser, updateUser } from "./users/usersApi";
@@ -10,7 +10,6 @@ import { getDefaultCharities } from "./charities/charatyApi";
 import { collectAndSendBrowserInfo } from "./analytics/analytics";
 import { syncImpactCampaigns } from "./services/impactCampaignSync";
 import handleCorsMiddleware from "./corsMiddleware";
-import { getRakutenCampagins } from './services/rakuten/rakuten';
 
 
 // admin.initializeApp();
@@ -23,7 +22,7 @@ if (!admin.apps.length) {
 export const db = admin.firestore();
 
 export { 
-  getRakutenCampagins,
+  triggerRakutenCampaigns,
   getSyncedCampaigns,
   updateUser,
   createCharity, 
@@ -39,6 +38,7 @@ export {
   getUser,
   fetchImpactCampaignsData,
   applyTrackingLink,
+  applyRakutenDeepLink,
   getDefaultCharities,
   collectAndSendBrowserInfo,
   syncImpactCampaigns

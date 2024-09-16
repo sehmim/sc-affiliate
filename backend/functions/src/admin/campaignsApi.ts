@@ -3,6 +3,7 @@ import { db } from '../index';
 import handleCorsMiddleware from '../corsMiddleware';
 import { sortByIsFeatured } from './helper';
 import { ImpactCampaigns } from './types';
+import { generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns, storeData } from '../services/rakuten/rakuten';
 
 
 // Read Endpoint
@@ -63,4 +64,39 @@ export const deleteCampaign = functions.https.onRequest((req, res) => {
       res.status(500).send('Internal Server Error');
     }
   });
+});
+
+export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
+    const merchesByAppStatuses = await getMerchByAppStatus(accessToken);
+
+    const rakutenCampaignPromises = merchesByAppStatuses.map((_merch: any, index: number) => {
+        return getRakutenAdvertiserById(accessToken, merchesByAppStatuses[index]["ns1:mid"]);
+    })
+
+    const rakutenCampaignsObject = await Promise.all(rakutenCampaignPromises); 
+
+    const normalizedRakutenCampaigns = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
+    await storeData('rakutenCampaigns', normalizedRakutenCampaigns);
+
+    res.status(200).json(normalizedRakutenCampaigns);
+  } catch (error) {
+    console.error('Error fetching advertisers:', error);
+    res.status(500).send('Failed to fetch advertisers');
+  }
+});
+
+export const applyRakutenDeepLink = functions.https.onRequest(async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
+    const merchesByAppStatuses = await generateDeepLink(accessToken, req.body);
+
+    await storeData('rakutenDeeplink', merchesByAppStatuses);
+
+    res.status(200).json(merchesByAppStatuses);
+
+  } catch (error) {
+    
+  }
 });

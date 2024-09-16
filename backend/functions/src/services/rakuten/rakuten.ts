@@ -9,7 +9,7 @@ const accountSID: string = '4141785';
 let cachedAccessToken: string | null = null;
 let tokenExpiryTime: number | null = null; 
 
-async function getAccessToken(): Promise<string> {
+export async function getAccessToken(): Promise<string> {
   const currentTime = Date.now();
   if (cachedAccessToken && tokenExpiryTime && currentTime < tokenExpiryTime) {
     console.log('Using cached access token');
@@ -45,7 +45,7 @@ async function getAccessToken(): Promise<string> {
   }
 }
 
-async function getMerchByAppStatus(accessToken: string): Promise<any> {
+export async function getMerchByAppStatus(accessToken: string): Promise<any> {
   const url = `https://api.linksynergy.com/linklocator/1.0/getMerchByAppStatus/approved`;
 
   try {
@@ -72,7 +72,7 @@ async function getMerchByAppStatus(accessToken: string): Promise<any> {
   }
 }
 
-async function getRakutenAdvertiserById(accessToken: string,advertiserId: string): Promise<any> {
+export async function getRakutenAdvertiserById(accessToken: string,advertiserId: string): Promise<any> {
   const url = `https://api.linksynergy.com/v2/advertisers/${advertiserId}`;
 
   try {
@@ -96,29 +96,8 @@ async function getRakutenAdvertiserById(accessToken: string,advertiserId: string
   }
 }
 
-// Advertisers
-export const getRakutenCampagins = functions.https.onRequest(async (req, res) => {
-  try {
-    const accessToken = await getAccessToken();
-    const merchesByAppStatuses = await getMerchByAppStatus(accessToken);
 
-    const rakutenCampaignPromises = merchesByAppStatuses.map((_merch: any, index: number) => {
-        return getRakutenAdvertiserById(accessToken, merchesByAppStatuses[index]["ns1:mid"]);
-    })
-
-    const rakutenCampaignsObject = await Promise.all(rakutenCampaignPromises); 
-
-    const normalizedRakutenCampaigns = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
-    await storeData('rakutenCampaigns', normalizedRakutenCampaigns);
-
-    res.status(200).json(normalizedRakutenCampaigns);
-  } catch (error) {
-    console.error('Error fetching advertisers:', error);
-    res.status(500).send('Failed to fetch advertisers');
-  }
-});
-
-function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesByAppStatuses: object[]){
+export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesByAppStatuses: object[]){
 
     let normalizedCampaigns: any[] = [];
 
@@ -126,6 +105,7 @@ function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesByAppStat
         merchesByAppStatuses.map((merch: any) => {
             if (merch["ns1:mid"] === advertiser.id+"") {
                 normalizedCampaigns.push({
+                    id: advertiser.id+"",
                     campaignName: advertiser.name,
                     campaignLogoURI: advertiser.profiles.logoURL,
                     advertiserURL: advertiser.url,
@@ -141,6 +121,46 @@ function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesByAppStat
 
     return { normalizedCampaigns }
 }
+
+
+interface DeepLinkPayload {
+  url: string;
+  advertiser_id: number;
+  u1: string;
+}
+
+export async function generateDeepLink(accessToken: string, payload: DeepLinkPayload): Promise<any> {
+  const url = `https://api.linksynergy.com/v1/links/deep_links`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch advertisers: ${response.statusText}`);
+    }
+
+    return await response.json();
+
+  } catch (error) {
+    console.error('Error calling Rakuten API:', error);
+    throw error;
+  }
+}
+
+export const createDeepLink = functions.https.onRequest(async (req, res) => {
+  // This is a placeholder for the createDeepLink function.
+  // Implement your specific logic for createDeepLink here.
+
+  res.status(200).send('Create Deep Link function not yet implemented.');
+});
+
 
 export async function storeData(
   collectionName: string,

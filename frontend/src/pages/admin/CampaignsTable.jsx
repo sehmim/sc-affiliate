@@ -109,7 +109,7 @@ if(isLoading) return <div>Loading...</div>
                 />
               </td>
               <td>{campaign.activeDate}</td>
-              <td>{campaign.insertionOrderStatus}</td>
+              <td>{!!campaign.isActive ? "Active" : "Disabled"}</td>
               <td>
                 <a href={campaign.advertiserURL} target="_blank" rel="noopener noreferrer">
                   {campaign.advertiserURL}
@@ -127,19 +127,46 @@ if(isLoading) return <div>Loading...</div>
               <td>{campaign.defaultPayoutRate}%</td>
               <td>
                 {
-                  campaign.isFeatured ?                 <Button
+                  campaign.isFeatured ?  <Button
                   variant="primary"
                   disabled={campaign.isFeatured}
                 >
-                  {featureLoading[campaign.campaignID] ? 'Adding...' : '⭐️'}
-                </Button> :                 <Button
+                  {featureLoading[campaign.campaignID] ? 'Adding...' : 'Feature'}
+                </Button> :                 
+                
+                <Button
                   variant="primary"
                   onClick={() => addToFeatureInCampaignsArray(campaign.campaignID)}
                   disabled={featureLoading[campaign.campaignID]}
                 >
-                  {featureLoading[campaign.campaignID] ? 'Adding...' : '⭐️'}
+                  {featureLoading[campaign.campaignID] ? 'Adding...' : 'Feature'}
                 </Button>
                 }
+
+                <div>
+                  {
+                    campaign.isActive ? <Button
+                    className='mt-2'
+                    variant="danger"
+                    // onClick={() => addToFeatureInCampaignsArray(campaign.campaignID)}
+                    disabled={featureLoading[campaign.campaignID]}
+                  >
+                    {featureLoading[campaign.campaignID] ? 'Disabling...' : 'Disable'}
+                  </Button> 
+                  : 
+
+                  <Button
+                    className='mt-2'
+                    variant="success"
+                    // onClick={() => addToFeatureInCampaignsArray(campaign.campaignID)}
+                    disabled={featureLoading[campaign.campaignID]}
+                  >
+                    {featureLoading[campaign.campaignID] ? 'Enabling...' : 'Enable'}
+                  </Button>
+
+                  }
+
+                </div>
               </td>
             </tr>
           ))}
