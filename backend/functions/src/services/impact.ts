@@ -103,15 +103,6 @@ export const fetchCampainDeals = async (campaignId: string) => {
     console.error("Error fetching data:", error);
   }
 }
-// const normalizeCampaignData = (impactCampaignData: ImpactCampaignData[]): NormalizedCampaign[] => {
-
-//     return impactCampaignData.map((campaign) => {
-//         const camp:NormalizedCampaign = {}
-//         return {
-
-//         } as NormalizedCampaign
-//     })
-// }
 
 
 export async function generateLink(programId: string, teamName: string, email: string) {

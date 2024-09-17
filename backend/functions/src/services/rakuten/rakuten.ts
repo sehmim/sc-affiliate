@@ -1,6 +1,4 @@
-import * as functions from 'firebase-functions';
 import { convertXmlToJson } from '../../utils/xml2json';
-import { db } from '../..';
 
 const clientId: string = 'R8xXyh0OFFWR595XYbFDUKSrt2tlVM0E';
 const clientSecret: string = 'SGH2O1HRrBh7uptFMlKt4ujHwkIJIspB';
@@ -151,28 +149,5 @@ export async function generateDeepLink(accessToken: string, payload: DeepLinkPay
   } catch (error) {
     console.error('Error calling Rakuten API:', error);
     throw error;
-  }
-}
-
-export const createDeepLink = functions.https.onRequest(async (req, res) => {
-  // This is a placeholder for the createDeepLink function.
-  // Implement your specific logic for createDeepLink here.
-
-  res.status(200).send('Create Deep Link function not yet implemented.');
-});
-
-
-export async function storeData(
-  collectionName: string,
-  inputData: Record<string, any>
-): Promise<string> {
-  try {
-    // Add the data to the specified Firestore collection
-    const docRef = await db.collection(collectionName).add(inputData);
-    // Return the document ID
-    return docRef.id;
-  } catch (error) {
-    console.error('Error writing to Firestore:', error);
-    throw new Error('Failed to store data in Firestore');
   }
 }

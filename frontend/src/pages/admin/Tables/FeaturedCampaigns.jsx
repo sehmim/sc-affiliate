@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { Button } from 'react-bootstrap';
 import { firestore } from '../../../utils/firebase';
 import FeaturedRakutenCampaigns from './FeaturedRakutenCampaigns';
+import { fetchLatestEntry } from '../CampaignsTable';
 
 const FeaturedCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -13,23 +14,13 @@ const FeaturedCampaigns = () => {
   useEffect(() => {
     const fetchFeaturedCampaigns = async () => {
       try {
-        const impactCampaignsSyncedRef = collection(firestore, 'impactCampaignsSynced');
-        const q = query(impactCampaignsSyncedRef, orderBy('createdAt', 'desc'), limit(1));
-        const querySnapshot = await getDocs(q);
+        const { data } = await fetchLatestEntry('impactCampaignsSynced');
+        const { campaigns, createdAt } = data;
 
-        if (querySnapshot.empty) {
-          throw new Error('No documents found in impactCampaignsSynced.');
-        }
-
-        const latestDoc = querySnapshot.docs[0];
-        const latestData = latestDoc.data();
-        const campaignsArray = latestData.campaigns;
-
-        // Filter campaigns to show only those with isFeatured = true
-        const featuredCampaigns = campaignsArray.filter(campaign => campaign.isFeatured);
-
+        const featuredCampaigns = campaigns.filter(campaign => campaign.isFeatured);
+        
         setCampaigns(featuredCampaigns);
-        setLastUpdated(latestData.createdAt);
+        setLastUpdated(createdAt);
       } catch (error) {
         console.error('Error fetching featured campaigns:', error);
       }
@@ -40,17 +31,8 @@ const FeaturedCampaigns = () => {
 
   const removeFromFeatureInCampaignsArray = async (campaignID) => {
     try {
-      const impactCampaignsSyncedRef = collection(firestore, 'impactCampaignsSynced');
-      const q = query(impactCampaignsSyncedRef, orderBy('createdAt', 'desc'), limit(1));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        throw new Error('No documents found in impactCampaignsSynced.');
-      }
-
-      const latestDoc = querySnapshot.docs[0];
-      const latestData = latestDoc.data();
-      const campaignsArray = latestData.campaigns;
+      const { data, id } = await fetchLatestEntry('impactCampaignsSynced');
+      const { campaigns: campaignsArray, createdAt } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
@@ -59,7 +41,7 @@ const FeaturedCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, 'impactCampaignsSynced', latestDoc.id);
+      const docRef = doc(firestore, 'impactCampaignsSynced', id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       console.log(`Campaign ${campaignID} successfully removed from featured.`);

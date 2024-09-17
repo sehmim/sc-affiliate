@@ -1,4 +1,4 @@
-export type ImpactCampaigns = {
+export type ImpactCampaign = {
   defaultPayoutRate: string;
   insertionOrderStatus: string;
   campaignID: string;

@@ -2,23 +2,18 @@ import * as functions from 'firebase-functions';
 import { db } from '../index';
 import handleCorsMiddleware from '../corsMiddleware';
 import { sortByIsFeatured } from './helper';
-import { ImpactCampaigns } from './types';
-import { generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns, storeData } from '../services/rakuten/rakuten';
+import { generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns } from '../services/rakuten/rakuten';
+import { getLatestEntry, storeData } from '../utils/firestoreWrapper';
 
 
 // Read Endpoint
 export const getSyncedCampaigns = functions.https.onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
     try {
-      const campaignsSnapshot = await db.collection('impactCampaignsSynced')
-        .orderBy('__name__', 'asc') // Order by document ID in descending order (latest to oldest)
-        .get();
+      const {campaigns: impactCampaigns} = await getLatestEntry('impactCampaignsSynced');
+      const impactCampaignsSorted = sortByIsFeatured(impactCampaigns);
 
-      const impactCampaigns: any = campaignsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const latestImpactCampaign: ImpactCampaigns[] = impactCampaigns[0].campaigns;
-      const campaigns = sortByIsFeatured(latestImpactCampaign);
-
-      res.status(200).send(campaigns);
+      res.status(200).send(impactCampaignsSorted);
     } catch (error) {
       console.error('Error getting campaigns:', error);
       res.status(500).send('Internal Server Error');
@@ -67,36 +62,39 @@ export const deleteCampaign = functions.https.onRequest((req, res) => {
 });
 
 export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res) => {
-  try {
-    const accessToken = await getAccessToken();
-    const merchesByAppStatuses = await getMerchByAppStatus(accessToken);
+  handleCorsMiddleware(req, res, async () => {
+    try {
+      const accessToken = await getAccessToken();
+      const merchesByAppStatuses = await getMerchByAppStatus(accessToken);
 
-    const rakutenCampaignPromises = merchesByAppStatuses.map((_merch: any, index: number) => {
-        return getRakutenAdvertiserById(accessToken, merchesByAppStatuses[index]["ns1:mid"]);
-    })
+      const rakutenCampaignPromises = merchesByAppStatuses.map((_merch: any, index: number) => {
+          return getRakutenAdvertiserById(accessToken, merchesByAppStatuses[index]["ns1:mid"]);
+      })
 
-    const rakutenCampaignsObject = await Promise.all(rakutenCampaignPromises); 
+      const rakutenCampaignsObject = await Promise.all(rakutenCampaignPromises); 
 
-    const normalizedRakutenCampaigns = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
-    await storeData('rakutenCampaigns', normalizedRakutenCampaigns);
+      const normalizedRakutenCampaigns = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
+      await storeData('rakutenCampaigns', normalizedRakutenCampaigns);
 
-    res.status(200).json(normalizedRakutenCampaigns);
-  } catch (error) {
-    console.error('Error fetching advertisers:', error);
-    res.status(500).send('Failed to fetch advertisers');
-  }
+      res.status(200).json(normalizedRakutenCampaigns);
+    } catch (error) {
+      console.error('Error fetching advertisers:', error);
+      res.status(500).send('Failed to fetch advertisers');
+    }
+  })
 });
 
 export const applyRakutenDeepLink = functions.https.onRequest(async (req, res) => {
-  try {
-    const accessToken = await getAccessToken();
-    const merchesByAppStatuses = await generateDeepLink(accessToken, req.body);
+    handleCorsMiddleware(req, res, async () => {
+    try {
+      const accessToken = await getAccessToken();
+      const merchesByAppStatuses = await generateDeepLink(accessToken, req.body);
 
-    await storeData('rakutenDeeplink', merchesByAppStatuses);
+      await storeData('rakutenDeeplink', merchesByAppStatuses);
+      res.status(200).json(merchesByAppStatuses);
 
-    res.status(200).json(merchesByAppStatuses);
-
-  } catch (error) {
-    
-  }
+    } catch (error) {
+      console.log(error)    
+    }
+  })
 });
