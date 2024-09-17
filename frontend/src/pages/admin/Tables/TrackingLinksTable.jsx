@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '../../../utils/firebase';
 
+
+function sortByAppliedDate(
+  array, sortOrder = 'desc'
+) {
+  return array.sort((a, b) => {
+    const dateA = new Date(a.appliedDate);
+    const dateB = new Date(b.appliedDate);
+
+    if (sortOrder === 'asc') {
+      return dateA.getTime() - dateB.getTime(); // Sort ascending (oldest first)
+    } else {
+      return dateB.getTime() - dateA.getTime(); // Sort descending (latest first)
+    }
+  });
+}
+
 const TrackingLinksTable = () => {
   const [trackingLinks, setTrackingLinks] = useState([]);
   const [isLoading, setIsloading] = useState(true);
@@ -16,7 +32,9 @@ const TrackingLinksTable = () => {
           ...doc.data(),
           appliedDate: new Date(doc.data().appliedDate.seconds * 1000 + doc.data().appliedDate.nanoseconds / 1000000).toLocaleString()
         }));
-        setTrackingLinks(links);
+
+        const sorted = sortByAppliedDate(links);
+        setTrackingLinks(sorted);
         setIsloading(false);
       } catch (error) {
         console.error('Error fetching tracking links:', error);
