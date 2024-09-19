@@ -1,6 +1,6 @@
 import { parseStringPromise } from 'xml2js';
 import { onRequest } from 'firebase-functions/v2/https';
-import handleCorsMiddleware from '../corsMiddleware';
+import handleCorsMiddleware from '../utils/corsMiddleware';
 import { db } from '..';
 
 const IMPACT_BASE_URL = 'https://api.impact.com';

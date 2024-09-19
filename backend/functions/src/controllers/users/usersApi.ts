@@ -1,8 +1,8 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as functions from 'firebase-functions';
 import * as cors from 'cors';
-import handleCorsMiddleware from "../corsMiddleware";
-import { db } from '../index';
+import handleCorsMiddleware from "../../utils/corsMiddleware";
+import { db } from '../../index';
 
 
 export const createUser = onRequest((req, res) => {

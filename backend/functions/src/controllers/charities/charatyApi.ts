@@ -1,6 +1,6 @@
 import { onRequest } from "firebase-functions/v2/https";
-import handleCorsMiddleware from "../corsMiddleware";
-import { db } from '../index';
+import handleCorsMiddleware from "../../utils/corsMiddleware";
+import { db } from '../../index';
 
 export const getDefaultCharities = onRequest(async (req, res) => {
   try {

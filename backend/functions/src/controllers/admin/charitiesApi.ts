@@ -1,7 +1,7 @@
 // src/functions/createCharity.ts
 import * as functions from 'firebase-functions';
-import { db } from '../index';
-import handleCorsMiddleware from '../corsMiddleware';
+import { db } from '../../index';
+import handleCorsMiddleware from '../../utils/corsMiddleware';
 
 interface Charity {
     address: string;

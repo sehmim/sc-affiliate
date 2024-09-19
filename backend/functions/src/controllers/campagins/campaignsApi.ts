@@ -1,9 +1,9 @@
 import * as functions from 'firebase-functions';
-import { db } from '../index';
-import handleCorsMiddleware from '../corsMiddleware';
-import { sortByIsFeatured } from './helper';
-import { generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns } from '../services/rakuten/rakuten';
-import { getLatestEntry, storeData } from '../utils/firestoreWrapper';
+import { db } from '../../index';
+import handleCorsMiddleware from '../../utils/corsMiddleware';
+import { sortByIsFeatured } from '../admin/helper';
+import { generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns } from '../../services/rakuten/rakuten';
+import { getLatestEntry, storeData } from '../../utils/firestoreWrapper';
 
 
 // Read Endpoint
