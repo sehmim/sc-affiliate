@@ -84,6 +84,7 @@ const RakutenCampaigns = () => {
       <table className="table table-striped">
         <thead>
           <tr>
+            <th>MID</th>
             <th>Campaign Name</th>
             <th>Campaign Logo</th>
             <th>Advertiser URL</th>
@@ -95,6 +96,7 @@ const RakutenCampaigns = () => {
         <tbody>
           {campaigns.map((campaign, index) => (
             <tr key={index}>
+              <td>{campaign.id}</td>
               <td>{campaign.campaignName}</td>
               <td>
                 <img

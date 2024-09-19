@@ -19,7 +19,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function getDataFromStorage() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get("userSettings", function(data) {
-            console.log("data ->", data);
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError));
             } else {
@@ -281,8 +280,8 @@ async function applyAffiliateLink(allowedBrand, userSettings){
   }
 
   const programId = allowedBrand.campaignID;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
+  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject.organizationName}&email=${email}&DeepLink=${allowedBrand.advertiserURL}` 
+      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject.organizationName}&email=${email}&DeepLink=${allowedBrand.advertiserURL}`;
 
   try {
     const response = await fetch(url);
@@ -642,11 +641,13 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
     closeButton.style.cursor = 'pointer';
     closeButton.style.fontSize = '15px';
     closeButton.style.color = '#333';
+
     closeButton.onclick = function() {
       setCookie("sc-minimize", true);
       isolatedIframe.style.display = 'none';
       closedDiv.style.display = '';
     };
+
     div.appendChild(closeButton);
 
     var button = document.createElement("button");
@@ -700,9 +701,25 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
 
     div.appendChild(button);
 
+
+    const notIncludedDeals = createGiftCardNotice();
+
+    div.appendChild(notIncludedDeals);
+
     return div;
 }
 
+
+function createGiftCardNotice() {
+    const span = document.createElement('span');
+    span.style.position = 'fixed';
+    span.style.fontSize = 'x-small';
+    span.style.bottom = '5px';
+    span.style.right = '15px';
+    span.textContent = 'Gift cards not included';
+
+  return span;
+}
 
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
   const { selectedCharityObject } = userSettings;
@@ -816,9 +833,12 @@ function createMiddleSection(allowedBrand, selectedCharityObject) {
     p.style.lineHeight = "normal";
     p.style.padding = "0px 20px";
 
+    const notIncludedDeals = createGiftCardNotice();
+
     div.appendChild(img);
     div.appendChild(h1);
     div.appendChild(p);
+    div.appendChild(notIncludedDeals);
 
     return div;
 }

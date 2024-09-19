@@ -113,7 +113,6 @@ function showPinSuggestion() {
 function getDataFromStorage() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get("userSettings", function(data) {
-            console.log("data ->", data);
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError));
             } else {
@@ -169,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
       for (const campaign of campaigns) {
-        const subTitle = `up to ${campaign.defaultPayoutRate}%`;
+        const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
 
         const newMerchantDiv = await createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.campaignID, userSettings);
         merchantsContainer.appendChild(newMerchantDiv);
