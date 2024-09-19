@@ -121,13 +121,24 @@ export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesBy
 }
 
 
-interface DeepLinkPayload {
+
+
+
+export interface DeepLinkPayload {
   url: string;
   advertiser_id: number;
   u1: string;
 }
 
-export async function generateDeepLink(accessToken: string, payload: DeepLinkPayload): Promise<any> {
+interface TrackingLinkResponse {
+  trackingLink: string,
+  teamName: string,
+  programId: string,
+  appliedDate: Date
+}
+
+
+export async function generateDeepLink(accessToken: string, payload: DeepLinkPayload): Promise<TrackingLinkResponse> {
   const url = `https://api.linksynergy.com/v1/links/deep_links`;
 
   try {
@@ -144,7 +155,15 @@ export async function generateDeepLink(accessToken: string, payload: DeepLinkPay
       throw new Error(`Failed to fetch advertisers: ${response.statusText}`);
     }
 
-    return await response.json();
+    const rawRespose = await response.json();
+    const { advertiser } = rawRespose;
+
+    return {
+      trackingLink: advertiser.deep_link.deep_link_url,
+      teamName: advertiser.deep_link.u1,
+      programId: advertiser.id,
+      appliedDate: new Date()
+    }
 
   } catch (error) {
     console.error('Error calling Rakuten API:', error);

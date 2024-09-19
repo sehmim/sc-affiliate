@@ -1,3 +1,4 @@
+import { DocumentData, Query } from "firebase-admin/firestore";
 import { db } from "..";
 
 export async function storeData(
@@ -38,4 +39,32 @@ export async function getLatestEntry(
     console.error('Error retrieving the latest entry from Firestore:', error);
     throw new Error('Failed to get the latest entry');
   }
+}
+
+
+interface Condition {
+  name: string;
+  value: any;
+}
+
+export async function checkPropertiesExist(
+  collectionName: string,
+  conditions: Condition[]
+): Promise<any | false> {
+  let query: Query<DocumentData> = db.collection(collectionName);
+
+  // Dynamically add 'where' conditions based on the input array
+  conditions.forEach(condition => {
+    query = query.where(condition.name, '==', condition.value);
+  });
+
+  const snapshot = await query.get();
+
+  // If a matching document is found, return the data; otherwise, return false
+  if (!snapshot.empty) {
+    const responseData = snapshot.docs[0].data();
+    return responseData;
+  }
+
+  return false;
 }

@@ -84,17 +84,59 @@ export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res
   })
 });
 
+function replaceSpacesWithUnderscore(teamName: string) {
+    return teamName.replace(/ /g, '_');
+}
+
 export const applyRakutenDeepLink = functions.https.onRequest(async (req, res) => {
-    handleCorsMiddleware(req, res, async () => {
+  handleCorsMiddleware(req, res, async () => {
     try {
+      const { advertiserUrl, advertiserId, teamName } = req.body;
+
+      if (!teamName || !advertiserId || !advertiserUrl) {
+        return res.status(400).send("teamName, advertiserId, and advertiserUrl are required.");
+      }
+
+
+      const dashedTeamname = replaceSpacesWithUnderscore(teamName);
+
+      // Check if a deep link already exists in Firestore for the given teamName and advertiserId
+      const snapshot = await db
+        .collection('rakutenDeeplink')
+        .where('teamName', '==', dashedTeamname)
+        .where('programId', '==', Number(advertiserId))
+        .get();
+
+      // If a matching deep link is found, return it
+      if (!snapshot.empty) {
+        const storedDeepLink = snapshot.docs[0].data();
+        return res.status(200).json(storedDeepLink);
+      }
+
+      // Generate a new deep link if no document was found
       const accessToken = await getAccessToken();
-      const merchesByAppStatuses = await generateDeepLink(accessToken, req.body);
+      const payload = {
+        url: advertiserUrl,
+        advertiser_id: Number(advertiserId),
+        u1: dashedTeamname
+      };
 
-      await storeData('rakutenDeeplink', merchesByAppStatuses);
-      res.status(200).json(merchesByAppStatuses);
+      const trackingLinks = await generateDeepLink(accessToken, payload);
 
+      // Store the new deep link in Firestore
+      await db.collection('rakutenDeeplink').add({
+        teamName,
+        programId: Number(advertiserId),
+        appliedDate: new Date(),
+        trackingLink: trackingLinks.trackingLink,
+      });
+
+      // Return the newly generated deep link
+      return res.status(200).json(trackingLinks.trackingLink);
+      
     } catch (error) {
-      console.log(error)    
+      console.error("Error generating deep link:", error);
+      return res.status(500).send(`Failed to generate deep link: ${JSON.stringify(error)}`);
     }
-  })
+  });
 });

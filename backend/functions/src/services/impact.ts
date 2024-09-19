@@ -105,7 +105,7 @@ export const fetchCampainDeals = async (campaignId: string) => {
 }
 
 
-export async function generateLink(programId: string, teamName: string, email: string) {
+export async function generateLink(programId: string, teamName: string, email: string, deepLink: string) {
   try {
     const base64Auth = Buffer.from(
       `${IMPACT_API_USERNAME}:${IMPACT_API_PASSWORD}`
@@ -136,10 +136,10 @@ export async function generateLink(programId: string, teamName: string, email: s
 export const applyTrackingLink = onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
     try {
-      const teamName = req.query.teamName;
-      const programId = req.query.programId;
-      const email = req.query.email;
-
+      const teamName = req.query.teamName as string;
+      const programId = req.query.programId as string;
+      const email = req.query.email as string;
+      const deepLink = req.query.DeepLink as string;
 
       if (!teamName || !programId) {
         return res.status(400).send("teamName and programId query parameters are required.");
@@ -159,7 +159,7 @@ export const applyTrackingLink = onRequest((req, res) => {
       }
 
       // If no matching document is found, generate a new trackingLink
-      const responseData = await generateLink(programId as string, teamName as string, email as string);
+      const responseData = await generateLink(programId, teamName, email, deepLink);
       
       // Save the new trackingLink and teamName to Firestore
       await db.collection("trackingLinks").add({
