@@ -34,9 +34,9 @@ export type NormalizedCampaign = {
     contractStatus: string;
     advertiserURL: string;
     subDomains: string[];
-    // deals: NormalizedDeal[]
     defaultPayoutRate: string;
     isActive: boolean;
+    terms: []
 };
 
 

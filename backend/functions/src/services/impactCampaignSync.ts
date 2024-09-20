@@ -45,6 +45,7 @@ async function syncImpactCampaigns() {
               subDomains: campaign.DeeplinkDomains[0]?.DeeplinkDomain || [],
               defaultPayoutRate: contract.DefaultPayoutRate,
               isActive: true,
+              terms: []
             }
           ) 
         }

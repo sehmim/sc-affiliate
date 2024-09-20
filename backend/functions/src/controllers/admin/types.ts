@@ -10,4 +10,5 @@ export type ImpactCampaign = {
   isActive: boolean;
   campaignName: string;
   advertiserName: string;
+  terms: string[]
 };

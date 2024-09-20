@@ -21,7 +21,7 @@ const RakutenCampaigns = () => {
           ...doc.data(),
         }));
 
-        setCampaigns(campaignsList[0].normalizedCampaigns);
+        setCampaigns(campaignsList[0].campaigns);
       } catch (err) {
         setError(err);
       } finally {
@@ -48,7 +48,7 @@ const RakutenCampaigns = () => {
 
       const latestDoc = querySnapshot.docs[0]; // Get the latest document
       const latestData = latestDoc.data();
-      const campaignsArray = latestData.normalizedCampaigns;
+      const campaignsArray = latestData.campaigns;
 
       // Update the campaign to be featured
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
@@ -60,7 +60,7 @@ const RakutenCampaigns = () => {
 
       // Update Firestore document
       const docRef = doc(firestore, 'rakutenCampaigns', latestDoc.id); 
-      await updateDoc(docRef, { normalizedCampaigns: updatedCampaignsArray });
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       console.log(`Campaign ${campaignID} successfully updated to featured.`);
     } catch (error) {

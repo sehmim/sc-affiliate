@@ -19,7 +19,7 @@ const FeaturedRakutenCampaigns = () => {
         }));
 
         // Filter only the campaigns where isFeatured is true
-        const filteredCampaigns = campaignsList[0].normalizedCampaigns.filter(
+        const filteredCampaigns = campaignsList[0].campaigns.filter(
           (campaign) => campaign.isFeatured
         );
 

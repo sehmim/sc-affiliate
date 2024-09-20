@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import { createCharity, deleteCharity, updateCharity } from "./controllers/admin/charitiesApi";
-import { deleteCampaign, updateCampaign, getSyncedCampaigns, triggerRakutenCampaigns, applyRakutenDeepLink } from "./controllers/campagins/campaignsApi";
+import { deleteCampaign, updateCampaign, getSyncedCampaigns } from "./controllers/campagins/campaignsApi";
 import { populatePaymentData, retrievePaymentData } from "./controllers/payments/paymentsApi";
 import { verifyVerificationCode, sendVerificationCode } from "./controllers/auth/authOTP";
 import { createUser, getUser, updateUser } from "./controllers/users/usersApi";
@@ -10,6 +10,7 @@ import { collectAndSendBrowserInfo } from "./controllers/analytics/analytics";
 import { syncImpactCampaigns } from "./services/impactCampaignSync";
 import handleCorsMiddleware from "./utils/corsMiddleware";
 import * as admin from "firebase-admin";
+import { applyRakutenDeepLink, triggerRakutenCampaigns } from "./services/rakuten/api";
 
 if (!admin.apps.length) {
   admin.initializeApp();

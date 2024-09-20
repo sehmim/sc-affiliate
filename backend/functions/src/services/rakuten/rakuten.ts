@@ -1,3 +1,4 @@
+import { extractNumber } from '../../utils/helper';
 import { convertXmlToJson } from '../../utils/xml2json';
 
 const clientId: string = 'R8xXyh0OFFWR595XYbFDUKSrt2tlVM0E';
@@ -102,14 +103,21 @@ export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesBy
     rakutenCampaignsObject.map(({ advertiser }: any) => {
         merchesByAppStatuses.map((merch: any) => {
             if (merch["ns1:mid"] === advertiser.id+"") {
-                normalizedCampaigns.push({
+              const defaultPayoutRate = extractNumber(merch['ns1:offer']['ns1:commissionTerms']);
+              
+                if (defaultPayoutRate) {
+                  normalizedCampaigns.push({
                     id: advertiser.id+"",
                     campaignName: advertiser.name,
                     campaignLogoURI: advertiser.profiles.logoURL,
                     advertiserURL: advertiser.url,
-                    defaultPayoutRate: merch['ns1:offer']['ns1:commissionTerms'], // TODO: Strip payoutrate from sentence;
-                    subDomains: [] // TODO: Get Deeplink domains
-                })
+                    defaultPayoutRate: extractNumber(merch['ns1:offer']['ns1:commissionTerms']),
+                    subDomains: [], // TODO: Get Deeplink domains,
+                    isActive: true,
+                    isFeature: false,
+                    terms: []
+                  })
+                }
             }
         })
     })
@@ -117,7 +125,7 @@ export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesBy
 
 
 
-    return { normalizedCampaigns }
+    return { campaigns: normalizedCampaigns }
 }
 
 

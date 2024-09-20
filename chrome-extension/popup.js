@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       for (const campaign of campaigns) {
         const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
 
-        const newMerchantDiv = await createMerchantContainer(campaign.advertiserName, subTitle, campaign.campaignLogoURI, campaign.campaignID, userSettings);
+        const newMerchantDiv = await createMerchantContainer(campaign.campaignName, subTitle, campaign.campaignLogoURI, campaign.campaignID, userSettings);
         merchantsContainer.appendChild(newMerchantDiv);
       }
 
