@@ -37,6 +37,7 @@ export type NormalizedCampaign = {
     defaultPayoutRate: string;
     isActive: boolean;
     terms: []
+    isFeatured: boolean,
 };
 
 

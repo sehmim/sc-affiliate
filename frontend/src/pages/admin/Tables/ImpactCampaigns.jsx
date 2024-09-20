@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSyncedCampaigns, triggerImpactCampaignSync } from "../../api/env";
+import { getSyncedCampaigns, triggerImpactCampaignSync } from "../../../api/env";
 import {
   collection,
   query,
@@ -11,22 +11,26 @@ import {
 } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button } from "react-bootstrap";
-import { firestore } from "../../utils/firebase";
+import { firestore } from "../../../utils/firebase";
 
 
 export async function fetchLatestEntry(collectionName) {
   try {
     const collectionRef = collection(firestore, collectionName);
-    const q = query(collectionRef, orderBy("__name__", "desc"), limit(1));
+
+    // Order by 'createdAt' descending to get the latest entry and limit to 1
+    const q = query(collectionRef, orderBy("createdAt", "desc"), limit(1));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
       return null;
     }
 
+    // Get the first document (which is the latest due to the descending order)
     const doc = snapshot.docs[0];
     const data = doc.data();
-    const createdAt = data.createdAt || "";
+    const createdAt = data.createdAt || null;
+
     return { data, createdAt, id: doc.id };
   } catch (error) {
     console.error("Error fetching the latest entry from Firestore:", error);
@@ -36,7 +40,7 @@ export async function fetchLatestEntry(collectionName) {
 
 
 
-const CampaignsTable = () => {
+const ImpactCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -185,6 +189,7 @@ const CampaignsTable = () => {
             <th>Advertiser URL</th>
             <th>Subdomains/Deeplinks</th>
             <th>Payout Rate</th>
+            <th>Terms</th>
             <th>Action</th> {/* New Action column */}
           </tr>
         </thead>
@@ -220,6 +225,20 @@ const CampaignsTable = () => {
               </td>
               <td>{campaign.defaultPayoutRate}%</td>
               <td>
+                <ul>
+                  {
+                    campaign.terms.length > 0 && campaign.terms.map((term) => {
+                      return (
+                        <li>
+                          <div><b>Title:</b>{term?.title}</div>
+                          <div><b>Detail:</b>{term?.details}</div>
+                        </li>
+                      )
+                    })
+                  }
+                </ul>
+              </td>
+              <td>
                 <AddToFeatureButton campaign={campaign} />
                 <br></br>
                 <EnableBrandButton campaign={campaign} />
@@ -232,4 +251,4 @@ const CampaignsTable = () => {
   );
 };
 
-export default CampaignsTable;
+export default ImpactCampaigns;

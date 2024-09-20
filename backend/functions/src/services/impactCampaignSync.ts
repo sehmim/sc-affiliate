@@ -45,6 +45,7 @@ async function syncImpactCampaigns() {
               subDomains: campaign.DeeplinkDomains[0]?.DeeplinkDomain || [],
               defaultPayoutRate: contract.DefaultPayoutRate,
               isActive: true,
+              isFeatured: false,
               terms: []
             }
           ) 
@@ -146,7 +147,9 @@ function areCampaignsEqual(
         campaign1.advertiserURL !== campaign2.advertiserURL ||
         campaign1.isActive !== campaign2.isActive ||
         campaign1.defaultPayoutRate !== campaign2.defaultPayoutRate ||
-        !compareStringArrays(campaign1.subDomains, campaign2.subDomains)
+        campaign1.isFeatured !== campaign2.isFeatured ||
+        !compareStringArrays(campaign1.subDomains, campaign2.subDomains),
+        !compareStringArrays(campaign1.terms, campaign2.terms)
       ) {
         console.log(`Mismatch found in campaign ${campaign1.campaignID}`);
         return false;

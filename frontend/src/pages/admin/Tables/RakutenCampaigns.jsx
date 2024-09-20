@@ -2,7 +2,7 @@ import { collection, getDocs, updateDoc, query, orderBy, limit, doc } from 'fire
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { firestore } from '../../../utils/firebase';
-import { fetchLatestEntry } from '../CampaignsTable';
+import { fetchLatestEntry } from './ImpactCampaigns';
 
 const RakutenCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -89,7 +89,7 @@ const RakutenCampaigns = () => {
             <th>Advertiser URL</th>
             <th>Default Payout Rate</th>
             <th>Subdomains</th>
-            {/* <th>Action</th>  */}
+            <th>Terms</th> 
           </tr>
         </thead>
         <tbody>
@@ -111,6 +111,20 @@ const RakutenCampaigns = () => {
               </td>
               <td>{campaign.defaultPayoutRate}</td>
               <td>{campaign.subDomains.length > 0 ? campaign.subDomains.join(', ') : 'None'}</td>
+              <td>
+                <ul>
+                  {
+                    campaign.terms.length > 0 && campaign.terms.map((term) => {
+                      return (
+                        <div>
+                          <p>{term?.title}</p>
+                          <p>{term?.details}</p>
+                        </div>
+                      )
+                    })
+                  }
+                </ul>
+              </td>
               {/* <td>
                 {
                   campaign.isFeatured ? (

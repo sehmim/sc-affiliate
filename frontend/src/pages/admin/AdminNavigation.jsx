@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Nav, Container } from 'react-bootstrap';
 import EditableTable from './EditableTable';
-import CampaignsTable from './CampaignsTable';
 import TrackingLinksTable from './Tables/TrackingLinksTable';
 import FeaturedCampaigns from './Tables/FeaturedCampaigns';
 import RakutenCampaigns from './Tables/RakutenCampaigns';
 import RakutenTrackingLinks from './Tables/RakutenTrackingLinks';
+import ImpactCampaigns from './Tables/ImpactCampaigns';
 
 // Dummy components for the 4 options
 const Charities = () => (<div><h4 className="m-4">Charities</h4><EditableTable /></div>);
-const ImpactCampaigns = () => (<div><h4 className="m-4">Impact Campaigns/Brands</h4><CampaignsTable /></div>);
+const ImpactCampaignsWrapper = () => (<div><h4 className="m-4">Impact Campaigns/Brands</h4><ImpactCampaigns /></div>);
 
 const NavigationComponent = () => {
   // State to track the selected option
@@ -21,7 +21,7 @@ const NavigationComponent = () => {
       case 'option1':
         return <Charities />;
       case 'option2':
-        return <ImpactCampaigns />;
+        return <ImpactCampaignsWrapper />;
       case 'option3':
         return <TrackingLinksTable />;
       case 'option4':

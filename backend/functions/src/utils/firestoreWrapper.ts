@@ -23,7 +23,7 @@ export async function getLatestEntry(
   try {
     // Query the collection, ordering by document ID (latest to oldest)
     const latestEntrySnapshot = await db.collection(collectionName)
-      .orderBy('__name__', 'desc') // Order by document ID in descending order to get the latest
+      .orderBy('createdAt', 'desc') // Order by document ID in descending order to get the latest
       .limit(1) // Only get the most recent entry
       .get();
 
