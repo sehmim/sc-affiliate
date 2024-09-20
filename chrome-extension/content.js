@@ -723,7 +723,7 @@ function createGiftCardNotice() {
 
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
   const { selectedCharityObject } = userSettings;
-  const isolatedIframe = createIsolatedIframe('400px', '280px');
+  const isolatedIframe = createIsolatedIframe('400px', '355px');
   isolatedIframe.onload = async function() {
     const navbar = createNavbar(isolatedIframe, closedDiv);
     const middleSection = createMiddleSection(allowedBrand, selectedCharityObject);
@@ -737,6 +737,10 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
 
     iframeDocument.body.appendChild(navbar);
     iframeDocument.body.appendChild(middleSection);
+
+    const termsAndService = createTermsAndServiceDiv();
+    iframeDocument.body.appendChild(termsAndService);
+
   };
   document.body.appendChild(isolatedIframe);
 
@@ -746,6 +750,69 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
     closedDiv.style.display = 'flex';
     isolatedIframe.style.display = 'none';
   }
+}
+
+function createTermsAndServiceDiv() {
+  // Create the fieldset
+  const fieldset = document.createElement('fieldset');
+  fieldset.style.margin = '5px'; // Set margin for the fieldset
+  fieldset.style.border = 'none'; // Remove the default border
+
+  // Create the legend with centered text
+  const legend = document.createElement('legend');
+  legend.textContent = 'Offer Terms and Service';
+  legend.style.textAlign = 'center'; // Center the legend text
+  legend.style.fontSize = '14px'; // Set font size for the legend
+  legend.style.padding = '0 10px'; // Add padding for spacing
+  legend.style.margin = '0'; // Remove default margin
+  legend.style.position = 'relative'; // Allow positioning adjustments
+
+  // Create a pseudo-element for the lines
+  const lineBefore = document.createElement('span');
+  lineBefore.textContent = '';
+  lineBefore.style.borderBottom = '1px solid black'; // Line on the left
+  lineBefore.style.flexGrow = '1'; // Allow the line to grow
+  lineBefore.style.marginRight = '10px'; // Space between line and text
+
+  const lineAfter = document.createElement('span');
+  lineAfter.textContent = '';
+  lineAfter.style.borderBottom = '1px solid black'; // Line on the right
+  lineAfter.style.flexGrow = '1'; // Allow the line to grow
+  lineAfter.style.marginLeft = '10px'; // Space between line and text
+
+  // Create a container for the lines and the legend text
+  const legendContainer = document.createElement('div');
+  legendContainer.style.display = 'flex'; // Use flexbox to align items
+  legendContainer.style.alignItems = 'center'; // Center vertically
+  legendContainer.appendChild(lineBefore);
+  legendContainer.appendChild(legend);
+  legendContainer.appendChild(lineAfter);
+
+  // Append the legendContainer to the fieldset
+  fieldset.appendChild(legendContainer);
+
+  // Create the terms as paragraph elements
+  const terms = [
+    'Term 1: Description of the first term.',
+    'Term 2: Description of the second term.',
+    'Term 3: Description of the third term.',
+    'Term 4: Description of the fourth term.'
+  ];
+
+  const termsWrapper = document.createElement('div');
+  termsWrapper.style.marginTop = '8px';
+
+  terms.forEach(term => {
+    const p = document.createElement('p');
+    p.textContent = term;
+    p.style.fontSize = '12px'; // Set font size for the terms
+    p.style.margin = '0'; // Remove default margin for paragraphs
+    termsWrapper.appendChild(p);
+  });
+  
+  fieldset.appendChild(termsWrapper);
+
+  return fieldset;
 }
 
 function createNavbar(isolatedIframe, closedDiv) {
@@ -833,12 +900,9 @@ function createMiddleSection(allowedBrand, selectedCharityObject) {
     p.style.lineHeight = "normal";
     p.style.padding = "0px 20px";
 
-    const notIncludedDeals = createGiftCardNotice();
-
     div.appendChild(img);
     div.appendChild(h1);
     div.appendChild(p);
-    div.appendChild(notIncludedDeals);
 
     return div;
 }
