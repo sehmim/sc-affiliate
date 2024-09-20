@@ -16,10 +16,16 @@ export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res
 
       const rakutenCampaignsObject = await Promise.all(rakutenCampaignPromises); 
 
-      const normalizedRakutenCampaigns = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
-      await storeData('rakutenCampaigns', normalizedRakutenCampaigns);
+      const { campaigns } = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
+      await storeData('rakutenCampaigns', {
+        createdAt: new Date().toISOString(),
+        campaigns
+      });
 
-      res.status(200).json(normalizedRakutenCampaigns);
+      res.status(200).json({
+        createdAt: new Date().toISOString(),
+        campaigns
+      });
     } catch (error) {
       console.error('Error fetching advertisers:', error);
       res.status(500).send('Failed to fetch advertisers');
@@ -28,7 +34,7 @@ export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res
 });
 
 function replaceSpacesWithUnderscore(teamName: string) {
-    return teamName.replace(/ /g, '_');
+    return teamName.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
 export const applyRakutenDeepLink = functions.https.onRequest(async (req, res) => {

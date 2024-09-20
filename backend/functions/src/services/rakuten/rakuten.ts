@@ -1,3 +1,4 @@
+import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
 import { extractNumber } from '../../utils/helper';
 import { convertXmlToJson } from '../../utils/xml2json';
 
@@ -98,7 +99,7 @@ export async function getRakutenAdvertiserById(accessToken: string,advertiserId:
 
 export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesByAppStatuses: object[]){
 
-    let normalizedCampaigns: any[] = [];
+    let normalizedCampaigns: Campaign[] = [];
 
     rakutenCampaignsObject.map(({ advertiser }: any) => {
         merchesByAppStatuses.map((merch: any) => {
@@ -107,15 +108,16 @@ export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesBy
               
                 if (defaultPayoutRate) {
                   normalizedCampaigns.push({
-                    id: advertiser.id+"",
+                    campaignID: advertiser.id + "",
                     campaignName: advertiser.name,
                     campaignLogoURI: advertiser.profiles.logoURL,
                     advertiserURL: advertiser.url,
-                    defaultPayoutRate: extractNumber(merch['ns1:offer']['ns1:commissionTerms']),
+                    defaultPayoutRate: defaultPayoutRate + "",
                     subDomains: [], // TODO: Get Deeplink domains,
                     isActive: true,
-                    isFeature: false,
-                    terms: []
+                    isFeatured: false,
+                    terms: [],
+                    provider: CampaignsProvider.Rakuten
                   })
                 }
             }

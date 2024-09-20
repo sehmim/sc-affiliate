@@ -255,7 +255,7 @@ async function initialize() {
 function isCodeAlreadyAppliedToWebsite() {
     let codeAlreadyAppliedToBrand;
     const href = window.location.href;
-    const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("sc-coupon=activated");
+    const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("ranMID") || href.includes("sc-coupon=activated");
     
     const validIrclickid = getCookie("sc-irclickid");
     const validClickid = getCookie("sc-clickid");

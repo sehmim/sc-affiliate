@@ -1,5 +1,7 @@
 const LOCAL_ENV = true;
 
+const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'todo';
+
 // DUBLICATE CODE
 async function applyAffiliateLink(campaignID, userSettings){
   const { selectedCharityObject, email } = userSettings;
@@ -25,7 +27,23 @@ async function applyAffiliateLink(campaignID, userSettings){
   }
 }
 
-async function createMerchantContainer(title, subtitle, imageSrc, campaignID, userSettings) {
+async function applyRakutenDeepLink(campaign, userSettings) {
+
+  const trackingLink = await postProcess(UrlApplyRakutenDeepLink, {
+    advertiserUrl: campaign.advertiserURL,
+    advertiserId: Number(campaign.campaignID),
+    teamName: userSettings.selectedCharityObject.organizationName
+  });
+
+  return trackingLink;
+}
+
+async function createMerchantContainer(campaign, userSettings) {
+  const title = campaign.campaignName;
+  const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
+  const imageSrc = campaign.campaignLogoURI;
+  const campaignID = campaign.campaignID;
+
   const newDiv = document.createElement('a');
   newDiv.target = "_blank";
   newDiv.classList.add('merchant');
@@ -37,7 +55,7 @@ async function createMerchantContainer(title, subtitle, imageSrc, campaignID, us
 
   const discountDiv = document.createElement('div');
   discountDiv.classList.add('merchant-discount');
-  discountDiv.textContent = subtitle;
+  discountDiv.textContent = subTitle;
 
   const imgWrapperDiv = document.createElement('div');
   imgWrapperDiv.classList.add('merchant-img-wrapper');
@@ -54,10 +72,20 @@ async function createMerchantContainer(title, subtitle, imageSrc, campaignID, us
   newDiv.appendChild(headerDiv);
   newDiv.appendChild(discountDiv);
   newDiv.appendChild(imgWrapperDiv);
-
+  
   newDiv.onclick = async function () {
-    const responseData = await applyAffiliateLink(campaignID, userSettings)
-    chrome.tabs.create({ url: "http://" + responseData });
+    let redirectionLink;
+
+    if (campaign.provider === "Impact") {
+      redirectionLink = await applyAffiliateLink(campaignID, userSettings)
+      chrome.tabs.create({ url: "http://" + redirectionLink });
+    } 
+
+    if (campaign.provider === "Rakuten"){
+      redirectionLink = await applyRakutenDeepLink(campaign, userSettings)
+      chrome.tabs.create({ url: redirectionLink });
+    }
+
   }
 
   return newDiv;
@@ -87,7 +115,7 @@ function createHeaderContentLogin() {
 }
 
 // DUBLICATE CODE
-async function fetchDataFromServer(url) {
+async function processGet(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -103,7 +131,29 @@ async function fetchDataFromServer(url) {
 
 async function fetchCampaigns() {
   const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns";
-  return await fetchDataFromServer(url);
+  return await processGet(url);
+}
+
+async function postProcess(url, payload) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data; // Return the JSON response from the server
+  } catch (error) {
+    console.error('POST request failed:', error);
+    return null; // Return null if the request fails
+  }
 }
 
 function showPinSuggestion() {
@@ -168,9 +218,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
       for (const campaign of campaigns) {
-        const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
-
-        const newMerchantDiv = await createMerchantContainer(campaign.campaignName, subTitle, campaign.campaignLogoURI, campaign.campaignID, userSettings);
+        const newMerchantDiv = await createMerchantContainer(campaign, userSettings);
         merchantsContainer.appendChild(newMerchantDiv);
       }
 

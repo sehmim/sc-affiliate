@@ -15,7 +15,7 @@ export interface Campaign {
     terms: string[]
 }
 
-enum CampaignsProvider {
+export enum CampaignsProvider {
     Rakuten = "Rakuten",
     Impact = "Impact",
     Custom = "Custom"
@@ -39,7 +39,7 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
         defaultPayoutRate: impactCampaign.defaultPayoutRate,
         advertiserURL: impactCampaign.advertiserURL,
         subDomains: impactCampaign.subDomains,
-        provider: CampaignsProvider.Rakuten,
+        provider: CampaignsProvider.Impact,
         isActive: impactCampaign.isActive,
         isFeatured: !!impactCampaign.isFeatured,
         terms: impactCampaign.terms

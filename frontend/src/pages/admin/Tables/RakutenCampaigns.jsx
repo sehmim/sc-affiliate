@@ -2,9 +2,12 @@ import { collection, getDocs, updateDoc, query, orderBy, limit, doc } from 'fire
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { firestore } from '../../../utils/firebase';
+import { fetchLatestEntry } from '../CampaignsTable';
 
 const RakutenCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [featureLoading, setFeatureLoading] = useState({});
@@ -13,15 +16,10 @@ const RakutenCampaigns = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const campaignsCollection = collection(firestore, "rakutenCampaigns");
-        const snapshot = await getDocs(campaignsCollection);
+        const { data } =  await fetchLatestEntry("rakutenCampaigns");
 
-        const campaignsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setCampaigns(campaignsList[0].campaigns);
+        setCampaigns(data.campaigns);
+        setLastUpdated(data.createdAt)
       } catch (err) {
         setError(err);
       } finally {
@@ -81,6 +79,7 @@ const RakutenCampaigns = () => {
   return (
     <div className='m4'>
       <h4>Rakuten Campaigns</h4>
+      <p>Last updates: {lastUpdated}</p>
       <table className="table table-striped">
         <thead>
           <tr>
@@ -96,7 +95,7 @@ const RakutenCampaigns = () => {
         <tbody>
           {campaigns.map((campaign, index) => (
             <tr key={index}>
-              <td>{campaign.id}</td>
+              <td>{campaign.campaignID}</td>
               <td>{campaign.campaignName}</td>
               <td>
                 <img
