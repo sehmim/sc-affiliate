@@ -1,5 +1,5 @@
 import { getLatestEntry } from "../../utils/firestoreWrapper";
-import { sortByIsFeatured } from "../admin/helper";
+import { getNonZeroPayoutCampaigns, sortByIsFeatured } from "../admin/helper";
 import { ImpactCampaign } from '../admin/types';
 
 export interface Campaign {
@@ -27,7 +27,9 @@ export async function aggregateCamapigns(): Promise<Campaign[]> {
     const {campaigns: rakutenCampaigns} = await getLatestEntry('rakutenCampaigns');
 
     const mappedCampains = mapToCampaigns(impactCampaigns, rakutenCampaigns)
-    return sortByIsFeatured(mappedCampains);
+    const validCampaigns = getNonZeroPayoutCampaigns(mappedCampains);
+
+    return sortByIsFeatured(validCampaigns);
 }
 
 

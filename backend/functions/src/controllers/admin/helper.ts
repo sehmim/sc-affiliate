@@ -9,3 +9,11 @@ export function sortByIsFeatured(campaigns: Campaign[]) {
     return a.isFeatured ? -1 : 1;
   });
 }
+
+export function getNonZeroPayoutCampaigns(campaigns: Campaign[]): Campaign[] {
+  return campaigns.filter((campaign) => {
+    // Convert the defaultPayoutRate to a number and check if it's non-zero
+    const payoutRate = parseFloat(campaign.defaultPayoutRate);
+    return payoutRate > 0;
+  });
+}
