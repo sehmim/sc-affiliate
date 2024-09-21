@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSyncedCampaigns, triggerImpactCampaignSync } from "../../../api/env";
+import { triggerImpactCampaignSync } from "../../../api/env";
 import {
   collection,
   query,
@@ -12,7 +12,6 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-
 
 export async function fetchLatestEntry(collectionName) {
   try {
@@ -38,19 +37,18 @@ export async function fetchLatestEntry(collectionName) {
   }
 }
 
-
-
 const ImpactCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [featureLoading, setFeatureLoading] = useState({});
+  const [editableTerms, setEditableTerms] = useState({}); // State to track editable terms
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
         setIsLoading(true);
-        const { data } =  await fetchLatestEntry("impactCampaignsSynced");
+        const { data } = await fetchLatestEntry("impactCampaignsSynced");
 
         setCampaigns(data.campaigns);
         setLastUpdated(data.createdAt);
@@ -73,7 +71,7 @@ const ImpactCampaigns = () => {
     setFeatureLoading(true);
     try {
       const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      const { campaigns: campaignsArray } = data
+      const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
@@ -93,11 +91,11 @@ const ImpactCampaigns = () => {
     }
   };
 
-  const enableCampaign = async (campaignID) => {
+  const activateCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
       const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      const { campaigns: campaignsArray } = data
+      const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
@@ -110,7 +108,7 @@ const ImpactCampaigns = () => {
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
-      console.log(`Campaign ${campaignID} successfully updated to featured.`);
+      console.log(`Campaign ${campaignID} successfully activated.`);
     } catch (error) {
       setFeatureLoading(false);
       console.error("Error updating campaign in Firestore:", error);
@@ -121,11 +119,11 @@ const ImpactCampaigns = () => {
     setFeatureLoading(true);
     try {
       const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      const { campaigns: campaignsArray } = data
+      const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
-          return { ...campaign, isActive: true };
+          return { ...campaign, isActive: false };
         }
         return campaign;
       });
@@ -134,12 +132,58 @@ const ImpactCampaigns = () => {
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
-      console.log(`Campaign ${campaignID} successfully updated to featured.`);
+      console.log(`Campaign ${campaignID} successfully disabled.`);
     } catch (error) {
       setFeatureLoading(false);
       console.error("Error updating campaign in Firestore:", error);
     }
-  }
+  };
+
+  const handleEditTerm = (campaignID, termIndex, key, value) => {
+    setEditableTerms((prevState) => ({
+      ...prevState,
+      [campaignID]: {
+        ...prevState[campaignID],
+        [termIndex]: {
+          ...prevState[campaignID]?.[termIndex],
+          [key]: value,
+        },
+      },
+    }));
+  };
+
+  const saveTerm = async (campaignID, termIndex) => {
+    setFeatureLoading(true);
+    try {
+      const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
+      const updatedCampaignsArray = data.campaigns.map((campaign) => {
+        if (campaign.campaignID === campaignID) {
+          const updatedTerms = [...campaign.terms];
+          const editedTerm = editableTerms[campaignID]?.[termIndex];
+
+          if (editedTerm) {
+            updatedTerms[termIndex] = {
+              ...updatedTerms[termIndex],
+              title: editedTerm.title || updatedTerms[termIndex].title,
+              details: editedTerm.details || updatedTerms[termIndex].details,
+            };
+          }
+
+          return { ...campaign, terms: updatedTerms };
+        }
+        return campaign;
+      });
+
+      const docRef = doc(firestore, "impactCampaignsSynced", id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      setFeatureLoading(false);
+      console.log(`Campaign ${campaignID} terms successfully updated.`);
+    } catch (error) {
+      setFeatureLoading(false);
+      console.error("Error updating campaign terms in Firestore:", error);
+    }
+  };
 
   const AddToFeatureButton = ({ campaign }) => {
     if (campaign.isFeatured)
@@ -167,11 +211,169 @@ const ImpactCampaigns = () => {
 
   const EnableBrandButton = ({ campaign }) => {
     if (campaign.isActive) {
-      return <Button onClick={()=> enableCampaign(campaign.campaignID)} variant="success" className="mt-2 w-100">Enabled</Button>;
+      return (
+        <Button
+          onClick={() => disableCampaign(campaign.campaignID)}
+          variant="success"
+          className="mt-2 w-100"
+        >
+          Enabled
+        </Button>
+      );
     }
 
-    return <Button onClick={()=> disableCampaign(campaign.campaignID)}  variant="danger" className="mt-2 w-100">Disabled</Button>;
+    return (
+      <Button
+        onClick={() => activateCampaign(campaign.campaignID)}
+        variant="danger"
+        className="mt-2 w-100"
+      >
+        Disabled
+      </Button>
+    );
   };
+
+const Terms = ({ campaign }) => {
+  const [newTerm, setNewTerm] = useState({ title: "", details: "" });
+
+  const handleAddNewTerm = async (campaignID) => {
+    if (!newTerm.title || !newTerm.details) return;
+
+    setFeatureLoading(true);
+    try {
+      const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
+      const updatedCampaignsArray = data.campaigns.map((c) => {
+        if (c.campaignID === campaignID) {
+          return {
+            ...c,
+            terms: [...c.terms, newTerm], // Add new term to the array
+          };
+        }
+        return c;
+      });
+
+      const docRef = doc(firestore, "impactCampaignsSynced", id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      setNewTerm({ title: "", details: "" });
+      setFeatureLoading(false);
+      console.log(`New term added to campaign ${campaignID}.`);
+    } catch (error) {
+      setFeatureLoading(false);
+      console.error("Error adding new term to campaign:", error);
+    }
+  };
+
+  const handleDeleteTerm = async (campaignID, termIndex) => {
+    setFeatureLoading(true);
+    try {
+      const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
+      const updatedCampaignsArray = data.campaigns.map((c) => {
+        if (c.campaignID === campaignID) {
+          const updatedTerms = [...c.terms];
+          updatedTerms.splice(termIndex, 1); // Remove term by index
+
+          return { ...c, terms: updatedTerms };
+        }
+        return c;
+      });
+
+      const docRef = doc(firestore, "impactCampaignsSynced", id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      setFeatureLoading(false);
+      console.log(`Term ${termIndex + 1} deleted from campaign ${campaignID}.`);
+    } catch (error) {
+      setFeatureLoading(false);
+      console.error("Error deleting term from campaign:", error);
+    }
+  };
+
+  return (
+    <td>
+      <>
+        {campaign.terms.length > 0 &&
+          campaign.terms.map((term, termIndex) => (
+            <p key={termIndex}>
+              <div>
+                <b>Title:</b>
+                <input
+                  type="text"
+                  value={
+                    editableTerms[campaign.campaignID]?.[termIndex]?.title ||
+                    term.title
+                  }
+                  onChange={(e) =>
+                    handleEditTerm(
+                      campaign.campaignID,
+                      termIndex,
+                      "title",
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <b>Detail:</b>
+                <input
+                  type="text"
+                  value={
+                    editableTerms[campaign.campaignID]?.[termIndex]?.details ||
+                    term.details
+                  }
+                  onChange={(e) =>
+                    handleEditTerm(
+                      campaign.campaignID,
+                      termIndex,
+                      "details",
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+              <Button
+                className="mt-2"
+                onClick={() => saveTerm(campaign.campaignID, termIndex)}
+              >
+                Save
+              </Button>
+              <Button
+                variant="danger"
+                className="mt-2 ml-2"
+                onClick={() => handleDeleteTerm(campaign.campaignID, termIndex)}
+              >
+                Delete
+              </Button>
+              <hr></hr>
+            </p>
+          ))}
+      </>
+      {/* Add New Term */}
+      <div className="mt-3">
+        <h5>Add New Term</h5>
+        <input
+          type="text"
+          placeholder="Title"
+          value={newTerm.title}
+          onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Details"
+          value={newTerm.details}
+          onChange={(e) => setNewTerm({ ...newTerm, details: e.target.value })}
+          className="ml-2"
+        />
+        <Button
+          className="mt-2"
+          onClick={() => handleAddNewTerm(campaign.campaignID)}
+        >
+          Add Term
+        </Button>
+      </div>
+    </td>
+  );
+};
 
   if (isLoading) return <div>Loading...</div>;
   return (
@@ -224,20 +426,7 @@ const ImpactCampaigns = () => {
                 ))}
               </td>
               <td>{campaign.defaultPayoutRate}%</td>
-              <td>
-                <ul>
-                  {
-                    campaign.terms.length > 0 && campaign.terms.map((term) => {
-                      return (
-                        <li>
-                          <div><b>Title:</b>{term?.title}</div>
-                          <div><b>Detail:</b>{term?.details}</div>
-                        </li>
-                      )
-                    })
-                  }
-                </ul>
-              </td>
+              <Terms campaign={campaign} />
               <td>
                 <AddToFeatureButton campaign={campaign} />
                 <br></br>

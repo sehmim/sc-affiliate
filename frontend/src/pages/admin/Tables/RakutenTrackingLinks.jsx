@@ -46,7 +46,6 @@ const RakutenTrackingLinks = () => {
 
   if (isLoading) return <p>Loading...</p>;
 
-  console.log('link-->', trackingLinks)
   return (
     <div className="container w-full m-3">
       <h1>Rakuten Tracking Links</h1>

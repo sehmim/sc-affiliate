@@ -1,67 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from 'firebase/firestore';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import { Button } from 'react-bootstrap';
 import { firestore } from '../../../utils/firebase';
+import { fetchLatestEntry } from './ImpactCampaigns';
+
 
 const FeaturedRakutenCampaigns = () => {
-  const [featuredCampaigns, setFeaturedCampaigns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [campaigns, setCampaigns] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [featureLoading, setFeatureLoading] = useState({});
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFeaturedCampaigns = async () => {
       try {
-        const campaignsCollection = collection(firestore, "rakutenCampaigns");
-        const snapshot = await getDocs(campaignsCollection);
+        const { data } = await fetchLatestEntry('rakutenCampaigns');
+        const { campaigns, createdAt } = data;
 
-        const campaignsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Filter only the campaigns where isFeatured is true
-        const filteredCampaigns = campaignsList[0].campaigns.filter(
-          (campaign) => campaign.isFeatured
-        );
-
-        setFeaturedCampaigns(filteredCampaigns);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
+        const featuredCampaigns = campaigns.filter(campaign => campaign.isFeatured);
+        
+        setCampaigns(featuredCampaigns);
+        setLastUpdated(createdAt);
+      } catch (error) {
+        console.error('Error fetching featured campaigns:', error);
       }
     };
 
-    fetchData();
+    fetchFeaturedCampaigns();
   }, []);
 
-  if (loading) {
-    return <p>Loading featured campaigns...</p>;
-  }
+  const removeFromFeatureInCampaignsArray = async (campaignID) => {
+    try {
+      const { data, id } = await fetchLatestEntry('rakutenCampaigns');
+      const { campaigns: campaignsArray, createdAt } = data;
 
-  if (error) {
-    return <p>Error fetching featured campaigns: {error.message}</p>;
-  }
+      const updatedCampaignsArray = campaignsArray.map((campaign) => {
+        if (campaign.campaignID === campaignID) {
+          return { ...campaign, isFeatured: false }; // Remove from featured
+        }
+        return campaign;
+      });
 
-  if (featuredCampaigns.length === 0) {
-    return <p>No featured campaigns available.</p>;
-  }
+      const docRef = doc(firestore, 'rakutenCampaigns', id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      console.log(`Campaign ${campaignID} successfully removed from featured.`);
+      // Update the state to reflect the removal
+      setCampaigns(updatedCampaignsArray.filter(campaign => campaign.isFeatured));
+    } catch (error) {
+      console.error('Error updating campaign in Firestore:', error);
+    }
+  };
 
   return (
-    <div className='m-4'>
-      <h4>Featured Rakuten Campaigns</h4>
-      <table className="table table-striped">
-        <thead>
+      <table className="table table-striped table-bordered">
+        <thead className="thead-dark">
           <tr>
             <th>Campaign Name</th>
             <th>Campaign Logo</th>
             <th>Advertiser URL</th>
-            <th>Default Payout Rate</th>
-            <th>Subdomains</th>
+            <th>Subdomains/Deeplinks</th>
+            <th>Payout Rate</th>
+            <th>Action</th> {/* Action column */}
           </tr>
         </thead>
         <tbody>
-          {featuredCampaigns.map((campaign, index) => (
-            <tr key={index}>
+          {campaigns.map((campaign) => (
+            <tr key={campaign.campaignID}>
               <td>{campaign.campaignName}</td>
               <td>
                 <img
@@ -75,13 +80,29 @@ const FeaturedRakutenCampaigns = () => {
                   {campaign.advertiserURL}
                 </a>
               </td>
+              <td>
+                {campaign.subDomains.map((domain, index) => (
+                  <div key={index}>
+                    <a href={domain} target="_blank" rel="noopener noreferrer">
+                      {domain}
+                    </a>
+                  </div>
+                ))}
+              </td>
               <td>{campaign.defaultPayoutRate}%</td>
-              <td>{campaign.subDomains.length > 0 ? campaign.subDomains.join(', ') : 'None'}</td>
+              <td>
+                <Button
+                  variant="danger"
+                  onClick={() => removeFromFeatureInCampaignsArray(campaign.campaignID)}
+                  disabled={featureLoading[campaign.campaignID]}
+                >
+                  {featureLoading[campaign.campaignID] ? 'Removing...' : 'Remove from Feature'}
+                </Button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
   );
 };
 
