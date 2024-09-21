@@ -36,7 +36,10 @@ export type NormalizedCampaign = {
     subDomains: string[];
     defaultPayoutRate: string;
     isActive: boolean;
-    terms: []
+    terms: {
+        title: string,
+        details: string,
+    }[]
     isFeatured: boolean,
 };
 

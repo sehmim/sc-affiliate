@@ -19,7 +19,10 @@ export interface Campaign {
 	provider: CampaignsProvider,
 	isActive: boolean,
 	isFeatured: boolean,
-	terms: string[]
+    terms: {
+        title: string,
+        details: string,
+    }[]
 }
 
 export enum CampaignsProvider {

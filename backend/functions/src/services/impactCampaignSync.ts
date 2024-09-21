@@ -1,6 +1,7 @@
 import { fetchImpactCampaignsData, fetchContracts } from './impact'
 import { ImpactCampaignData, NormalizedCampaign } from './types';
 import { db } from '..'
+import { DEFAULT_TERMS_AND_CONDITIONS } from '../utils/conts';
 
 async function syncImpactCampaigns() {
 	try {
@@ -46,7 +47,7 @@ async function syncImpactCampaigns() {
               defaultPayoutRate: contract.DefaultPayoutRate,
               isActive: true,
               isFeatured: false,
-              terms: []
+              terms: DEFAULT_TERMS_AND_CONDITIONS
             }
           ) 
         }
@@ -148,8 +149,8 @@ function areCampaignsEqual(
         campaign1.isActive !== campaign2.isActive ||
         campaign1.defaultPayoutRate !== campaign2.defaultPayoutRate ||
         campaign1.isFeatured !== campaign2.isFeatured ||
-        !compareStringArrays(campaign1.subDomains, campaign2.subDomains),
-        !compareStringArrays(campaign1.terms, campaign2.terms)
+        !compareStringArrays(campaign1.subDomains, campaign2.subDomains)
+        // !compareStringArrays(campaign1.terms, campaign2.terms)
       ) {
         console.log(`Mismatch found in campaign ${campaign1.campaignID}`);
         return false;

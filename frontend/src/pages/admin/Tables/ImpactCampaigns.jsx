@@ -291,13 +291,14 @@ const Terms = ({ campaign }) => {
 
   return (
     <td>
-      <>
+      <div className="d-flex flex-column">
         {campaign.terms.length > 0 &&
           campaign.terms.map((term, termIndex) => (
-            <p key={termIndex}>
+            <p className="d-flex flex-column" key={termIndex}>
               <div>
                 <b>Title:</b>
                 <input
+                  className="container mb-2 p-1"
                   type="text"
                   value={
                     editableTerms[campaign.campaignID]?.[termIndex]?.title ||
@@ -316,6 +317,7 @@ const Terms = ({ campaign }) => {
               <div>
                 <b>Detail:</b>
                 <input
+                  className="container mb-2 p-1"
                   type="text"
                   value={
                     editableTerms[campaign.campaignID]?.[termIndex]?.details ||
@@ -339,7 +341,7 @@ const Terms = ({ campaign }) => {
               </Button>
               <Button
                 variant="danger"
-                className="mt-2 ml-2"
+                className="mt-2"
                 onClick={() => handleDeleteTerm(campaign.campaignID, termIndex)}
               >
                 Delete
@@ -347,22 +349,23 @@ const Terms = ({ campaign }) => {
               <hr></hr>
             </p>
           ))}
-      </>
+      </div>
       {/* Add New Term */}
-      <div className="mt-3">
+      <div className="d-flex flex-column">
         <h5>Add New Term</h5>
         <input
           type="text"
+          className="container mb-2"
           placeholder="Title"
           value={newTerm.title}
           onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
         />
         <input
+          className="container"
           type="text"
           placeholder="Details"
           value={newTerm.details}
           onChange={(e) => setNewTerm({ ...newTerm, details: e.target.value })}
-          className="ml-2"
         />
         <Button
           className="mt-2"
@@ -391,7 +394,7 @@ const Terms = ({ campaign }) => {
             <th>Advertiser URL</th>
             <th>Subdomains/Deeplinks</th>
             <th>Payout Rate</th>
-            <th>Terms</th>
+            <th style={{ width: '430px' }}>Terms</th>
             <th>Action</th> {/* New Action column */}
           </tr>
         </thead>

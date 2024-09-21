@@ -1,4 +1,5 @@
 import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
+import { DEFAULT_TERMS_AND_CONDITIONS } from '../../utils/conts';
 import { extractNumber } from '../../utils/helper';
 import { convertXmlToJson } from '../../utils/xml2json';
 
@@ -116,7 +117,7 @@ export function normalizeRakutenCampaigns(rakutenCampaignsObject: any, merchesBy
                     subDomains: [], // TODO: Get Deeplink domains,
                     isActive: true,
                     isFeatured: false,
-                    terms: [],
+                    terms: DEFAULT_TERMS_AND_CONDITIONS,
                     provider: CampaignsProvider.Rakuten
                   })
                 }

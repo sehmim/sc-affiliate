@@ -738,7 +738,7 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
     iframeDocument.body.appendChild(navbar);
     iframeDocument.body.appendChild(middleSection);
 
-    const termsAndService = createTermsAndServiceDiv();
+    const termsAndService = createTermsAndServiceDiv(allowedBrand);
     iframeDocument.body.appendChild(termsAndService);
 
   };
@@ -752,7 +752,7 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
   }
 }
 
-function createTermsAndServiceDiv() {
+function createTermsAndServiceDiv(allowedBrand) {
   // Create the fieldset
   const fieldset = document.createElement('fieldset');
   fieldset.style.margin = '5px'; // Set margin for the fieldset
