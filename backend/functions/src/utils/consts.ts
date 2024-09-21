@@ -1,6 +1,6 @@
 export const DEFAULT_TERMS_AND_CONDITIONS = [
     {
-        title: 'Eligible transactions:',
+        title: 'Eligible transactions',
         details: 'A purchase from made by using the Shop for Good browser extension and immediately completing the transaction.'
     },
     {
@@ -8,11 +8,11 @@ export const DEFAULT_TERMS_AND_CONDITIONS = [
         details: ''
     },
     {
-        title: 'Donation rates:',
+        title: 'Donation rates',
         details: ''
     },
     {
-        title: 'Additional info:',
+        title: 'Additional info',
         details: ''
     }
 ]

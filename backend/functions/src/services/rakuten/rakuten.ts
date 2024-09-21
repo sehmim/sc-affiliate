@@ -1,5 +1,5 @@
 import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
-import { DEFAULT_TERMS_AND_CONDITIONS } from '../../utils/conts';
+import { DEFAULT_TERMS_AND_CONDITIONS } from '../../utils/consts';
 import { extractNumber } from '../../utils/helper';
 import { convertXmlToJson } from '../../utils/xml2json';
 

@@ -738,6 +738,7 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
     iframeDocument.body.appendChild(navbar);
     iframeDocument.body.appendChild(middleSection);
 
+
     const termsAndService = createTermsAndServiceDiv(allowedBrand);
     iframeDocument.body.appendChild(termsAndService);
 
@@ -753,6 +754,8 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
 }
 
 function createTermsAndServiceDiv(allowedBrand) {
+
+  console.log(allowedBrand);
   // Create the fieldset
   const fieldset = document.createElement('fieldset');
   fieldset.style.margin = '5px'; // Set margin for the fieldset
@@ -792,21 +795,19 @@ function createTermsAndServiceDiv(allowedBrand) {
   fieldset.appendChild(legendContainer);
 
   // Create the terms as paragraph elements
-  const terms = [
-    'Term 1: Description of the first term.',
-    'Term 2: Description of the second term.',
-    'Term 3: Description of the third term.',
-    'Term 4: Description of the fourth term.'
-  ];
-
   const termsWrapper = document.createElement('div');
   termsWrapper.style.marginTop = '8px';
 
-  terms.forEach(term => {
+  allowedBrand.terms.forEach(term => {
     const p = document.createElement('p');
-    p.textContent = term;
     p.style.fontSize = '12px'; // Set font size for the terms
-    p.style.margin = '0'; // Remove default margin for paragraphs
+    p.style.marginBottom = '5px'; // Remove default margin for paragraphs
+
+    // Check if details exist and create the appropriate content
+    if (term.details) {
+      p.innerHTML = `<b>${term.title}:</b> ${term.details}`;
+    }
+
     termsWrapper.appendChild(p);
   });
   
