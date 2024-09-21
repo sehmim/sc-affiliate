@@ -1,4 +1,4 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
 
@@ -295,78 +295,6 @@ async function applyAffiliateLink(allowedBrand, userSettings){
     throw error; // Propagate the error to the caller if needed
   }
 }
-
-
-/**
- * @TEST
- * It works so far Julio. 
- */
-async function sendPaymentData(campaignId, amount, subId1) {
-  const url = LOCAL_ENV 
-    ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/populatePaymentData?campaignId=${campaignId}&amount=${amount}&subId1=${subId1}`
-    : `fake`;
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error; // Propagate the error to the caller if needed
-  }
-}
-
-async function retrievePaymentData() {
-  const url = LOCAL_ENV 
-    ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/retrievePaymentData`
-    : `fake`;
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error fetching payment data:', error);
-    throw error;
-  }
-}
-
-/**
- * @TEST
- * Test for Julio to see syncImpactCampaigns
- */
-async function testSyncImpactCampaigns() {
-  const url = LOCAL_ENV 
-    ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/triggerImpactCampaignSync"
-    : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/triggerImpactCampaignSync";
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('Sync Impact Campaigns result:', result);
-    return result;
-  } catch (error) {
-    console.error('Error syncing Impact campaigns:', error);
-    throw error;
-  }
-}
-
 
 
 if (document.readyState === 'loading') {

@@ -1,6 +1,6 @@
-const LOCAL_ENV = true;
+const LOCAL_ENV = false;
 
-const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'todo';
+const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyRakutenDeepLink';
 
 // DUBLICATE CODE
 async function applyAffiliateLink(campaignID, userSettings){
