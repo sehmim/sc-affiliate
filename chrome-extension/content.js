@@ -1,4 +1,4 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
 
@@ -8,6 +8,8 @@ const COMMISSION_RATE = 1;
 const collectAndSendBrowserInfoApiUrl = LOCAL_ENV ?
 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/collectAndSendBrowserInfo' 
 : 'https://collectandsendbrowserinfo-6n7me4jtka-uc.a.run.app';
+
+const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyRakutenDeepLink';
 
 ///////////////////////////////////
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -107,6 +109,39 @@ function handleApplyCouponCodeOnCheckout(couponCode, isolatedIframe){
       }
     }, 300);
   }
+
+async function postProcess(url, payload) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data; // Return the JSON response from the server
+  } catch (error) {
+    console.error('POST request failed:', error);
+    return null; // Return null if the request fails
+  }
+}
+
+async function applyRakutenDeepLink(campaign, userSettings) {
+
+  const trackingLink = await postProcess(UrlApplyRakutenDeepLink, {
+    advertiserUrl: campaign.advertiserURL,
+    advertiserId: Number(campaign.campaignID),
+    teamName: userSettings.selectedCharityObject.organizationName
+  });
+
+  return trackingLink;
+}
 
 
 function getAllowedBrandInfo(campaigns) {
@@ -272,16 +307,16 @@ function isCodeAlreadyAppliedToWebsite() {
     return codeAlreadyAppliedToBrand;
 }
 
-async function applyAffiliateLink(allowedBrand, userSettings){
-  const { selectedCharityObject, email} = userSettings;
-  
+async function applyAffiliateLink(campaignID, userSettings){
+  const { selectedCharityObject, email } = userSettings;
+
   if (!selectedCharityObject?.organizationName) {
     throw new Error('No Charity Selected');
   }
 
-  const programId = allowedBrand.campaignID;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${programId}&teamName=${selectedCharityObject.organizationName}&email=${email}&DeepLink=${allowedBrand.advertiserURL}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${programId}&teamName=${selectedCharityObject.organizationName}&email=${email}&DeepLink=${allowedBrand.advertiserURL}`;
+  // NOTE: CampaignID is same as ProgramId;
+  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
+      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
 
   try {
     const response = await fetch(url);
@@ -289,7 +324,7 @@ async function applyAffiliateLink(allowedBrand, userSettings){
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     const responseData = await response.json();
-    window.location.href = "http://" + responseData;
+    return responseData;
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error; // Propagate the error to the caller if needed
@@ -375,8 +410,16 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       textDiv.style.whiteSpace = 'nowrap';
       textDiv.textContent = `Give ${percentage} to your cause 💜`;
       textDiv.target = "_blank";
-      textDiv.onclick = function () {
-        applyAffiliateLink(campaign, userSettings)
+      textDiv.onclick = async function () {
+        if (campaign.provider === "Impact") {
+          const redirectionLink = await applyAffiliateLink(campaign.campaignID, userSettings)
+          window.location.href = "http://" + redirectionLink;
+        } 
+
+        if (campaign.provider === "Rakuten"){
+          const redirectionLink = await applyRakutenDeepLink(campaign, userSettings)
+          window.location.href = redirectionLink;
+        }
       }
 
       mainDiv.appendChild(logoDiv);
@@ -612,7 +655,15 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
                 window.location.href = allowedBrand.trackingLink;
               }
             } else {
-              await applyAffiliateLink(allowedBrand, userSettings);
+              if (allowedBrand.provider === "Impact") {
+                const redirectionLink = await applyAffiliateLink(allowedBrand.campaignID, userSettings)
+                window.location.href = "http://" + redirectionLink;
+              } 
+
+              if (allowedBrand.provider === "Rakuten"){
+                const redirectionLink = await applyRakutenDeepLink(allowedBrand, userSettings)
+                window.location.href = redirectionLink;
+              }
             }
   
             setCookie("sc-minimize", false);

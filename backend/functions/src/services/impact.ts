@@ -105,7 +105,7 @@ export const fetchCampainDeals = async (campaignId: string) => {
 }
 
 
-export async function generateLink(programId: string, teamName: string, email: string, deepLink: string) {
+export async function generateLink(programId: string, teamName: string, email: string) {
   try {
     const base64Auth = Buffer.from(
       `${IMPACT_API_USERNAME}:${IMPACT_API_PASSWORD}`
@@ -114,12 +114,11 @@ export async function generateLink(programId: string, teamName: string, email: s
     const url = `${IMPACT_BASE_URL}/Mediapartners/${IMPACT_API_USERNAME}/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${teamName}&subId2=${email}`;
 
     const response = await fetch(url, {
-      method: "POST",
+      method: "GET",
       headers: {
         Authorization: `Basic ${base64Auth}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({}), 
     });
 
     if (!response.ok) {
@@ -139,7 +138,6 @@ export const applyTrackingLink = onRequest((req, res) => {
       const teamName = req.query.teamName as string;
       const programId = req.query.programId as string;
       const email = req.query.email as string;
-      const deepLink = req.query.DeepLink as string;
 
       if (!teamName || !programId) {
         return res.status(400).send("teamName and programId query parameters are required.");
@@ -159,7 +157,7 @@ export const applyTrackingLink = onRequest((req, res) => {
       }
 
       // If no matching document is found, generate a new trackingLink
-      const responseData = await generateLink(programId, teamName, email, deepLink);
+      const responseData = await generateLink(programId, teamName, email);
       
       // Save the new trackingLink and teamName to Firestore
       await db.collection("trackingLinks").add({
@@ -174,7 +172,7 @@ export const applyTrackingLink = onRequest((req, res) => {
       return res.status(200).json(responseData.TrackingURL);
     } catch (error) {
       console.error("Error:", error);
-      return res.status(500).send("Error making POST request");
+      return res.status(500).send("Error making GET request");
     }
   });
 });
