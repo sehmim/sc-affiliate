@@ -50,15 +50,24 @@ export async function aggregateCamapigns(): Promise < Campaign[] > {
 function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Campaign[], customCampaigns ? : any): Campaign[] {
 	let mappedImpactCampaigns: Campaign[] = [];
 
-	impactCampagins.map((impactCampaign) => {
+	let invalidBrands: any[] = []; // FOR DEBUGGING 
 
-		if (impactCampaign.isActive) {
+	impactCampagins.forEach((impactCampaign) => {
+		const validUrl = fixUrl(impactCampaign.advertiserURL);
+
+		if (!validUrl) {
+			invalidBrands.push(impactCampaign)
+			return;
+		}
+
+
+		if (validUrl && impactCampaign.isActive) {
 			mappedImpactCampaigns.push({
 				campaignName: impactCampaign.campaignName,
 				campaignID: impactCampaign.campaignID,
 				campaignLogoURI: impactCampaign.campaignLogoURI,
 				defaultPayoutRate: impactCampaign.defaultPayoutRate,
-				advertiserURL: impactCampaign.advertiserURL,
+				advertiserURL: validUrl,
 				subDomains: impactCampaign.subDomains,
 				provider: CampaignsProvider.Impact,
 				isActive: impactCampaign.isActive,
@@ -72,15 +81,22 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 
 	let mappedRakutenCampaigns: Campaign[] = [];
 
-	rakutenCampaigns.map((rakutenCampaign) => {
+	rakutenCampaigns.forEach((rakutenCampaign) => {
 
-		if (rakutenCampaign.isActive) {
+		const validUrl = fixUrl(rakutenCampaign.advertiserURL);
+
+		if (!validUrl) {
+			invalidBrands.push(rakutenCampaign)
+			return;
+		}
+
+		if (validUrl && rakutenCampaign.isActive) {
 			mappedRakutenCampaigns.push({
 				campaignName: rakutenCampaign.campaignName,
 				campaignID: rakutenCampaign.campaignID,
 				campaignLogoURI: rakutenCampaign.campaignLogoURI,
 				defaultPayoutRate: rakutenCampaign.defaultPayoutRate,
-				advertiserURL: rakutenCampaign.advertiserURL,
+				advertiserURL: validUrl,
 				subDomains: rakutenCampaign.subDomains,
 				provider: CampaignsProvider.Rakuten,
 				isActive: rakutenCampaign.isActive,
@@ -91,4 +107,26 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 	})
 
 	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns]
+}
+
+
+function fixUrl(url: string) {
+    try {
+        // Decode URL to handle any encoded characters
+        let decodedUrl = decodeURIComponent(url);
+
+        // If the URL doesn't start with http or https, assume https
+        if (!/^https?:\/\//i.test(decodedUrl)) {
+            decodedUrl = 'https://' + decodedUrl;
+        }
+
+        // Create a URL object to check if it's valid after potential fixes
+        const urlObject = new URL(decodedUrl);
+
+        // Return the fixed, valid URL as a string
+        return urlObject.href;
+    } catch (e) {
+        // Return null if the URL cannot be fixed
+        return null;
+    }
 }
