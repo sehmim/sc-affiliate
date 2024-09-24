@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAdminDashboard } from './useAdminDashboard';
-import { AddCharityModalForm } from './AddCharityModalForm';
+import { AddCharityModalForm } from './modals/AddCharityModalForm';
 import { createCharity, deleteCharity, updateCharity } from '../../api/charityApi';
 
 const EditableTable = () => {
@@ -100,7 +100,7 @@ const EditableTable = () => {
   }
 
   return (
-    <div className="m-4">
+    <div className="">
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -120,7 +120,6 @@ const EditableTable = () => {
             <th>Logo</th>
             <th>Is Active</th>
             <th>Actions</th>
-            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -144,16 +143,12 @@ const EditableTable = () => {
               </td>
               <td>{(item.data.isActive ? 'Yes' : 'No')}</td>
               <td>
-                <Button variant="warning" onClick={() => handleEditClick(item)}>
+                <Button className="mt-2 w-100" variant="warning" onClick={() => handleEditClick(item)}>
                   Edit
                 </Button>
-              </td>
-              <td>
-                  <>
-                    <Button variant="danger" onClick={() => handleDelete(item)}>
-                      Delete
-                    </Button>
-                  </>
+                <Button className="mt-2 w-100" variant="danger" onClick={() => handleDelete(item)}>
+                  Delete
+                </Button>
               </td>
             </tr>
           ))}

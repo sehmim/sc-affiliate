@@ -6,9 +6,10 @@ import FeaturedCampaigns from './Tables/FeaturedCampaigns';
 import RakutenCampaigns from './Tables/RakutenCampaigns';
 import RakutenTrackingLinks from './Tables/RakutenTrackingLinks';
 import ImpactCampaigns from './Tables/ImpactCampaigns';
+import ActiveCampaigns from './Tables/ActiveCampagins';
 
 // Dummy components for the 4 options
-const Charities = () => (<div><h4 className="m-4">Charities</h4><EditableTable /></div>);
+const Charities = () => (<div><h4>Charities</h4><EditableTable /></div>);
 const ImpactCampaignsWrapper = () => (<div><h4 className="m-4">Impact Campaigns/Brands</h4><ImpactCampaigns /></div>);
 
 const NavigationComponent = () => {
@@ -30,6 +31,8 @@ const NavigationComponent = () => {
         return <RakutenCampaigns />;
       case 'option6': 
         return <RakutenTrackingLinks />;
+      case 'option7':
+        return <ActiveCampaigns />;
       default:
         return null;
     }
@@ -67,6 +70,11 @@ const NavigationComponent = () => {
         <Nav.Item>
           <Nav.Link eventKey="option6" active={selectedOption === 'option6'}>
             Rakuten Tracking Links
+          </Nav.Link>
+        </Nav.Item>
+          <Nav.Item>
+          <Nav.Link eventKey="option7" active={selectedOption === 'option7'}>
+            Active Campaigns
           </Nav.Link>
         </Nav.Item>
       </Nav>

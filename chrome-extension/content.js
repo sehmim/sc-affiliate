@@ -700,9 +700,27 @@ function createGiftCardNotice() {
   return span;
 }
 
+function hasMultipleTerms(arr) {
+    let count = 0;
+
+    for (const item of arr) {
+        if (item.details) {
+            count++;
+        }
+        if (count > 1) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
   const { selectedCharityObject } = userSettings;
-  const isolatedIframe = createIsolatedIframe('400px', '355px');
+
+  const frameHeight = hasMultipleTerms(allowedBrand.terms) ? '390px' : '355px';
+
+  const isolatedIframe = createIsolatedIframe('400px', frameHeight);
   isolatedIframe.onload = async function() {
     const navbar = createNavbar(isolatedIframe, closedDiv);
     const middleSection = createMiddleSection(allowedBrand, selectedCharityObject);

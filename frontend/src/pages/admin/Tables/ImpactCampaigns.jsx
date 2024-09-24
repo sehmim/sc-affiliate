@@ -10,8 +10,9 @@ import {
   doc,
 } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
-import { Button } from "react-bootstrap";
+import { Button,  Form, Modal, Spinner  } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
+import { reorderCampaigns } from "../../../utils/helpts";
 
 export async function fetchLatestEntry(collectionName) {
   try {
@@ -42,7 +43,11 @@ const ImpactCampaigns = () => {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [featureLoading, setFeatureLoading] = useState({});
-  const [editableTerms, setEditableTerms] = useState({}); // State to track editable terms
+  const [editableTerms, setEditableTerms] = useState({});
+  const [numberOfActiveCampaigns, setNumberOfActiveCampaigns] = useState(0);
+  const [numberOfInactiveCampaigns, setNumberOfInactiveCampaigns] = useState(0);
+  const [showModal, setShowModal] = useState(null);
+
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -50,7 +55,11 @@ const ImpactCampaigns = () => {
         setIsLoading(true);
         const { data } = await fetchLatestEntry("impactCampaignsSynced");
 
-        setCampaigns(data.campaigns);
+        const { campaigns, numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(data.campaigns)
+
+        setNumberOfActiveCampaigns(numberOfActiveCampaigns);
+        setNumberOfInactiveCampaigns(numberOfInactiveCampaigns);
+        setCampaigns(campaigns);
         setLastUpdated(data.createdAt);
         setIsLoading(false);
       } catch (err) {
@@ -89,6 +98,19 @@ const ImpactCampaigns = () => {
       setFeatureLoading(false);
       console.error("Error updating campaign in Firestore:", error);
     }
+  };
+
+    const handleEditTerm = (campaignID, termIndex, key, value) => {
+    setEditableTerms((prevState) => ({
+      ...prevState,
+      [campaignID]: {
+        ...prevState[campaignID],
+        [termIndex]: {
+          ...prevState[campaignID]?.[termIndex],
+          [key]: value,
+        },
+      },
+    }));
   };
 
   const activateCampaign = async (campaignID) => {
@@ -136,52 +158,6 @@ const ImpactCampaigns = () => {
     } catch (error) {
       setFeatureLoading(false);
       console.error("Error updating campaign in Firestore:", error);
-    }
-  };
-
-  const handleEditTerm = (campaignID, termIndex, key, value) => {
-    setEditableTerms((prevState) => ({
-      ...prevState,
-      [campaignID]: {
-        ...prevState[campaignID],
-        [termIndex]: {
-          ...prevState[campaignID]?.[termIndex],
-          [key]: value,
-        },
-      },
-    }));
-  };
-
-  const saveTerm = async (campaignID, termIndex) => {
-    setFeatureLoading(true);
-    try {
-      const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      const updatedCampaignsArray = data.campaigns.map((campaign) => {
-        if (campaign.campaignID === campaignID) {
-          const updatedTerms = [...campaign.terms];
-          const editedTerm = editableTerms[campaignID]?.[termIndex];
-
-          if (editedTerm) {
-            updatedTerms[termIndex] = {
-              ...updatedTerms[termIndex],
-              title: editedTerm.title || updatedTerms[termIndex].title,
-              details: editedTerm.details || updatedTerms[termIndex].details,
-            };
-          }
-
-          return { ...campaign, terms: updatedTerms };
-        }
-        return campaign;
-      });
-
-      const docRef = doc(firestore, "impactCampaignsSynced", id);
-      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
-
-      setFeatureLoading(false);
-      console.log(`Campaign ${campaignID} terms successfully updated.`);
-    } catch (error) {
-      setFeatureLoading(false);
-      console.error("Error updating campaign terms in Firestore:", error);
     }
   };
 
@@ -234,145 +210,17 @@ const ImpactCampaigns = () => {
   };
 
 const Terms = ({ campaign }) => {
-  const [newTerm, setNewTerm] = useState({ title: "", details: "" });
-
-  const handleAddNewTerm = async (campaignID) => {
-    if (!newTerm.title || !newTerm.details) return;
-
-    setFeatureLoading(true);
-    try {
-      const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      const updatedCampaignsArray = data.campaigns.map((c) => {
-        if (c.campaignID === campaignID) {
-          return {
-            ...c,
-            terms: [...c.terms, newTerm], // Add new term to the array
-          };
-        }
-        return c;
-      });
-
-      const docRef = doc(firestore, "impactCampaignsSynced", id);
-      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
-
-      setNewTerm({ title: "", details: "" });
-      setFeatureLoading(false);
-      console.log(`New term added to campaign ${campaignID}.`);
-    } catch (error) {
-      setFeatureLoading(false);
-      console.error("Error adding new term to campaign:", error);
-    }
-  };
-
-  const handleDeleteTerm = async (campaignID, termIndex) => {
-    setFeatureLoading(true);
-    try {
-      const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      const updatedCampaignsArray = data.campaigns.map((c) => {
-        if (c.campaignID === campaignID) {
-          const updatedTerms = [...c.terms];
-          updatedTerms.splice(termIndex, 1); // Remove term by index
-
-          return { ...c, terms: updatedTerms };
-        }
-        return c;
-      });
-
-      const docRef = doc(firestore, "impactCampaignsSynced", id);
-      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
-
-      setFeatureLoading(false);
-      console.log(`Term ${termIndex + 1} deleted from campaign ${campaignID}.`);
-    } catch (error) {
-      setFeatureLoading(false);
-      console.error("Error deleting term from campaign:", error);
-    }
-  };
-
   return (
     <td>
       <div className="d-flex flex-column">
         {campaign.terms.length > 0 &&
-          campaign.terms.map((term, termIndex) => (
-            <p className="d-flex flex-column" key={termIndex}>
-              <div>
-                <b>Title:</b>
-                <input
-                  className="container mb-2 p-1"
-                  type="text"
-                  value={
-                    editableTerms[campaign.campaignID]?.[termIndex]?.title ||
-                    term.title
-                  }
-                  onChange={(e) =>
-                    handleEditTerm(
-                      campaign.campaignID,
-                      termIndex,
-                      "title",
-                      e.target.value
-                    )
-                  }
-                />
-              </div>
-              <div>
-                <b>Detail:</b>
-                <input
-                  className="container mb-2 p-1"
-                  type="text"
-                  value={
-                    editableTerms[campaign.campaignID]?.[termIndex]?.details ||
-                    term.details
-                  }
-                  onChange={(e) =>
-                    handleEditTerm(
-                      campaign.campaignID,
-                      termIndex,
-                      "details",
-                      e.target.value
-                    )
-                  }
-                />
-              </div>
-              <Button
-                className="mt-2"
-                onClick={() => saveTerm(campaign.campaignID, termIndex)}
-              >
-                Save
-              </Button>
-              <Button
-                variant="danger"
-                className="mt-2"
-                onClick={() => handleDeleteTerm(campaign.campaignID, termIndex)}
-              >
-                Delete
-              </Button>
-              <hr></hr>
-            </p>
-          ))}
-      </div>
-      {/* Add New Term */}
-      <div className="d-flex flex-column">
-        <h5>Add New Term</h5>
-        <input
-          type="text"
-          className="container mb-2"
-          placeholder="Title"
-          value={newTerm.title}
-          onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
-        />
-        <input
-          className="container"
-          type="text"
-          placeholder="Details"
-          value={newTerm.details}
-          onChange={(e) => setNewTerm({ ...newTerm, details: e.target.value })}
-        />
-        <Button
-          className="mt-2"
-          onClick={() => handleAddNewTerm(campaign.campaignID)}
-        >
-          Add Term
-        </Button>
+          campaign.terms.map((term, termIndex) => {
+            if(term.details){
+              return (<p className="d-flex flex-column" key={termIndex}>
+              <div><b>Title: </b>{term.title}</div>
+              {<div><b>Detail: </b>{term.details}</div>}
+            </p>)
+            }})}
       </div>
     </td>
   );
@@ -385,6 +233,10 @@ const Terms = ({ campaign }) => {
       <Button className="mb-3" onClick={() => syncCampaigns()}>
         Sync Campaigns
       </Button>
+      <p>
+        <span>Active: {numberOfActiveCampaigns}</span><br></br>
+        <span>Inactive: {numberOfInactiveCampaigns}</span>
+      </p>
       <table className="table table-striped table-bordered">
         <thead className="thead-dark">
           <tr>
@@ -434,6 +286,23 @@ const Terms = ({ campaign }) => {
                 <AddToFeatureButton campaign={campaign} />
                 <br></br>
                 <EnableBrandButton campaign={campaign} />
+                <br></br>
+                <Button
+                  onClick={() => setShowModal(campaign)}
+                  variant="warning"
+                  className="mt-2 w-100"
+                >
+                  Terms
+                </Button>
+                <TermsModal 
+                  campaign={campaign} 
+                  showModal={showModal} 
+                  setShowModal={setShowModal} 
+                  setFeatureLoading={setFeatureLoading} 
+                  editableTerms={editableTerms} 
+                  setEditableTerms={setEditableTerms}
+                  handleEditTerm={handleEditTerm}
+                />
               </td>
             </tr>
           ))}
@@ -444,3 +313,169 @@ const Terms = ({ campaign }) => {
 };
 
 export default ImpactCampaigns;
+
+const TermsModal = ({ campaign, showModal, setShowModal, setFeatureLoading, editableTerms, handleEditTerm }) => {
+  const [newTerm, setNewTerm] = useState({ title: "", details: "" });
+
+    const saveTerm = async (campaignID, termIndex) => {
+    setFeatureLoading(true);
+    try {
+      const { data, id } = await fetchLatestEntry("rakutenCampaigns");
+      const updatedCampaignsArray = data.campaigns.map((campaign) => {
+        if (campaign.campaignID === campaignID) {
+          const updatedTerms = [...campaign.terms];
+          const editedTerm = editableTerms[campaignID]?.[termIndex];
+
+          if (editedTerm) {
+            updatedTerms[termIndex] = {
+              ...updatedTerms[termIndex],
+              title: editedTerm.title || updatedTerms[termIndex].title,
+              details: editedTerm.details || updatedTerms[termIndex].details,
+            };
+          }
+
+          return { ...campaign, terms: updatedTerms };
+        }
+        return campaign;
+      });
+
+      const docRef = doc(firestore, "rakutenCampaigns", id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      setFeatureLoading(false);
+      console.log(`Campaign ${campaignID} terms successfully updated.`);
+    } catch (error) {
+      setFeatureLoading(false);
+      console.error("Error updating campaign terms in Firestore:", error);
+    }
+  };
+
+  const handleAddNewTerm = async (campaignID) => {
+    if (!newTerm.title || !newTerm.details) return;
+
+    setFeatureLoading(true);
+    try {
+      const { data, id } = await fetchLatestEntry("rakutenCampaigns");
+      const updatedCampaignsArray = data.campaigns.map((c) => {
+        if (c.campaignID === campaignID) {
+          return {
+            ...c,
+            terms: [...c.terms, newTerm],
+          };
+        }
+        return c;
+      });
+
+      const docRef = doc(firestore, "rakutenCampaigns", id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      setNewTerm({ title: "", details: "" });
+      setFeatureLoading(false);
+      console.log(`New term added to campaign ${campaignID}.`);
+    } catch (error) {
+      setFeatureLoading(false);
+      console.error("Error adding new term to campaign:", error);
+    }
+  };
+
+  const handleDeleteTerm = async (campaignID, termIndex) => {
+    setFeatureLoading(true);
+    try {
+      const { data, id } = await fetchLatestEntry("rakutenCampaigns");
+      const updatedCampaignsArray = data.campaigns.map((c) => {
+        if (c.campaignID === campaignID) {
+          const updatedTerms = [...c.terms];
+          updatedTerms.splice(termIndex, 1);
+
+          return { ...c, terms: updatedTerms };
+        }
+        return c;
+      });
+
+      const docRef = doc(firestore, "rakutenCampaigns", id);
+      await updateDoc(docRef, { campaigns: updatedCampaignsArray });
+
+      setFeatureLoading(false);
+      console.log(`Term ${termIndex + 1} deleted from campaign ${campaignID}.`);
+    } catch (error) {
+      setFeatureLoading(false);
+      console.error("Error deleting term from campaign:", error);
+    }
+  };
+
+  return (
+    <>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Manage Campaign Terms</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex flex-column">
+            {campaign.terms.length > 0 &&
+              campaign.terms.map((term, termIndex) => (
+                term.details && <p className="d-flex flex-column" key={termIndex}>
+                  <div>
+                    <b>Title:</b>
+                    <input
+                      className="container mb-2 p-1"
+                      type="text"
+                      value={
+                        editableTerms[campaign.campaignID]?.[termIndex]?.title ||
+                        term.title
+                      }
+                      onChange={(e) =>
+                        handleEditTerm(
+                          campaign.campaignID,
+                          termIndex,
+                          "title",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  <div>
+                    <b>Detail:</b>
+                    <input
+                      className="container mb-2 p-1"
+                      type="text"
+                      value={
+                        editableTerms[campaign.campaignID]?.[termIndex]?.details ||
+                        term.details
+                      }
+                      onChange={(e) =>
+                        handleEditTerm(
+                          campaign.campaignID,
+                          termIndex,
+                          "details",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  <Button
+                    className="mt-2"
+                    onClick={() => saveTerm(campaign.campaignID, termIndex)}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="mt-2"
+                    onClick={() => handleDeleteTerm(campaign.campaignID, termIndex)}
+                  >
+                    Delete
+                  </Button>
+                  <hr></hr>
+                </p>
+              ))}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+};
