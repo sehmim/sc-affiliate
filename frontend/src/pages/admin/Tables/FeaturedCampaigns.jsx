@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { Button } from 'react-bootstrap';
 import { firestore } from '../../../utils/firebase';
 import FeaturedRakutenCampaigns from './FeaturedRakutenCampaigns';
-import { fetchLatestEntry } from './ImpactCampaigns';
+import { fetchLatestEntry } from '../../../utils/helpts';
+
 
 const FeaturedCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);

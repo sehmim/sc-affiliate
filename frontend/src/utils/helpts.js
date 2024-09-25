@@ -1,3 +1,8 @@
+import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { firestore } from './firebase';
+
+
+
 export function reorderCampaigns(campaigns) {
   // Separate the active and inactive campaigns
   const activeCampaigns = campaigns.filter(
@@ -16,4 +21,28 @@ export function reorderCampaigns(campaigns) {
     numberOfInactiveCampaigns: inactiveCampaigns.length,
     numberOfActiveCampaigns: activeCampaigns.length,
   };
+}
+
+export async function fetchLatestEntry(collectionName) {
+  try {
+    const collectionRef = collection(firestore, collectionName);
+
+    // Order by 'createdAt' descending to get the latest entry and limit to 1
+    const q = query(collectionRef, orderBy("createdAt", "desc"), limit(1));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    // Get the first document (which is the latest due to the descending order)
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+    const createdAt = data.createdAt || null;
+
+    return { data, createdAt, id: doc.id };
+  } catch (error) {
+    console.error("Error fetching the latest entry from Firestore:", error);
+    throw new Error("Failed to fetch latest entry");
+  }
 }

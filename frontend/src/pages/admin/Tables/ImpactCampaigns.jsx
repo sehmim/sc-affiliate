@@ -12,32 +12,8 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button,  Form, Modal, Spinner  } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-import { reorderCampaigns } from "../../../utils/helpts";
+import { fetchLatestEntry, reorderCampaigns } from "../../../utils/helpts";
 import { TermsModal } from "../modals/TermsModal";
-
-export async function fetchLatestEntry(collectionName) {
-  try {
-    const collectionRef = collection(firestore, collectionName);
-
-    // Order by 'createdAt' descending to get the latest entry and limit to 1
-    const q = query(collectionRef, orderBy("createdAt", "desc"), limit(1));
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      return null;
-    }
-
-    // Get the first document (which is the latest due to the descending order)
-    const doc = snapshot.docs[0];
-    const data = doc.data();
-    const createdAt = data.createdAt || null;
-
-    return { data, createdAt, id: doc.id };
-  } catch (error) {
-    console.error("Error fetching the latest entry from Firestore:", error);
-    throw new Error("Failed to fetch latest entry");
-  }
-}
 
 const ImpactCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -295,6 +271,7 @@ const Terms = ({ campaign }) => {
                 >
                   Terms
                 </Button>
+
                 <TermsModal 
                   campaignsList={campaigns}
                   campaignsListId={campaignsID}

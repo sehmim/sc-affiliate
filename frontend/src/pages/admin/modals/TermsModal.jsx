@@ -3,10 +3,13 @@ import { updateDoc, doc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Modal } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-import { fetchLatestEntry } from "../Tables/ImpactCampaigns";
+import { fetchLatestEntry } from "../../../utils/helpts";
 
 
 export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal, setShowModal, setFeatureLoading, editableTerms, handleEditTerm }) => {
+  
+  console.log('campaign --->', campaign);
+
   const [newTerm, setNewTerm] = useState({ title: "", details: "" });
 
     const saveTerm = async (campaignID, termIndex) => {
@@ -101,9 +104,10 @@ export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal
 
   return (
     <>
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Manage Campaign Terms</Modal.Title>
+      <Modal size="lg" show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header className="d-flex justify-content-between"  closeButton >
+          <Modal.Title>{showModal.campaignName}</Modal.Title>
+          <Modal.Title style={{ width: '30%', margin: 'auto' }}><div><img className="w-full" src={showModal.campaignLogoURI} /></div></Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex flex-column">
@@ -148,19 +152,21 @@ export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal
                       }
                     />
                   </div>
-                  <Button
-                    className="mt-2"
-                    onClick={() => saveTerm(campaign.campaignID, termIndex)}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="mt-2"
-                    onClick={() => handleDeleteTerm(campaign.campaignID, termIndex)}
-                  >
-                    Delete
-                  </Button>
+                  <div className="d-flex justify-content-end">
+                    <Button
+                      className="mt-2 mr-2 margin-right"
+                      onClick={() => saveTerm(campaign.campaignID, termIndex)}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="danger"
+                      className="mt-2"
+                      onClick={() => handleDeleteTerm(campaign.campaignID, termIndex)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                   <hr></hr>
                 </p>
               ))}
