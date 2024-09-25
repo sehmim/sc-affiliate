@@ -32,11 +32,10 @@ const ImpactCampaigns = () => {
       try {
         setIsLoading(true);
         const { data, id: campaignsID } = await fetchLatestEntry("impactCampaignsSynced");
+        const { campaigns } = data;
+        const { numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(data.campaigns)
 
         setCampaignsID(campaignsID);
-
-        const { campaigns, numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(data.campaigns)
-
         setNumberOfActiveCampaigns(numberOfActiveCampaigns);
         setNumberOfInactiveCampaigns(numberOfInactiveCampaigns);
         setCampaigns(campaigns);
@@ -51,9 +50,15 @@ const ImpactCampaigns = () => {
   }, [featureLoading]);
 
   const syncCampaigns = async () => {
-    setIsLoading(true);
-    await fetch(triggerImpactCampaignSync);
-    window.location.reload();
+    const userConfirmed = window.confirm("Are you sure you want to sync the campaigns?");
+
+    if (userConfirmed) {
+        setIsLoading(true);
+      await fetch(triggerImpactCampaignSync);
+        // window.location.reload();
+      } else {
+        console.log("Sync canceled");
+    }
   };
 
   const addToFeatureInCampaignsArray = async (campaignID) => {
@@ -139,50 +144,47 @@ const ImpactCampaigns = () => {
   };
 
   const AddToFeatureButton = ({ campaign }) => {
-    if (campaign.isFeatured)
-      return (
-        <Button
-          className="mt-2 w-100"
-          variant="primary"
-          disabled={campaign.isFeatured}
-        >
-          {featureLoading[campaign.campaignID] ? "Adding..." : "Featured"}
-        </Button>
-      );
-
     return (
-      <Button
-        className="mt-2 w-100"
-        variant="primary"
-        onClick={() => addToFeatureInCampaignsArray(campaign.campaignID)}
-        disabled={featureLoading[campaign.campaignID]}
-      >
-        {featureLoading[campaign.campaignID] ? "Adding..." : "Feature"}
-      </Button>
+      <div className="form-check form-switch mt-2 w-100">
+        <label
+          className="form-check-label"
+          htmlFor={`featureSwitch-${campaign.campaignID}`}
+        >
+          {featureLoading[campaign.campaignID] ? "Adding..." : campaign.isFeatured ? "Featured" : "Feature"}
+        </label>
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id={`featureSwitch-${campaign.campaignID}`}
+          checked={campaign.isFeatured || featureLoading[campaign.campaignID]}
+          disabled={featureLoading[campaign.campaignID]}
+          onChange={() => addToFeatureInCampaignsArray(campaign.campaignID)}
+        />
+      </div>
     );
   };
 
-  const EnableBrandButton = ({ campaign }) => {
-    if (campaign.isActive) {
-      return (
-        <Button
-          onClick={() => disableCampaign(campaign.campaignID)}
-          variant="success"
-          className="mt-2 w-100"
-        >
-          Enabled
-        </Button>
-      );
-    }
-
+    const EnableBrandButton = ({ campaign }) => {
     return (
-      <Button
-        onClick={() => activateCampaign(campaign.campaignID)}
-        variant="danger"
-        className="mt-2 w-100"
-      >
-        Disabled
-      </Button>
+      <div className="form-check form-switch mt-2 w-100">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id={`brandSwitch-${campaign.campaignID}`}
+          checked={campaign.isActive}
+          onChange={() =>
+            campaign.isActive
+              ? disableCampaign(campaign.campaignID)
+              : activateCampaign(campaign.campaignID)
+          }
+        />
+        <label
+          className="form-check-label"
+          htmlFor={`brandSwitch-${campaign.campaignID}`}
+        >
+          {campaign.isActive ? "Enabled" : "Disabled"}
+        </label>
+      </div>
     );
   };
 
@@ -266,28 +268,31 @@ const Terms = ({ campaign }) => {
                 <br></br>
                 <Button
                   onClick={() => setShowModal(campaign)}
-                  variant="warning"
+                  variant="outline-secondary"
                   className="mt-2 w-100"
                 >
                   Terms
                 </Button>
-
-                <TermsModal 
-                  campaignsList={campaigns}
-                  campaignsListId={campaignsID}
-                  campaign={campaign} 
-                  showModal={showModal} 
-                  setShowModal={setShowModal} 
-                  setFeatureLoading={setFeatureLoading} 
-                  editableTerms={editableTerms} 
-                  setEditableTerms={setEditableTerms}
-                  handleEditTerm={handleEditTerm}
-                />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {
+        showModal && <TermsModal 
+        collectionName={"impactCampaignsSynced"}
+          campaignsList={campaigns}
+          campaignsListId={campaignsID}
+          campaign={showModal} 
+          showModal={showModal} 
+          setShowModal={setShowModal} 
+          setFeatureLoading={setFeatureLoading} 
+          editableTerms={editableTerms} 
+          handleEditTerm={handleEditTerm}
+        />
+      }
+
     </div>
   );
 };

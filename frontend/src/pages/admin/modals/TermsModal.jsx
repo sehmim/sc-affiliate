@@ -3,12 +3,9 @@ import { updateDoc, doc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Modal } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-import { fetchLatestEntry } from "../../../utils/helpts";
 
 
-export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal, setShowModal, setFeatureLoading, editableTerms, handleEditTerm }) => {
-  
-  console.log('campaign --->', campaign);
+export const TermsModal = ({ collectionName, campaign, campaignsList, campaignsListId, showModal, setShowModal, setFeatureLoading, editableTerms, handleEditTerm }) => {
 
   const [newTerm, setNewTerm] = useState({ title: "", details: "" });
 
@@ -33,7 +30,7 @@ export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal
         return campaign;
       });
 
-      const docRef = doc(firestore, "rakutenCampaigns", campaignsListId);
+      const docRef = doc(firestore, collectionName, campaignsListId);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -51,7 +48,6 @@ export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal
 
     setFeatureLoading(true);
     try {
-      const { data, id } = await fetchLatestEntry("rakutenCampaigns");
       const updatedCampaignsArray = campaignsList.map((c) => {
         if (c.campaignID === campaignID) {
           return {
@@ -62,7 +58,7 @@ export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal
         return c;
       });
 
-      const docRef = doc(firestore, "rakutenCampaigns", campaignsListId);
+      const docRef = doc(firestore, collectionName, campaignsListId);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setNewTerm({ title: "", details: "" });
@@ -89,7 +85,7 @@ export const TermsModal = ({ campaign, campaignsList, campaignsListId, showModal
         return c;
       });
 
-      const docRef = doc(firestore, "rakutenCampaigns", campaignsListId);
+      const docRef = doc(firestore, collectionName, campaignsListId);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);

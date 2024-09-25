@@ -264,6 +264,7 @@ const Terms = ({ campaign }) => {
 
       {
       showModal && <TermsModal 
+        collectionName={"rakutenCampaigns"}
         campaignsList={campaigns}
         campaignsListId={campaignsID}
         campaign={showModal} 
