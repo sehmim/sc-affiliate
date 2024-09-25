@@ -46,3 +46,22 @@ export async function fetchLatestEntry(collectionName) {
     throw new Error("Failed to fetch latest entry");
   }
 }
+
+
+export function formatToHumanReadable(dateString) {
+  const date = new Date(dateString);
+
+  // Options to format the date into a human-readable string
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true, // Use 12-hour format (AM/PM)
+  };
+
+  // Convert the date to a human-readable string
+  return date.toLocaleDateString('en-US', options);
+}

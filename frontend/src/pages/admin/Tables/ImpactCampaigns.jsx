@@ -12,7 +12,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button,  Form, Modal, Spinner  } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-import { fetchLatestEntry, reorderCampaigns } from "../../../utils/helpts";
+import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpts";
 import { TermsModal } from "../modals/TermsModal";
 
 const ImpactCampaigns = () => {
@@ -39,7 +39,7 @@ const ImpactCampaigns = () => {
         setNumberOfActiveCampaigns(numberOfActiveCampaigns);
         setNumberOfInactiveCampaigns(numberOfInactiveCampaigns);
         setCampaigns(campaigns);
-        setLastUpdated(data.createdAt);
+        setLastUpdated(formatToHumanReadable(data.createdAt));
         setIsLoading(false);
       } catch (err) {
         setIsLoading(false);
@@ -198,6 +198,7 @@ const Terms = ({ campaign }) => {
               return (<p className="d-flex flex-column" key={termIndex}>
               <div><b>Title: </b>{term.title}</div>
               {<div><b>Detail: </b>{term.details}</div>}
+            <hr></hr>
             </p>)
             }})}
       </div>
@@ -208,7 +209,7 @@ const Terms = ({ campaign }) => {
   if (isLoading) return <div>Loading...</div>;
   return (
     <div className="m-4">
-      <p>Last updates: {lastUpdated}</p>
+      <p><b>Last updates: </b>{lastUpdated}</p>
       <Button className="mb-3" onClick={() => syncCampaigns()}>
         Sync Campaigns
       </Button>
