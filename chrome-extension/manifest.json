@@ -13,7 +13,7 @@
         "http://*/*",
         "https://*/*"
       ],
-      "js": ["content.js"],
+      "js": ["dist/content.js"],
       "css": ["css/index.css"]
     }
   ],
