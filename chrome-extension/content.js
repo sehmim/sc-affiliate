@@ -295,8 +295,9 @@ function isCodeAlreadyAppliedToWebsite() {
     const validIrclickid = getCookie("sc-irclickid");
     const validClickid = getCookie("sc-clickid");
     const validScCoupon = getCookie("sc-coupon");
+    const validranMID = getCookie("sc-ranMID");
 
-    const isValidCookie = validIrclickid || validClickid || validScCoupon;
+    const isValidCookie = validIrclickid || validClickid || validScCoupon || validranMID;
 
     codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
 
@@ -718,7 +719,7 @@ function hasMultipleTerms(arr) {
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
   const { selectedCharityObject } = userSettings;
 
-  const frameHeight = hasMultipleTerms(allowedBrand.terms) ? '390px' : '355px';
+  const frameHeight = hasMultipleTerms(allowedBrand.terms) ? '370px' : '355px';
 
   const isolatedIframe = createIsolatedIframe('400px', frameHeight);
   isolatedIframe.onload = async function() {
@@ -751,8 +752,6 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
 }
 
 function createTermsAndServiceDiv(allowedBrand) {
-
-  console.log(allowedBrand);
   // Create the fieldset
   const fieldset = document.createElement('fieldset');
   fieldset.style.margin = '5px'; // Set margin for the fieldset
@@ -1036,11 +1035,17 @@ function getQueryParameter(name) {
 
 function saveClickIdToCookie() {
   const irclickid = getQueryParameter("irclickid");
+  const ranMID = getQueryParameter("ranMID");
+
   const clickid = getQueryParameter("clickid");
   const scCoupon = getQueryParameter("sc-coupon");
 
   if (irclickid) {
       setCookie("sc-irclickid", irclickid, 7);
+  }
+
+  if(ranMID) {
+    setCookie("sc-ranMID", irclickid, 7);
   }
 
   if (clickid) {
@@ -1159,8 +1164,6 @@ async function collectAndSendBrowserInfo(apiEndpoint) {
     appVersion: navigator.appVersion,
     extensionVersion: chrome.runtime.getManifest().version,
   };
-
-  console.log('Collected Browser Info:', browserInfo);
 
   try {
     // Send the collected info to the server
