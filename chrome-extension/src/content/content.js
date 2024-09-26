@@ -1,3 +1,5 @@
+import { createTermsAndServiceDiv } from "./terms";
+
 const LOCAL_ENV = false;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
@@ -510,7 +512,6 @@ function createClosedDiv() {
   return img;
 }
 
-
 async function createActivatePageContainer(allowedBrand, closedDiv, userSettings){
 
   const isolatedIframe = createIsolatedIframe('400px', '100px');
@@ -719,7 +720,7 @@ function hasMultipleTerms(arr) {
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
   const { selectedCharityObject } = userSettings;
 
-  const frameHeight = hasMultipleTerms(allowedBrand.terms) ? '370px' : '355px';
+  const frameHeight = hasMultipleTerms(allowedBrand.terms) ? '425px' : '355px';
 
   const isolatedIframe = createIsolatedIframe('400px', frameHeight);
   isolatedIframe.onload = async function() {
@@ -749,67 +750,6 @@ async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSetti
     closedDiv.style.display = 'flex';
     isolatedIframe.style.display = 'none';
   }
-}
-
-function createTermsAndServiceDiv(allowedBrand) {
-  // Create the fieldset
-  const fieldset = document.createElement('fieldset');
-  fieldset.style.margin = '5px'; // Set margin for the fieldset
-  fieldset.style.border = 'none'; // Remove the default border
-
-  // Create the legend with centered text
-  const legend = document.createElement('legend');
-  legend.textContent = 'Offer Terms and Service';
-  legend.style.textAlign = 'center'; // Center the legend text
-  legend.style.fontSize = '14px'; // Set font size for the legend
-  legend.style.padding = '0 10px'; // Add padding for spacing
-  legend.style.margin = '0'; // Remove default margin
-  legend.style.position = 'relative'; // Allow positioning adjustments
-
-  // Create a pseudo-element for the lines
-  const lineBefore = document.createElement('span');
-  lineBefore.textContent = '';
-  lineBefore.style.borderBottom = '1px solid black'; // Line on the left
-  lineBefore.style.flexGrow = '1'; // Allow the line to grow
-  lineBefore.style.marginRight = '10px'; // Space between line and text
-
-  const lineAfter = document.createElement('span');
-  lineAfter.textContent = '';
-  lineAfter.style.borderBottom = '1px solid black'; // Line on the right
-  lineAfter.style.flexGrow = '1'; // Allow the line to grow
-  lineAfter.style.marginLeft = '10px'; // Space between line and text
-
-  // Create a container for the lines and the legend text
-  const legendContainer = document.createElement('div');
-  legendContainer.style.display = 'flex'; // Use flexbox to align items
-  legendContainer.style.alignItems = 'center'; // Center vertically
-  legendContainer.appendChild(lineBefore);
-  legendContainer.appendChild(legend);
-  legendContainer.appendChild(lineAfter);
-
-  // Append the legendContainer to the fieldset
-  fieldset.appendChild(legendContainer);
-
-  // Create the terms as paragraph elements
-  const termsWrapper = document.createElement('div');
-  termsWrapper.style.marginTop = '8px';
-
-  allowedBrand.terms.forEach(term => {
-    const p = document.createElement('p');
-    p.style.fontSize = '12px'; // Set font size for the terms
-    p.style.marginBottom = '5px'; // Remove default margin for paragraphs
-
-    // Check if details exist and create the appropriate content
-    if (term.details) {
-      p.innerHTML = `<b>${term.title}:</b> ${term.details}`;
-    }
-
-    termsWrapper.appendChild(p);
-  });
-  
-  fieldset.appendChild(termsWrapper);
-
-  return fieldset;
 }
 
 function createNavbar(isolatedIframe, closedDiv) {
@@ -1008,7 +948,6 @@ async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBran
   document.body.appendChild(isolatedIframe);
 }
 
-
 /////////// COOKIES /////////////
 function setCookie(name, value, days) {
     const date = new Date();
@@ -1056,7 +995,6 @@ function saveClickIdToCookie() {
       setCookie("sc-coupon", scCoupon, 7);
   }
 }
-
 
 //////////// Boosted Ads ///////////////////
 function isSearchQueryBarrie() {
@@ -1154,7 +1092,6 @@ async function applyBoostedAd() {
     }
 }
 
-
 /////////////////////////////////// ///////////////////////////////////////
 async function collectAndSendBrowserInfo(apiEndpoint) {
   // Collect browser information
@@ -1184,4 +1121,3 @@ async function collectAndSendBrowserInfo(apiEndpoint) {
     console.error('Error sending browser info:', error);
   }
 }
-
