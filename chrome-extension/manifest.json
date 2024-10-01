@@ -1,0 +1,82 @@
+{
+  "manifest_version": 3,
+  "name": "Shop for Good",
+  "version": "1.7",
+  "description": "Tracks brands that give you discounts. When You Shop. You Save. Charities and Causes Win.",
+  "permissions": [
+    "cookies",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "./popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "css/index.css"
+      ]
+    }
+  ],
+  "externally_connectable": {
+    "matches": [
+      "*://localhost/*",
+      "*://sc-affiliate.vercel.app/*"
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "css/index.css"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
+  },
+  "host_permissions": [
+    "https://us.cocoandeve.com/",
+    "https://www.marks.com/",
+    "https://www.fanatics.com/",
+    "https://www.springfreetrampoline.com/",
+    "https://www.decathlon.ca/",
+    "https://www.prohockeylife.com/",
+    "https://www.champion.com/",
+    "http://www.roots.com/ca",
+    "https://www.cheekbonebeauty.com/",
+    "https://www.curiositybox.com/",
+    "https://petfriendlybox.com/",
+    "https://ca.funnyfuzzy.com/",
+    "https://snorkel-mart.com/",
+    "https://www.ebrands.com/",
+    "https://www.lilysilk.com/",
+    "https://freereincoffee.com/",
+    "https://www.ebrands.com/",
+    "https://packedwithpurpose.gifts/",
+    "https://livwellnutrition.com/",
+    "https://lumierehairs.com/",
+    "https://www.easyship.com/",
+    "http://www.onehanesplace.com/",
+    "http://www.hanes.com/",
+    "http://maidenform.com/",
+    "http://www.balibras.com/",
+    "https://www.blissworld.com/",
+    "https://www.wish.com/",
+    "https://www.etundra.com/"
+  ]
+}
