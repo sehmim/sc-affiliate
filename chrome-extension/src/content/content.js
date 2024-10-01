@@ -502,8 +502,8 @@ function createClosedDiv() {
 
   // Apply the styles
   img.style.position = 'fixed';
-  img.style.bottom = '0%';
-  img.style.left = '3%';
+  img.style.top = '30%';
+  img.style.right = '0%';
   img.style.transform = 'translate(-50%, -50%)';
   img.style.width = '50px';
   img.style.height = '50px';
