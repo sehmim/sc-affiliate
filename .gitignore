@@ -57,3 +57,9 @@
 /backend/functions/*.tgz
 /backend/functions/.yarn-integrity
 /backend/functions/.env
+
+
+# EXTENSION
+/chrome-extension/node_modules/
+/chrome-extension/dist/*
+/chrome-extension/build/*
