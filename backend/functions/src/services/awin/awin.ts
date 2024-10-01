@@ -127,22 +127,25 @@ export const normalizeAwinProgrammes = (_commissionGroups: CommissionGroupRespon
 
 
     return sortedProgrammesByAdvertiser.map((promgram, index) => 
+        {
+            const subDomains = promgram.validDomains.map(d => (d.domain));
 
-        ({
-            campaignName: promgram.name,
-            campaignID: promgram.id,
-            campaignLogoURI: promgram.logoUrl,
-            defaultPayoutRate: 'TODO',
-            advertiserURL: promgram.displayUrl,
-            subDomains: promgram.validDomains,
-            provider: CampaignsProvider.Awin,
-            isActive: false, // TODO: Get past state
-            isFeatured: false, // TODO: Get past state
-            terms: [{ // TODO: Get past state
-                title: 'Gift cards included',
-                details: "N",
-            }]
-        })
+            return ({
+                subDomains,
+                campaignName: promgram.name,
+                campaignID: promgram.id,
+                campaignLogoURI: promgram.logoUrl,
+                defaultPayoutRate: '555',
+                advertiserURL: promgram.displayUrl,
+                provider: CampaignsProvider.Awin,
+                isActive: false, // TODO: Get past state
+                isFeatured: false, // TODO: Get past state
+                terms: [{ // TODO: Get past state
+                    title: 'Gift cards included',
+                    details: "N",
+                }]
+            })
+        }
     )
 
 };
