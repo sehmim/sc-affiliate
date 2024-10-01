@@ -28,6 +28,7 @@ export interface Campaign {
 export enum CampaignsProvider {
 	Rakuten = "Rakuten",
 		Impact = "Impact",
+		Awin = "Awin",
 		Custom = "Custom"
 }
 
@@ -39,15 +40,18 @@ export async function aggregateCamapigns(): Promise < Campaign[] > {
 	const {
 		campaigns: rakutenCampaigns
 	} = await getLatestEntry('rakutenCampaigns');
+	const {
+		campaigns: awinCampaigns
+	} = await getLatestEntry('awinCampaigns');
 
-	const mappedCampains = mapToCampaigns(impactCampaigns, rakutenCampaigns)
+	const mappedCampains = mapToCampaigns(impactCampaigns, rakutenCampaigns, awinCampaigns)
 	const validCampaigns = getNonZeroPayoutCampaigns(mappedCampains);
 
 	return sortByIsFeatured(validCampaigns);
 }
 
 
-function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Campaign[], customCampaigns ? : any): Campaign[] {
+function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Campaign[], awinCampaigns: Campaign[]): Campaign[] {
 	let mappedImpactCampaigns: Campaign[] = [];
 
 	let invalidBrands: any[] = []; // FOR DEBUGGING 
@@ -80,7 +84,6 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 
 
 	let mappedRakutenCampaigns: Campaign[] = [];
-
 	rakutenCampaigns.forEach((rakutenCampaign) => {
 
 		const validUrl = fixUrl(rakutenCampaign.advertiserURL);
@@ -106,7 +109,32 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 		}
 	})
 
-	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns]
+
+	let mappedAwinCamapigns: Campaign[] = [];
+
+	awinCampaigns.forEach((awinCampaign) => {
+		const validUrl = fixUrl(awinCampaign.advertiserURL);
+
+		if (!validUrl) {
+			invalidBrands.push(awinCampaign)
+			return;
+		}
+
+		mappedAwinCamapigns.push({
+			campaignName: awinCampaign.campaignName,
+			campaignID: awinCampaign.campaignID,
+			campaignLogoURI: awinCampaign.campaignLogoURI,
+			defaultPayoutRate: awinCampaign.defaultPayoutRate,
+			advertiserURL: validUrl,
+			subDomains: awinCampaign.subDomains,
+			provider: CampaignsProvider.Awin,
+			isActive: awinCampaign.isActive,
+			isFeatured: !!awinCampaign.isFeatured,
+			terms: awinCampaign.terms
+		})
+	})
+
+	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns]
 }
 
 
