@@ -1,6 +1,7 @@
 import { createTermsAndServiceDiv } from "./terms";
+import { isMainDomain, ensureHttps } from "./domainChecker";
+import { LOCAL_ENV } from "../utils/env";
 
-const LOCAL_ENV = false;
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
 
@@ -53,30 +54,39 @@ function isGoogle(url) {
     return pattern.test(url);
 }
 
-function ensureHttps(url) {
-  // Check if the URL starts with 'http://' or 'https://'
-  if (!/^https?:\/\//i.test(url)) {
-    // If not, prepend 'https://'
-    url = `https://${url}`;
-  }
-  return url;
-}
+// function ensureHttps(url) {
+//   // Check if the URL starts with 'http://' or 'https://'
+//   if (!/^https?:\/\//i.test(url)) {
+//     // If not, prepend 'https://'
+//     url = `https://${url}`;
+//   }
+//   return url;
+// }
 
-function isMainDomain(currentUrl, mainDomain) {
-    function extractMainDomain(url) {
-        let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
-        domain = domain.split('/')[0];
-        let parts = domain.split('.');
-        return parts.slice(0, -1).join('.');
-    }
+// function isMainDomain(currentUrl, campaignDomain) {
+    
 
-    // Extract main parts of the domains from both URLs
-    let mainPartCurrent = extractMainDomain(currentUrl);
-    let mainPartMain = extractMainDomain(mainDomain);
 
-    // Check if the main parts match
-    return mainPartCurrent === mainPartMain;
-}
+//     function extractMainDomain(url) {
+//         let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
+//         domain = domain.split('/')[0];
+//         let parts = domain.split('.');
+//         return parts.slice(0, -1).join('.');
+//     }
+
+//     // Extract main parts of the domains from both URLs
+//     let extractedCurrecntUrl = extractMainDomain(currentUrl);
+//     let extractedCampaignDomain = extractMainDomain(campaignDomain);
+
+//     const Curfoo = new URL(ensureHttps(currentUrl)).hostname;
+//     const Domfoo = new URL(ensureHttps(campaignDomain)).hostname;
+
+//     console.log('Domfoo -->', Domfoo)
+//     console.log('Curfoo -->', Curfoo)
+
+//     // Check if the main parts match
+//     return extractedCurrecntUrl === extractedCampaignDomain;
+// }
 
 //////////////////////////////////////
 function handleApplyCouponCodeOnCheckout(couponCode, isolatedIframe){

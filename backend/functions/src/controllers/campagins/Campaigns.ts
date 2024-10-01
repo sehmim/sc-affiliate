@@ -120,18 +120,20 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 			return;
 		}
 
-		mappedAwinCamapigns.push({
-			campaignName: awinCampaign.campaignName,
-			campaignID: awinCampaign.campaignID,
-			campaignLogoURI: awinCampaign.campaignLogoURI,
-			defaultPayoutRate: awinCampaign.defaultPayoutRate,
-			advertiserURL: validUrl,
-			subDomains: awinCampaign.subDomains,
-			provider: CampaignsProvider.Awin,
-			isActive: awinCampaign.isActive,
-			isFeatured: !!awinCampaign.isFeatured,
-			terms: awinCampaign.terms
-		})
+		if (validUrl && awinCampaign.isActive) {
+			mappedAwinCamapigns.push({
+				campaignName: awinCampaign.campaignName,
+				campaignID: awinCampaign.campaignID,
+				campaignLogoURI: awinCampaign.campaignLogoURI,
+				defaultPayoutRate: awinCampaign.defaultPayoutRate,
+				advertiserURL: validUrl,
+				subDomains: awinCampaign.subDomains,
+				provider: CampaignsProvider.Awin,
+				isActive: awinCampaign.isActive,
+				isFeatured: !!awinCampaign.isFeatured,
+				terms: awinCampaign.terms
+			})	
+		}
 	})
 
 	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns]
