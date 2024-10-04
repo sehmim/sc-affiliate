@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
+    <header style={{ position: 'fixed' }} className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
       <div className="d-flex justify-content-between w-100">
         <a href="/extension-settings">
           <img className="w-60" src={"https://i.imgur.com/UItnKy8.png"} alt="logo" />
@@ -230,7 +230,7 @@ export default function ExtensionSettings(props) {
   return (
     <>
       <Navbar />
-      <div style={{ width: "1180px", margin: "auto" }} className="h-full mt-20 p-10">
+      <div style={{ width: "1180px", margin: "auto", marginTop: '20px' }} className="h-full">
         <div className="d-flex align-items-center justify-content-between">
           <div>
             <div className="fs-1 fw-bold pt-5">Your Settings</div>
@@ -248,7 +248,7 @@ export default function ExtensionSettings(props) {
             </div>
           </div>
           <div>
-            <img style={{ width: "200px" }} src="https://i.imgur.com/BO1v7ec.png" alt="heart" />
+            <img style={{ width: "200px", position: 'relative', top: '70px' }} src="https://i.imgur.com/BO1v7ec.png" alt="heart" />
           </div>
         </div>
 
@@ -293,7 +293,7 @@ export default function ExtensionSettings(props) {
               />
             </div>
           </div>
-          <div className="mb-10">
+          <div className="mb-3">
             <div
               style={{
                 color: "#927FC5",
@@ -312,7 +312,7 @@ export default function ExtensionSettings(props) {
               sx={{ width: "100%" }}
             />
           </div>
-          <div className="mb-10" style={{ marginTop: "40px" }}>
+          <div className="mb-4">
             <div
               style={{
                 color: "#927FC5",
@@ -411,7 +411,7 @@ export default function ExtensionSettings(props) {
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
             onClick={handleSave}
             type="button"
-            className="btn btn-dark fw-bold mt-3"
+            className="btn btn-dark fw-bold mb-3"
           >
             Save
           </button>

@@ -1,26 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { triggerImpactCampaignSync } from "../../../api/env";
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
-import { Button,  Form, Modal, Spinner  } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
 import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpts";
 import { TermsModal } from "../modals/TermsModal";
 
-const ImpactCampaigns = () => {
+const AwinCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [featureLoading, setFeatureLoading] = useState({});
-  const [editableTerms, setEditableTerms] = useState({});
+  const [editableTerms, setEditableTerms] = useState({}); 
   const [numberOfActiveCampaigns, setNumberOfActiveCampaigns] = useState(0);
   const [numberOfInactiveCampaigns, setNumberOfInactiveCampaigns] = useState(0);
   const [showModal, setShowModal] = useState(null);
@@ -31,9 +23,9 @@ const ImpactCampaigns = () => {
     const fetchCampaigns = async () => {
       try {
         setIsLoading(true);
-        const { data, id: campaignsID } = await fetchLatestEntry("impactCampaignsSynced");
+        const { data, id: campaignsID } = await fetchLatestEntry("awinCampaigns");
         const { campaigns } = data;
-        const { numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(data.campaigns)
+        const { numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(campaigns)
 
         setCampaignsID(campaignsID);
         setNumberOfActiveCampaigns(numberOfActiveCampaigns);
@@ -49,29 +41,31 @@ const ImpactCampaigns = () => {
     fetchCampaigns();
   }, [featureLoading]);
 
-  const syncCampaigns = async () => {
-    const userConfirmed = window.confirm("Are you sure you want to sync the campaigns?");
+    const syncCampaigns = async () => {
+      const userConfirmed = window.confirm("Are you sure you want to sync the campaigns?");
 
-    if (userConfirmed) {
-        setIsLoading(true);
-      await fetch(triggerImpactCampaignSync);
-        // window.location.reload();
-      } else {
-        console.log("Sync canceled");
-    }
-  };
+      if (userConfirmed) {
+          setIsLoading(true);
+        await fetch(triggerImpactCampaignSync);
+          // window.location.reload();
+        } else {
+          console.log("Sync canceled");
+      }
+    };
 
   const addToFeatureInCampaignsArray = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      const updatedCampaignsArray = campaigns.map((campaign) => {
+      const campaignsArray = [...campaigns];
+
+      const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
           return { ...campaign, isFeatured: true };
         }
         return campaign;
       });
 
-      const docRef = doc(firestore, "impactCampaignsSynced", campaignsID);
+      const docRef = doc(firestore, "awinCampaigns", campaignsID);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -82,33 +76,20 @@ const ImpactCampaigns = () => {
     }
   };
 
-    const handleEditTerm = (campaignID, termIndex, key, value) => {
-    setEditableTerms((prevState) => ({
-      ...prevState,
-      [campaignID]: {
-        ...prevState[campaignID],
-        [termIndex]: {
-          ...prevState[campaignID]?.[termIndex],
-          [key]: value,
-        },
-      },
-    }));
-  };
-
   const activateCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      // const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      // const { campaigns: campaignsArray } = data;
+      const { data, id } = await fetchLatestEntry("awinCampaigns");
+      const { campaigns: campaignsArray } = data;
 
-      const updatedCampaignsArray = campaigns.map((campaign) => {
+      const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
           return { ...campaign, isActive: true };
         }
         return campaign;
       });
 
-      const docRef = doc(firestore, "impactCampaignsSynced", campaignsID);
+      const docRef = doc(firestore, "awinCampaigns", id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -122,17 +103,17 @@ const ImpactCampaigns = () => {
   const disableCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      // const { data, id } = await fetchLatestEntry("impactCampaignsSynced");
-      // const { campaigns: campaignsArray } = data;
+      const { data, id } = await fetchLatestEntry("awinCampaigns");
+      const { campaigns: campaignsArray } = data;
 
-      const updatedCampaignsArray = campaigns.map((campaign) => {
+      const updatedCampaignsArray = campaignsArray.map((campaign) => {
         if (campaign.campaignID === campaignID) {
           return { ...campaign, isActive: false };
         }
         return campaign;
       });
 
-      const docRef = doc(firestore, "impactCampaignsSynced", campaignsID);
+      const docRef = doc(firestore, "awinCampaigns", id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -143,50 +124,63 @@ const ImpactCampaigns = () => {
     }
   };
 
-  const AddToFeatureButton = ({ campaign }) => {
-    return (
-      <div className="form-check form-switch mt-2 w-100">
-        <label
-          className="form-check-label"
-          htmlFor={`featureSwitch-${campaign.campaignID}`}
-        >
-          {featureLoading[campaign.campaignID] ? "Adding..." : campaign.isFeatured ? "Featured" : "Feature"}
-        </label>
-        <input
-          className="form-check-input"
-          type="checkbox"
-          id={`featureSwitch-${campaign.campaignID}`}
-          checked={campaign.isFeatured || featureLoading[campaign.campaignID]}
-          disabled={featureLoading[campaign.campaignID]}
-          onChange={() => addToFeatureInCampaignsArray(campaign.campaignID)}
-        />
-      </div>
-    );
+  const handleEditTerm = (campaignID, termIndex, key, value) => {
+    setEditableTerms((prevState) => ({
+      ...prevState,
+      [campaignID]: {
+        ...prevState[campaignID],
+        [termIndex]: {
+          ...prevState[campaignID]?.[termIndex],
+          [key]: value,
+        },
+      },
+    }));
   };
 
-    const EnableBrandButton = ({ campaign }) => {
-    return (
-      <div className="form-check form-switch mt-2 w-100">
-        <input
-          className="form-check-input"
-          type="checkbox"
-          id={`brandSwitch-${campaign.campaignID}`}
-          checked={campaign.isActive}
-          onChange={() =>
-            campaign.isActive
-              ? disableCampaign(campaign.campaignID)
-              : activateCampaign(campaign.campaignID)
-          }
-        />
-        <label
-          className="form-check-label"
-          htmlFor={`brandSwitch-${campaign.campaignID}`}
-        >
-          {campaign.isActive ? "Enabled" : "Disabled"}
-        </label>
-      </div>
-    );
-  };
+const AddToFeatureRadio = ({ campaign }) => {
+  return (
+    <div className="form-check form-switch mt-2 w-100">
+      <label
+        className="form-check-label"
+        htmlFor={`featureSwitch-${campaign.campaignID}`}
+      >
+        {featureLoading[campaign.campaignID] ? "Adding..." : campaign.isFeatured ? "Featured" : "Feature"}
+      </label>
+      <input
+        className="form-check-input"
+        type="checkbox"
+        id={`featureSwitch-${campaign.campaignID}`}
+        checked={campaign.isFeatured || featureLoading[campaign.campaignID]}
+        disabled={featureLoading[campaign.campaignID]}
+        onChange={() => addToFeatureInCampaignsArray(campaign.campaignID)}
+      />
+    </div>
+  );
+};
+
+const EnableBrandButton = ({ campaign }) => {
+  return (
+    <div className="form-check form-switch mt-2 w-100">
+      <input
+        className="form-check-input"
+        type="checkbox"
+        id={`brandSwitch-${campaign.campaignID}`}
+        checked={campaign.isActive}
+        onChange={() =>
+          campaign.isActive
+            ? disableCampaign(campaign.campaignID)
+            : activateCampaign(campaign.campaignID)
+        }
+      />
+      <label
+        className="form-check-label"
+        htmlFor={`brandSwitch-${campaign.campaignID}`}
+      >
+        {campaign.isActive ? "Enabled" : "Disabled"}
+      </label>
+    </div>
+  );
+};
 
 const Terms = ({ campaign }) => {
   return (
@@ -198,7 +192,7 @@ const Terms = ({ campaign }) => {
               return (<p className="d-flex flex-column" key={termIndex}>
               <div><b>Title: </b>{term.title}</div>
               {<div><b>Detail: </b>{term.details}</div>}
-            <hr></hr>
+              <hr></hr>
             </p>)
             }})}
       </div>
@@ -222,12 +216,10 @@ const Terms = ({ campaign }) => {
           <tr>
             <th>Campaign Name</th>
             <th>Campaign Logo</th>
-            <th>Active Date</th>
             <th>Advertiser URL</th>
-            <th>Subdomains/Deeplinks</th>
             <th>Payout Rate</th>
-            <th style={{ width: '430px' }}>Terms</th>
-            <th>Action</th> {/* New Action column */}
+            <th>Terms</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -241,7 +233,6 @@ const Terms = ({ campaign }) => {
                   style={{ width: "100px" }}
                 />
               </td>
-              <td>{campaign.activeDate}</td>
               <td>
                 <a
                   href={campaign.advertiserURL}
@@ -251,19 +242,10 @@ const Terms = ({ campaign }) => {
                   {campaign.advertiserURL}
                 </a>
               </td>
-              <td>
-                {campaign.subDomains.map((domain, index) => (
-                  <div key={index}>
-                    <a href={domain} target="_blank" rel="noopener noreferrer">
-                      {domain}
-                    </a>
-                  </div>
-                ))}
-              </td>
               <td>{campaign.defaultPayoutRate}%</td>
               <Terms campaign={campaign} />
               <td>
-                <AddToFeatureButton campaign={campaign} />
+                <AddToFeatureRadio campaign={campaign} />
                 <br></br>
                 <EnableBrandButton campaign={campaign} />
                 <br></br>
@@ -280,22 +262,23 @@ const Terms = ({ campaign }) => {
         </tbody>
       </table>
 
+
       {
-        showModal && <TermsModal 
-        collectionName={"impactCampaignsSynced"}
-          campaignsList={campaigns}
-          campaignsListId={campaignsID}
-          campaign={showModal} 
-          showModal={showModal} 
-          setShowModal={setShowModal} 
-          setFeatureLoading={setFeatureLoading} 
-          editableTerms={editableTerms} 
-          handleEditTerm={handleEditTerm}
-        />
+      showModal && <TermsModal 
+        collectionName={"awinCampaigns"}
+        campaignsList={campaigns}
+        campaignsListId={campaignsID}
+        campaign={showModal} 
+        showModal={showModal} 
+        setShowModal={setShowModal} 
+        setFeatureLoading={setFeatureLoading} 
+        editableTerms={editableTerms} 
+        handleEditTerm={handleEditTerm}
+      />
       }
 
     </div>
   );
 };
 
-export default ImpactCampaigns;
+export default AwinCampaigns;

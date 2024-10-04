@@ -3,9 +3,10 @@ const EXCEPTIONAL_DOMAINS = ['ca.trip.com', 'www.cocoandeve.com'];
 export function isMainDomain(currentUrlInput, campaignDomain) {
     const currentUrl = new URL(ensureHttps(currentUrlInput)).hostname;
 
-    if (EXCEPTIONAL_DOMAINS.includes(currentUrl)) {
-        return true;
-    }
+    // if (EXCEPTIONAL_DOMAINS.includes(currentUrl)) {
+    //     return true;
+    // }
+
 
     function extractMainDomain(url) {
         let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
@@ -18,6 +19,10 @@ export function isMainDomain(currentUrlInput, campaignDomain) {
     let extractedCurrecntUrl = extractMainDomain(currentUrl);
     let extractedCampaignDomain = extractMainDomain(campaignDomain);
 
+    console.log('extractedCurrecntUrl -->', extractedCurrecntUrl)
+    console.log('extractedCampaignDomain -->', extractedCampaignDomain)
+
+    console.log('extractedCurrecntUrl === extractedCampaignDomain ->', extractedCurrecntUrl === extractedCampaignDomain)
     // Check if the main parts match
     return extractedCurrecntUrl === extractedCampaignDomain;
 }

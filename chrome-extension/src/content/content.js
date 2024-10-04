@@ -1,6 +1,6 @@
 import { createTermsAndServiceDiv } from "./terms";
 import { isMainDomain, ensureHttps } from "./domainChecker";
-import { LOCAL_ENV } from "../utils/env";
+import { LOCAL_ENV, UrlApplyAwinDeepLink } from "../utils/env";
 
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
@@ -155,6 +155,18 @@ async function applyRakutenDeepLink(campaign, userSettings) {
   return trackingLink;
 }
 
+async function applyAwinDeepLink(campaign, userSettings) {
+
+  const trackingLink = await postProcess(UrlApplyAwinDeepLink, {
+    advertiserUrl: campaign.advertiserURL,
+    advertiserId: Number(campaign.campaignID),
+    teamName: userSettings.selectedCharityObject.organizationName
+  });
+
+  console.log('trackingLink ---->', trackingLink)
+
+  return trackingLink;
+}
 
 function getAllowedBrandInfo(campaigns) {
   const currentWebsiteUrl = window.location.hostname;
@@ -195,6 +207,17 @@ function getAllowedBrandInfo(campaigns) {
         resultSubDomain = allowedSubDomain;
       }
     })
+
+    // If campaign mathces on the last iteration return data
+
+    console.log('domainMatched && i === campaigns.length - --->', domainMatched && i === campaigns.length -1);
+    if (domainMatched && i === campaigns.length -1) {
+
+      return {
+        allowedBrand: campaign,
+        allowedSubDomain: null,
+      }
+    }
   }
 
   return {
@@ -302,14 +325,16 @@ export async function initialize() {
 function isCodeAlreadyAppliedToWebsite() {
     let codeAlreadyAppliedToBrand;
     const href = window.location.href;
-    const codeInUrl = href.includes("irclickid") || href.includes("clickid") || href.includes("ranMID") || href.includes("sc-coupon=activated");
+    const codeInUrl = href.includes("utm_source") || href.includes("irclickid") || href.includes("clickid") || href.includes("ranMID") || href.includes("sc-coupon=activated");
     
     const validIrclickid = getCookie("sc-irclickid");
     const validClickid = getCookie("sc-clickid");
     const validScCoupon = getCookie("sc-coupon");
     const validranMID = getCookie("sc-ranMID");
+    const validranMIDUtmSource = getCookie("sc-utm_source");
 
-    const isValidCookie = validIrclickid || validClickid || validScCoupon || validranMID;
+
+    const isValidCookie = validIrclickid || validClickid || validScCoupon || validranMID || validranMIDUtmSource;
 
     codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
 
@@ -431,6 +456,11 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
 
         if (campaign.provider === "Rakuten"){
           const redirectionLink = await applyRakutenDeepLink(campaign, userSettings)
+          window.location.href = redirectionLink;
+        } 
+
+        if (campaign.provider === "Awin"){
+          const redirectionLink = await applyAwinDeepLink(campaign, userSettings)
           window.location.href = redirectionLink;
         }
       }
@@ -674,6 +704,11 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
 
               if (allowedBrand.provider === "Rakuten"){
                 const redirectionLink = await applyRakutenDeepLink(allowedBrand, userSettings)
+                window.location.href = redirectionLink;
+              }
+
+              if (allowedBrand.provider === "Awin"){
+                const redirectionLink = await applyAwinDeepLink(allowedBrand, userSettings)
                 window.location.href = redirectionLink;
               }
             }
@@ -985,6 +1020,7 @@ function getQueryParameter(name) {
 function saveClickIdToCookie() {
   const irclickid = getQueryParameter("irclickid");
   const ranMID = getQueryParameter("ranMID");
+  const utm_campaign = getQueryParameter("ranMID");
 
   const clickid = getQueryParameter("clickid");
   const scCoupon = getQueryParameter("sc-coupon");
@@ -994,7 +1030,11 @@ function saveClickIdToCookie() {
   }
 
   if(ranMID) {
-    setCookie("sc-ranMID", irclickid, 7);
+    setCookie("sc-ranMID", ranMID, 7);
+  }
+
+  if(utm_campaign) {
+    setCookie("sc-utm_campaign", utm_campaign, 7);
   }
 
   if (clickid) {

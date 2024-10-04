@@ -11,7 +11,7 @@ import { syncImpactCampaigns } from "./services/impactCampaignSync";
 import handleCorsMiddleware from "./utils/corsMiddleware";
 import * as admin from "firebase-admin";
 import { applyRakutenDeepLink, triggerRakutenCampaigns } from "./services/rakuten/api";
-import { triggerAwinProgrammes } from "./services/awin/api";
+import { applyAwinDeepLink, triggerAwinProgrammes } from "./services/awin/api";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -20,6 +20,7 @@ if (!admin.apps.length) {
 export const db = admin.firestore();
 
 export { 
+  applyAwinDeepLink,
   triggerRakutenCampaigns,
   triggerAwinProgrammes,
   getSyncedCampaigns,
