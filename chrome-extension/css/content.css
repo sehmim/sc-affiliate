@@ -1,0 +1,270 @@
+/* General Styles */
+.iframe-body {
+  display: flex;
+  margin: 0;
+}
+
+.iframe-body-column {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Left Div Styles */
+.left-div {
+  width: 35%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #2C0593;
+}
+
+/* Images Wrapper */
+.images-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* First Image (Sponsor Circle Icon) */
+.image1 {
+  border-radius: 8px;
+  width: 47px;
+}
+
+/* Second Image Wrapper */
+.image2-wrapper {
+  width: 50px;
+  border-radius: 8px;
+  height: 100%;
+  background-color: white;
+  display: flex;
+  margin-left: 5px;
+}
+
+/* Second Image (Charity Logo) */
+.image2 {
+  border-radius: 8px;
+  width: 37px;
+  margin: auto;
+}
+
+/* Third Image */
+.image3 {
+  width: 90%;
+  padding-top: 7px;
+}
+
+/* iframe container */
+.isolated-iframe {
+  position: fixed;
+  top: -100%;
+  left: 85%;
+  transform: translate(-50%, -50%);
+  border: none;
+  background-color: #fdfdfd;
+  border-radius: 16px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  display: flex;
+  z-index: 20000;
+  transition: top 0.75s ease-out;
+}
+
+/* Final iframe position after animation */
+.isolated-iframe.iframe-show {
+  top: 35%;
+}
+
+/* iframe content styles */
+.iframe-body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Arial, sans-serif';
+  font-size: 16px;
+  color: #333;
+}
+
+
+/* Container for right-side content */
+.right-div {
+    width: 65%;
+    height: 100%;
+    display: flex;
+    position: relative;
+}
+
+/* Close button styles */
+.close-button {
+    position: absolute;
+    top: 5px;
+    right: 3px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Activate button styles */
+.activate-button {
+    border-radius: 21px;
+    border: none;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+    height: 40px;
+    width: 85%;
+    margin: auto;
+    cursor: pointer;
+    background-color: #FFF;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover state for activate button */
+.activate-button.hover {
+    background-color: rgba(44, 5, 147, 0.21);
+}
+
+/* Loading state for activate button */
+.activate-button.loading {
+    cursor: not-allowed;
+}
+
+
+/* Navbar container */
+.navbar {
+    flex-direction: row;
+    background: rgb(44, 5, 147);
+    padding: 10px;
+    align-items: center;
+    display: flex;
+    position: relative;
+}
+
+/* Logo image styles */
+.navbar-logo {
+    border-radius: 8px;
+    width: 20px;
+    margin-right: 10px;
+}
+
+/* Banner image styles */
+.navbar-banner {
+    width: 150px;
+}
+
+/* Close button styles */
+.navbar-close-button {
+    position: absolute;
+    top: 5px;
+    right: 3px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: white;
+}
+
+/* Middle section container */
+.middle-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Charity logo styles */
+.charity-logo {
+    width: 51.324px;
+    height: 49px;
+    margin: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+/* Offer title styles */
+.offer-title {
+    margin-top: 0px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+/* Offer description styles */
+.offer-description {
+    text-align: center;
+    margin: 0px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    padding: 0px 20px;
+}
+
+
+/* Style for the iframe body in the login container */
+.login-body {
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+
+/* Styles for the middle section container */
+.login-middle-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Style for the logo image */
+.login-logo {
+    width: 51.324px;
+    height: 49px;
+    margin: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+/* Style for the heading text */
+.login-heading {
+    margin: 0px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+/* Style for the paragraph text */
+.login-paragraph {
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    padding: 0px 20px;
+}
+
+/* Style for the "Get Started" button */
+.login-button {
+    border-radius: 21px;
+    border: 1px solid rgb(0, 0, 0);
+    height: 40px;
+    width: 50%;
+    margin: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background-color: white;  /* Optionally, add background color */
+}
