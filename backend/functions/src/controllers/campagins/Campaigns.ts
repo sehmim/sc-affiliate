@@ -23,6 +23,7 @@ export interface Campaign {
         title: string,
         details: string,
     }[]
+	isDeepLinkEnabled?: boolean
 }
 
 export enum CampaignsProvider {
@@ -76,7 +77,8 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 				provider: CampaignsProvider.Impact,
 				isActive: impactCampaign.isActive,
 				isFeatured: !!impactCampaign.isFeatured,
-				terms: impactCampaign.terms
+				terms: impactCampaign.terms,
+				isDeepLinkEnabled: impactCampaign?.isDeepLinkEnabled
 			})
 		}
 	})

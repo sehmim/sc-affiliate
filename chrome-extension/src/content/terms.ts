@@ -1,4 +1,6 @@
-export function createTermsAndServiceDiv(allowedBrand) {
+import { Campaign } from "../types/types";
+
+export function createTermsAndServiceDiv(allowedBrand: Campaign) {
   // Create the fieldset
   const fieldset = document.createElement('fieldset');
   fieldset.style.margin = '5px'; // Set margin for the fieldset
@@ -44,7 +46,7 @@ export function createTermsAndServiceDiv(allowedBrand) {
   termsWrapper.style.height = '115px'; 
   termsWrapper.style.overflow = 'auto'; 
 
-  allowedBrand.terms.forEach(term => {
+  allowedBrand && allowedBrand?.terms?.forEach((term: any) => {
     const p = document.createElement('p');
     p.style.fontSize = '12px'; // Set font size for the terms
     p.style.marginBottom = '5px'; // Remove default margin for paragraphs
@@ -60,4 +62,20 @@ export function createTermsAndServiceDiv(allowedBrand) {
   fieldset.appendChild(termsWrapper);
 
   return fieldset;
+}
+
+
+export function hasMultipleTerms(arr: any[]) {
+    let count = 0;
+
+    for (const item of arr) {
+        if (item.details) {
+            count++;
+        }
+        if (count > 1) {
+            return true;
+        }
+    }
+
+    return false;
 }

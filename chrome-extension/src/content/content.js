@@ -1,20 +1,13 @@
-import { createTermsAndServiceDiv } from "./terms";
+import { createTermsAndServiceDiv, hasMultipleTerms } from "./terms";
 import { isMainDomain, ensureHttps } from "./domainChecker";
-import { LOCAL_ENV, UrlApplyAwinDeepLink } from "../utils/env";
+import { LOCAL_ENV } from "../utils/env";
+import { applyImpactAffiliateLink, applyAwinDeepLink, applyRakutenDeepLink, fetchCampaigns, collectAndSendBrowserInfo } from "./apiCalls";
 
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
 
 
-
-///////////////////////////////////
-const collectAndSendBrowserInfoApiUrl = LOCAL_ENV ?
-'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/collectAndSendBrowserInfo' 
-: 'https://collectandsendbrowserinfo-6n7me4jtka-uc.a.run.app';
-
-const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyRakutenDeepLink';
-
-///////////////////////////////////
+///////////////// CHROME //////////////////
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "sendData") {
     console.log("Data received in content script:", message.data);
@@ -31,141 +24,6 @@ function getDataFromStorage() {
             }
         });
     });
-}
-
-////////////////////////////////////
-async function fetchDataFromServer(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error; // Propagate the error to the caller if needed
-  }
-}
-
-function isGoogle(url) {
-    // Use a regular expression to match "http(s)://www.google." followed by any characters
-    const pattern = /^https?:\/\/www\.google\.\w+/i;
-    return pattern.test(url);
-}
-
-// function ensureHttps(url) {
-//   // Check if the URL starts with 'http://' or 'https://'
-//   if (!/^https?:\/\//i.test(url)) {
-//     // If not, prepend 'https://'
-//     url = `https://${url}`;
-//   }
-//   return url;
-// }
-
-// function isMainDomain(currentUrl, campaignDomain) {
-    
-
-
-//     function extractMainDomain(url) {
-//         let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
-//         domain = domain.split('/')[0];
-//         let parts = domain.split('.');
-//         return parts.slice(0, -1).join('.');
-//     }
-
-//     // Extract main parts of the domains from both URLs
-//     let extractedCurrecntUrl = extractMainDomain(currentUrl);
-//     let extractedCampaignDomain = extractMainDomain(campaignDomain);
-
-//     const Curfoo = new URL(ensureHttps(currentUrl)).hostname;
-//     const Domfoo = new URL(ensureHttps(campaignDomain)).hostname;
-
-//     console.log('Domfoo -->', Domfoo)
-//     console.log('Curfoo -->', Curfoo)
-
-//     // Check if the main parts match
-//     return extractedCurrecntUrl === extractedCampaignDomain;
-// }
-
-//////////////////////////////////////
-function handleApplyCouponCodeOnCheckout(couponCode, isolatedIframe){
-  let discountInput = 
-    document.querySelector('input[aria-label="Discount code"]') 
-    || document.querySelector('input[placeholder="Discount code"]');
-
-  // Check if the input element exists
-  if (discountInput) {
-    discountInput.focus();
-    discountInput.value = couponCode;
-
-    // Trigger an input event to simulate user input
-    const inputEvent = new Event('input', { bubbles: true });
-    discountInput.dispatchEvent(inputEvent);
-
-  } else {
-    console.log("CANT FIND INPUT FIELD")
-  }
-
-    setTimeout(() => {
-      let applyButton = document.querySelector('button[aria-label="Apply Discount Code"]');
-
-      // Check if the button element exists
-      if (applyButton) {
-        // Simulate a click event on the button
-        applyButton.click();
-        isolatedIframe.style.display = 'none';
-        // maindDiv.style.display = 'none';
-      } else {
-        console.error('Button with aria-label "Apply Discount Code" not found.');
-      }
-    }, 300);
-  }
-
-async function postProcess(url, payload) {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data; // Return the JSON response from the server
-  } catch (error) {
-    console.error('POST request failed:', error);
-    return null; // Return null if the request fails
-  }
-}
-
-async function applyRakutenDeepLink(campaign, userSettings) {
-
-  const trackingLink = await postProcess(UrlApplyRakutenDeepLink, {
-    advertiserUrl: campaign.advertiserURL,
-    advertiserId: Number(campaign.campaignID),
-    teamName: userSettings.selectedCharityObject.organizationName
-  });
-
-  return trackingLink;
-}
-
-async function applyAwinDeepLink(campaign, userSettings) {
-
-  const trackingLink = await postProcess(UrlApplyAwinDeepLink, {
-    advertiserUrl: campaign.advertiserURL,
-    advertiserId: Number(campaign.campaignID),
-    teamName: userSettings.selectedCharityObject.organizationName
-  });
-
-  console.log('trackingLink ---->', trackingLink)
-
-  return trackingLink;
 }
 
 function getAllowedBrandInfo(campaigns) {
@@ -209,10 +67,7 @@ function getAllowedBrandInfo(campaigns) {
     })
 
     // If campaign mathces on the last iteration return data
-
-    console.log('domainMatched && i === campaigns.length - --->', domainMatched && i === campaigns.length -1);
     if (domainMatched && i === campaigns.length -1) {
-
       return {
         allowedBrand: campaign,
         allowedSubDomain: null,
@@ -226,49 +81,6 @@ function getAllowedBrandInfo(campaigns) {
       };
 }
 
-
-function isCouponedWebsiteCheckout() {
-  // const COUPONED_BRANDS = ["lacoutts.com", "softstrokessilk.com", "lavenderpolo.com"]
-  let couponInfo = null;
-  const href = window.location.href;
-
-  if (href.includes("https://lacoutts.com/checkouts")) {
-    couponInfo = {
-      brand: "lacoutts.com",
-      couponCode: "LaCouttsSC20",
-      amount: "20%"
-    }
-  } else if (href.includes("https://www.softstrokessilk.com/checkouts")) {
-    couponInfo = {
-      brand: "softstrokessilk.com",
-      couponCode: "LOVESILK",
-      amount: "10%"
-    }
-  } 
-
-  return couponInfo;
-}
-
-function isCouponedWebsite(domain) {
-  let couponInfo = null;
-  const href = new URL(domain).href;
-
-  if (href.includes("https://lacoutts.com")) {
-    couponInfo = {
-      brand: "lacoutts.com",
-      couponCode: "LaCouttsSC20",
-      amount: "20%"
-    }
-  } else if (href.includes("https://www.softstrokessilk.com")) {
-    couponInfo = {
-      brand: "softstrokessilk.com",
-      couponCode: "LOVESILK",
-      amount: "10%"
-    }
-  } 
-
-  return couponInfo;
-}
 
 ///////////////////////////// INITIALIZE ////////////////////////////////
 export async function initialize() {
@@ -295,7 +107,7 @@ export async function initialize() {
 
     // BRAND PAGES
     const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
-    
+
     if (!allowedBrand) return;
 
     if (!userSettings || !userSettings.email) {
@@ -305,20 +117,14 @@ export async function initialize() {
     
     let codeAlreadyAppliedToBrand = isCodeAlreadyAppliedToWebsite();
 
-    // Coupon Container
-    const couponInfo = isCouponedWebsiteCheckout();
-    if (couponInfo) {
-      await createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, userSettings);
-    } else {
-      // SHOW APPLIED POPUP
-      if (codeAlreadyAppliedToBrand) {
-        await createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings);
-      }
+    // SHOW APPLIED POPUP
+    if (codeAlreadyAppliedToBrand) {
+      await createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings);
+    }
 
-      // Regular Affilicate Link Container
-      if (!couponInfo && !allowedSubDomain && !codeAlreadyAppliedToBrand) {
-        await createActivatePageContainer(allowedBrand, closedDiv, userSettings);
-      }
+    // Regular Affilicate Link Container
+    if (!allowedSubDomain && !codeAlreadyAppliedToBrand) {
+      await createActivatePageContainer(allowedBrand, closedDiv, userSettings);
     }
 }
 
@@ -345,38 +151,9 @@ function isCodeAlreadyAppliedToWebsite() {
     return codeAlreadyAppliedToBrand;
 }
 
-async function applyAffiliateLink(campaignID, userSettings){
-  const { selectedCharityObject, email } = userSettings;
-
-  if (!selectedCharityObject?.organizationName) {
-    throw new Error('No Charity Selected');
-  }
-
-  // NOTE: CampaignID is same as ProgramId;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error; // Propagate the error to the caller if needed
-  }
-}
-
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', applyImpactLink);
-}
-
-async function fetchCampaigns() {
-  const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns"; 
-  return await fetchDataFromServer(url);
+  document.addEventListener('DOMContentLoaded', applyImpactAffiliateLink);
 }
 
 function extractUrlFromCite(divElement) {
@@ -414,14 +191,6 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       // If the Url isnt in allowed domain skip html injection
       if (!isMainDomain(domain, allowedDomain)) return;
 
-      // Check to see if main domain not included in subdomains to prevent mutiple re-renders
-      // campaign.subDomains.forEach((subdomain) => {
-      //   const fullUrl = ensureHttps(subdomain);
-      //   const allowedSubdomainDomain = new URL(fullUrl).hostname;
-
-      //   if (isMainDomain(domain, allowedSubdomainDomain)) return;
-      // })
-
       const mainDiv = document.createElement('div');
       mainDiv.style.color = '#1a0dab';
       mainDiv.style.background = '#eeeeee';
@@ -450,7 +219,7 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       textDiv.target = "_blank";
       textDiv.onclick = async function () {
         if (campaign.provider === "Impact") {
-          const redirectionLink = await applyAffiliateLink(campaign.campaignID, userSettings)
+          const redirectionLink = await (campaign.campaignID, userSettings)
           window.location.href = "http://" + redirectionLink;
         } 
 
@@ -559,7 +328,7 @@ async function createActivatePageContainer(allowedBrand, closedDiv, userSettings
   isolatedIframe.onload = async function() {
     const { selectedCharityObject } = userSettings;
     const leftDiv = createLeftDiv(selectedCharityObject);
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, undefined, closedDiv, userSettings);
+    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings);
 
     const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
     iframeDocument.body.innerHTML = '';
@@ -629,8 +398,8 @@ function createLeftDiv(selectedCharityObject) {
     return div;
 }
 
-function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, userSettings) {
-    const discountAmount = couponInfo ? couponInfo?.amount : (allowedBrand.defaultPayoutRate * COMMISSION_RATE)+"%";
+function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
+    const discountAmount = (allowedBrand.defaultPayoutRate * COMMISSION_RATE)+"%";
 
     closedDiv.onclick = function () {
       isolatedIframe.style.display = '';
@@ -685,32 +454,24 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
 
     button.onclick = async function() {
         try {
-            // Disable the button and show loading text
             button.disabled = true;
             button.style.cursor = "not-allowed";
             button.textContent = "Loading...";
 
-            if (allowedBrand && allowedBrand.discountType === "Coupon") {
-              if (isCouponedWebsiteCheckout()) {
-                await handleApplyCouponCodeOnCheckout(couponInfo?.couponCode, isolatedIframe);
-              } else {
-                window.location.href = allowedBrand.trackingLink;
-              }
-            } else {
-              if (allowedBrand.provider === "Impact") {
-                const redirectionLink = await applyAffiliateLink(allowedBrand.campaignID, userSettings)
-                window.location.href = "http://" + redirectionLink;
-              } 
+            if (allowedBrand.provider === "Impact") {
+              const hostName = window.document.location.hostname;
+              const redirectionLink = await applyImpactAffiliateLink(hostName, allowedBrand, userSettings)
+              window.location.href = "http://" + redirectionLink;
+            } 
 
-              if (allowedBrand.provider === "Rakuten"){
-                const redirectionLink = await applyRakutenDeepLink(allowedBrand, userSettings)
-                window.location.href = redirectionLink;
-              }
+            if (allowedBrand.provider === "Rakuten"){
+              const redirectionLink = await applyRakutenDeepLink(allowedBrand, userSettings)
+              window.location.href = redirectionLink;
+            }
 
-              if (allowedBrand.provider === "Awin"){
-                const redirectionLink = await applyAwinDeepLink(allowedBrand, userSettings)
-                window.location.href = redirectionLink;
-              }
+            if (allowedBrand.provider === "Awin"){
+              const redirectionLink = await applyAwinDeepLink(allowedBrand, userSettings)
+              window.location.href = redirectionLink.trackingLink;
             }
   
             setCookie("sc-minimize", false);
@@ -726,41 +487,9 @@ function createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, use
     };
 
     div.appendChild(button);
-
-
-    const notIncludedDeals = createGiftCardNotice();
-
-    div.appendChild(notIncludedDeals);
-
     return div;
 }
 
-
-function createGiftCardNotice() {
-    const span = document.createElement('span');
-    span.style.position = 'fixed';
-    span.style.fontSize = 'x-small';
-    span.style.bottom = '5px';
-    span.style.right = '15px';
-    span.textContent = 'Gift cards not included';
-
-  return span;
-}
-
-function hasMultipleTerms(arr) {
-    let count = 0;
-
-    for (const item of arr) {
-        if (item.details) {
-            count++;
-        }
-        if (count > 1) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 async function createAppliedLinkPageContainer(allowedBrand, closedDiv, userSettings){
   const { selectedCharityObject } = userSettings;
@@ -975,24 +704,6 @@ async function createLoginContainer(closedDiv) {
   }
 }
 
-async function createApplyCouponCodeContainer(couponInfo, closedDiv, allowedBrand, userSettings){
-  const { selectedCharityObject } = userSettings;
-  const isolatedIframe = createIsolatedIframe('400px', '100px');
-  isolatedIframe.onload = async function() {
-    const leftDiv = createLeftDiv(selectedCharityObject);
-    const rightDiv = createRightDiv(isolatedIframe, allowedBrand, couponInfo, closedDiv, userSettings);
-
-    const iframeDocument = isolatedIframe.contentDocument || isolatedIframe.contentWindow.document;
-    iframeDocument.body.innerHTML = '';
-    iframeDocument.body.style.display = 'flex';
-    iframeDocument.body.style.margin = '0px';
-
-    iframeDocument.body.appendChild(leftDiv);
-    iframeDocument.body.appendChild(rightDiv);
-  };
-  document.body.appendChild(isolatedIframe);
-}
-
 /////////// COOKIES /////////////
 function setCookie(name, value, days) {
     const date = new Date();
@@ -1020,21 +731,24 @@ function getQueryParameter(name) {
 function saveClickIdToCookie() {
   const irclickid = getQueryParameter("irclickid");
   const ranMID = getQueryParameter("ranMID");
-  const utm_campaign = getQueryParameter("ranMID");
+  const utm_campaign = getQueryParameter("utm_source");
 
   const clickid = getQueryParameter("clickid");
   const scCoupon = getQueryParameter("sc-coupon");
 
+  // Imact
   if (irclickid) {
       setCookie("sc-irclickid", irclickid, 7);
   }
 
+  // Rakuten
   if(ranMID) {
     setCookie("sc-ranMID", ranMID, 7);
   }
 
+  // Awin
   if(utm_campaign) {
-    setCookie("sc-utm_campaign", utm_campaign, 7);
+    setCookie("sc-utm_source", utm_campaign, 7);
   }
 
   if (clickid) {
@@ -1140,34 +854,4 @@ async function applyBoostedAd() {
       centerColContainer.insertAdjacentElement('afterbegin', adContainer);
       await collectAndSendBrowserInfo()
     }
-}
-
-/////////////////////////////////// ///////////////////////////////////////
-async function collectAndSendBrowserInfo(apiEndpoint) {
-  // Collect browser information
-  const browserInfo = {
-    userAgent: navigator.userAgent,
-    platform: navigator.platform,
-    appVersion: navigator.appVersion,
-    extensionVersion: chrome.runtime.getManifest().version,
-  };
-
-  try {
-    // Send the collected info to the server
-    const response = await fetch(collectAndSendBrowserInfoApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(browserInfo),
-    });
-
-    if (response.ok) {
-      console.log('Browser info sent successfully');
-    } else {
-      console.error('Failed to send browser info', response.status);
-    }
-  } catch (error) {
-    console.error('Error sending browser info:', error);
-  }
 }

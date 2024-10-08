@@ -33,7 +33,7 @@ export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res
   })
 });
 
-function replaceSpacesWithUnderscore(teamName: string) {
+export function replaceSpacesWithUnderscore(teamName: string) {
     return teamName.replace(/[^a-zA-Z0-9]/g, '_');
 }
 

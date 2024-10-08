@@ -76,7 +76,7 @@
 
 .merchant-img-wrapper {
   width: 60px;
-  height: 60px;
+  height: 40px;
   padding: 10px;
   border-radius: 5px;
   display: flex;
@@ -102,7 +102,17 @@
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   overflow: auto;
-  padding-bottom: 5px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+}
+
+.merchant-header::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and new Edge */
 }
 
 .footer {

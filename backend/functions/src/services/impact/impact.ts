@@ -1,7 +1,5 @@
 import { parseStringPromise } from 'xml2js';
-import { onRequest } from 'firebase-functions/v2/https';
-import handleCorsMiddleware from '../utils/corsMiddleware';
-import { db } from '..';
+import { ensureHttps } from '../../utils/helper';
 
 const IMPACT_BASE_URL = 'https://api.impact.com';
 const IMPACT_API_USERNAME = 'IRgfAdY3yEcQ4797259PDyMUK3Q2pC64r1';
@@ -105,16 +103,18 @@ export const fetchCampainDeals = async (campaignId: string) => {
 }
 
 
-export async function generateLink(programId: string, teamName: string, email: string) {
+export async function generateLink(programId: string, teamName: string, email: string, deepLink?: string | null) {
   try {
     const base64Auth = Buffer.from(
       `${IMPACT_API_USERNAME}:${IMPACT_API_PASSWORD}`
     ).toString("base64");
 
-    const url = `${IMPACT_BASE_URL}/Mediapartners/${IMPACT_API_USERNAME}/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${teamName}&subId2=${email}`;
+    const deepLinkQuery = deepLink ? `&DeepLink=${deepLink}` : '';
+
+    const url = `${IMPACT_BASE_URL}/Mediapartners/${IMPACT_API_USERNAME}/Programs/${programId}/TrackingLinks?Type=vanity&subId1=${teamName}&subId2=${email}${deepLinkQuery}`;
 
     const response = await fetch(url, {
-      method: "GET",
+      method: "POST",
       headers: {
         Authorization: `Basic ${base64Auth}`,
         "Content-Type": "application/json",
@@ -132,47 +132,31 @@ export async function generateLink(programId: string, teamName: string, email: s
   }
 }
 
-export const applyTrackingLink = onRequest((req, res) => {
-  handleCorsMiddleware(req, res, async () => {
-    try {
-      const teamName = req.query.teamName as string;
-      const programId = req.query.programId as string;
-      const email = req.query.email as string;
 
-      if (!teamName || !programId) {
-        return res.status(400).send("teamName and programId query parameters are required.");
+
+export function getDeepLink(hostname: string, deepLinks: string[]) {
+  // Normalize the hostname by removing 'www.' if it exists
+  const normalizedHostname = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
+
+  // Check each deep link
+  for (const deepLink of deepLinks) {
+    // Remove the wildcard from the deep link for comparison
+    const normalizedDeepLink = deepLink.replace(/\*/g, '').trim();
+    
+    // Check if the deep link contains a wildcard
+    if (deepLink.includes('*')) {
+      // Check if the hostname matches the deep link pattern
+      const regexPattern = new RegExp(`^${normalizedDeepLink.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
+      if (regexPattern.test(normalizedHostname)) {
+        return ensureHttps(deepLink); // Return the matching deep link
       }
-
-      // Retrieve data from Firestore collection 'trackingLinks'
-      const snapshot = await db
-        .collection("trackingLinks")
-        .where("teamName", "==", teamName)
-        .where("programId", "==", programId)
-        .get();
-
-      // If a document matching the provided teamName and programId is found, return the data
-      if (!snapshot.empty) {
-        const responseData = snapshot.docs[0].data();
-        return res.status(200).json(responseData.trackingLink);
+    } else {
+      // Check for exact match
+      if (normalizedHostname === deepLink) {
+        return ensureHttps(deepLink); // Return the matching deep link
       }
-
-      // If no matching document is found, generate a new trackingLink
-      const responseData = await generateLink(programId, teamName, email);
-      
-      // Save the new trackingLink and teamName to Firestore
-      await db.collection("trackingLinks").add({
-        teamName,
-        programId,
-        linkInitiallyGeneratedBy: email,
-        appliedDate: new Date(),
-        trackingLink: responseData.TrackingURL,
-      });
-
-      // Return the generated trackingLink
-      return res.status(200).json(responseData.TrackingURL);
-    } catch (error) {
-      console.error("Error:", error);
-      return res.status(500).send("Error making GET request");
     }
-  });
-});
+  }
+
+  return null;
+}

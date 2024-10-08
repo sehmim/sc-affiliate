@@ -1,7 +1,7 @@
+import { db } from '../..';
+import { DEFAULT_TERMS_AND_CONDITIONS } from '../../utils/consts';
+import { ImpactCampaignData, NormalizedCampaign } from '../types';
 import { fetchImpactCampaignsData, fetchContracts } from './impact'
-import { ImpactCampaignData, NormalizedCampaign } from './types';
-import { db } from '..'
-import { DEFAULT_TERMS_AND_CONDITIONS } from '../utils/consts';
 
 async function syncImpactCampaigns() {
 	try {

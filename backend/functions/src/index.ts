@@ -4,14 +4,15 @@ import { deleteCampaign, updateCampaign, getSyncedCampaigns } from "./controller
 import { populatePaymentData, retrievePaymentData } from "./controllers/payments/paymentsApi";
 import { verifyVerificationCode, sendVerificationCode } from "./controllers/auth/authOTP";
 import { createUser, getUser, updateUser } from "./controllers/users/usersApi";
-import { applyTrackingLink, fetchImpactCampaignsData } from "./services/impact";
+import { fetchImpactCampaignsData } from "./services/impact/impact";
+import { applyTrackingLink } from './services/impact/api';
 import { getDefaultCharities } from "./controllers/charities/charatyApi";
 import { collectAndSendBrowserInfo } from "./controllers/analytics/analytics";
-import { syncImpactCampaigns } from "./services/impactCampaignSync";
 import handleCorsMiddleware from "./utils/corsMiddleware";
 import * as admin from "firebase-admin";
 import { applyRakutenDeepLink, triggerRakutenCampaigns } from "./services/rakuten/api";
 import { applyAwinDeepLink, triggerAwinProgrammes } from "./services/awin/api";
+import { syncImpactCampaigns } from "./services/impact/impactCampaignSync";
 
 if (!admin.apps.length) {
   admin.initializeApp();

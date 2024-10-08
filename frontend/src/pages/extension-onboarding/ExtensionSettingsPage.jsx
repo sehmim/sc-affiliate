@@ -216,7 +216,7 @@ export default function ExtensionSettings(props) {
       await updateUser(email, updates);
       console.log("User Updated");
       setLoading(false);
-      window.open("https://sponsorcircle.com/welcomeshop/", "_blank");
+      // window.open("https://sponsorcircle.com/welcomeshop/", "_blank");
     } catch (error) {
       console.log("ERROR", error);
       setLoading(false);
@@ -405,7 +405,7 @@ export default function ExtensionSettings(props) {
           </div>
         </div>
 
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <a className="d-flex justify-content-center mt-2 text-decoration-none" href="https://sponsorcircle.com/welcomeshop/" target="_blank" style={{ textAlign: "center", marginTop: "20px" }}>
           <button
             disabled={!selectedCharity || firstName === ""}
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
@@ -415,7 +415,7 @@ export default function ExtensionSettings(props) {
           >
             Save
           </button>
-        </div>
+        </a>
       </div>
     </>
   );
