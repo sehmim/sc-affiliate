@@ -1,35 +1,99 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 
 const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyRakutenDeepLink';
+const UrlApplyAwinDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyAwinDeepLink" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyAwinDeepLink";
+const UrlApplyImpactDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink" : "https://applytrackinglink-6n7me4jtka-uc.a.run.app";
+
 
 // DUBLICATE CODE
-async function applyAffiliateLink(campaignID, userSettings){
-  const { selectedCharityObject, email } = userSettings;
+// async function applyAffiliateLink(campaignID, userSettings){
+//   const { selectedCharityObject, email } = userSettings;
 
-  if (!selectedCharityObject?.organizationName) {
-    throw new Error('No Charity Selected');
-  }
+//   if (!selectedCharityObject?.organizationName) {
+//     throw new Error('No Charity Selected');
+//   }
 
-  // NOTE: CampaignID is same as ProgramId;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
+//   // NOTE: CampaignID is same as ProgramId;
+//   const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
+//       : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
 
+//   try {
+//     const response = await fetch(url);
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! Status: ${response.status}`);
+//     }
+//     const responseData = await response.json();
+//     return responseData;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//     throw error; // Propagate the error to the caller if needed
+//   }
+// }
+
+// async function applyRakutenDeepLink(campaign, userSettings) {
+
+//   const trackingLink = await postProcess(UrlApplyRakutenDeepLink, {
+//     advertiserUrl: campaign.advertiserURL,
+//     advertiserId: Number(campaign.campaignID),
+//     teamName: userSettings.selectedCharityObject.organizationName
+//   });
+
+//   return trackingLink;
+// }
+
+// async function applyRakutenDeepLink(campaign, userSettings) {
+
+//   const trackingLink = await postProcess(U, {
+//     advertiserUrl: campaign.advertiserURL,
+//     advertiserId: Number(campaign.campaignID),
+//     teamName: userSettings.selectedCharityObject.organizationName
+//   });
+
+//   return trackingLink;
+// }
+
+async function POST(url, payload) {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
-    const responseData = await response.json();
-    return responseData;
+
+    const data = await response.json();
+    return data; // Return the JSON response from the server
   } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error; // Propagate the error to the caller if needed
+    console.error('POST request failed:', error);
+    return null; // Return null if the request fails
   }
+}
+
+async function applyImpactAffiliateLink(campaign, userSettings) {
+
+
+  const hostName = campaign.advertiserURL;
+  console.log('---->', hostName)
+
+  const trackingLink = await POST(UrlApplyImpactDeepLink, {
+    hostName,
+    campaign,
+    userSettings
+  });
+
+  return trackingLink;
 }
 
 async function applyRakutenDeepLink(campaign, userSettings) {
 
-  const trackingLink = await postProcess(UrlApplyRakutenDeepLink, {
+  console.log('----->', campaign);
+
+  const trackingLink = await POST(UrlApplyRakutenDeepLink, {
     advertiserUrl: campaign.advertiserURL,
     advertiserId: Number(campaign.campaignID),
     teamName: userSettings.selectedCharityObject.organizationName
@@ -38,11 +102,81 @@ async function applyRakutenDeepLink(campaign, userSettings) {
   return trackingLink;
 }
 
+export async function applyAwinDeepLink(campaign, userSettings) {
+
+  const trackingLink = await POST(UrlApplyAwinDeepLink, {
+    advertiserUrl: campaign.advertiserURL,
+    advertiserId: Number(campaign.campaignID),
+    teamName: userSettings.selectedCharityObject.organizationName
+  });
+
+  return trackingLink;
+}
+
+
+// async function createMerchantContainer(campaign, userSettings) {
+//   const title = campaign.campaignName;
+//   const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
+//   const imageSrc = campaign.campaignLogoURI;
+//   const campaignID = campaign.campaignID;
+
+//   const newDiv = document.createElement('a');
+//   newDiv.target = "_blank";
+//   newDiv.classList.add('merchant');
+
+//   // Create elements programmatically to avoid XSS risks
+//   const headerDiv = document.createElement('div');
+//   headerDiv.classList.add('merchant-header');
+//   headerDiv.textContent = title;
+
+//   const discountDiv = document.createElement('div');
+//   discountDiv.classList.add('merchant-discount');
+//   discountDiv.textContent = subTitle;
+
+//   const imgWrapperDiv = document.createElement('div');
+//   imgWrapperDiv.classList.add('merchant-img-wrapper');
+
+//   const imgElement = document.createElement('img');
+//   imgElement.classList.add('merchant-img');
+//   imgElement.src = imageSrc;
+//   imgElement.alt = title;
+//   imgElement.onerror = function() {
+//     imgElement.style.display = 'none'; // Hide the image if it fails to load
+//   };
+
+//   imgWrapperDiv.appendChild(imgElement);
+//   newDiv.appendChild(headerDiv);
+//   newDiv.appendChild(discountDiv);
+//   newDiv.appendChild(imgWrapperDiv);
+  
+//   newDiv.onclick = async function () {
+//     let redirectionLink;
+//     imgWrapperDiv.style.opacity = 0.3;
+
+//     if (campaign.provider === "Impact") {
+//       redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
+//       chrome.tabs.create({ url: "http://" + redirectionLink });
+//     } 
+
+//     if (campaign.provider === "Rakuten"){
+//       redirectionLink = await applyRakutenDeepLink(campaign, userSettings);
+//       chrome.tabs.create({ url: redirectionLink });
+//     }
+
+//     if (campaign.provider === "Awin"){
+//       redirectionLink = await applyAwinDeepLink(campaign, userSettings);
+//       chrome.tabs.create({ url: redirectionLink.trackingLink });
+//     }
+
+//   }
+
+//   return newDiv;
+// }
+
 async function createMerchantContainer(campaign, userSettings) {
   const title = campaign.campaignName;
   const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
   const imageSrc = campaign.campaignLogoURI;
-  const campaignID = campaign.campaignID;
 
   const newDiv = document.createElement('a');
   newDiv.target = "_blank";
@@ -64,7 +198,7 @@ async function createMerchantContainer(campaign, userSettings) {
   imgElement.classList.add('merchant-img');
   imgElement.src = imageSrc;
   imgElement.alt = title;
-  imgElement.onerror = function() {
+  imgElement.onerror = function () {
     imgElement.style.display = 'none'; // Hide the image if it fails to load
   };
 
@@ -72,21 +206,50 @@ async function createMerchantContainer(campaign, userSettings) {
   newDiv.appendChild(headerDiv);
   newDiv.appendChild(discountDiv);
   newDiv.appendChild(imgWrapperDiv);
-  
-  newDiv.onclick = async function () {
+
+  // Create loading screen element
+  const loadingDiv = document.createElement('div');
+  loadingDiv.classList.add('loading-screen');
+  loadingDiv.textContent = 'Generating...';
+  loadingDiv.style.display = 'none'; // Initially hidden
+  newDiv.appendChild(loadingDiv);
+
+  newDiv.onclick = async function (e) {
+    e.preventDefault(); // Prevent default behavior until the link is generated
+
+    // Disable the div and show the loading screen
+    newDiv.style.pointerEvents = 'none'; // Disable clicks
+    newDiv.style.opacity = 0.3;          // Lower opacity
+    loadingDiv.style.display = 'block';  // Show loading text
+
     let redirectionLink;
 
-    if (campaign.provider === "Impact") {
-      redirectionLink = await applyAffiliateLink(campaignID, userSettings)
-      chrome.tabs.create({ url: "http://" + redirectionLink });
-    } 
+    try {
+      if (campaign.provider === "Impact") {
+        redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
+        chrome.tabs.create({ url: "http://" + redirectionLink });
+      } 
 
-    if (campaign.provider === "Rakuten"){
-      redirectionLink = await applyRakutenDeepLink(campaign, userSettings)
-      chrome.tabs.create({ url: redirectionLink });
+      if (campaign.provider === "Rakuten"){
+        redirectionLink = await applyRakutenDeepLink(campaign, userSettings);
+        chrome.tabs.create({ url: redirectionLink });
+      }
+
+      if (campaign.provider === "Awin"){
+        redirectionLink = await applyAwinDeepLink(campaign, userSettings);
+        chrome.tabs.create({ url: redirectionLink.trackingLink });
+      }
+
+    } catch (error) {
+      console.error("Error generating the link", error);
+      alert("Failed to generate the link. Please try again.");
+    } finally {
+      // Restore the div to be clickable again and hide the loading screen
+      newDiv.style.pointerEvents = 'auto'; // Re-enable clicks
+      newDiv.style.opacity = 1;            // Restore opacity
+      loadingDiv.style.display = 'none';   // Hide loading text
     }
-
-  }
+  };
 
   return newDiv;
 }
@@ -132,28 +295,6 @@ async function processGet(url) {
 async function fetchCampaigns() {
   const url = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns";
   return await processGet(url);
-}
-
-async function postProcess(url, payload) {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data; // Return the JSON response from the server
-  } catch (error) {
-    console.error('POST request failed:', error);
-    return null; // Return null if the request fails
-  }
 }
 
 function showPinSuggestion() {

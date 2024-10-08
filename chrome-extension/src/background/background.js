@@ -1,4 +1,4 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 
 console.log('Background script loaded.');
 
