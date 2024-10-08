@@ -1,11 +1,12 @@
-import { UserSettings } from "../types/types";
+import { AllowedCampaign, UserSettings } from "../types/types";
 // import { collectAndSendBrowserInfoApiUrl, LOCAL_ENV, UrlApplyAwinDeepLink, UrlApplyRakutenDeepLink, urlGetSyncedCampaigns } from "../utils/env";
 const {
   LOCAL_ENV,
   urlGetSyncedCampaigns,
   UrlApplyAwinDeepLink,
   collectAndSendBrowserInfoApiUrl,
-  UrlApplyRakutenDeepLink
+  UrlApplyRakutenDeepLink,
+  UrlApplyImpactDeepLink
 } = require('../utils/env');
 
 async function POST(url: string, payload: any) {
@@ -50,30 +51,40 @@ export async function fetchCampaigns() {
   return await GET(urlGetSyncedCampaigns);
 }
 
-export async function applyImpactAffiliateLink(campaignID: any, userSettings: UserSettings){
-  const { selectedCharityObject, email } = userSettings;
+// export async function applyImpactAffiliateLink(campaign: AllowedCampaign, userSettings: UserSettings){
+//   const { selectedCharityObject, email } = userSettings;
 
-  if (!selectedCharityObject?.organizationName) {
-    throw new Error('No Charity Selected');
-  }
+//   if (!selectedCharityObject?.organizationName) {
+//     throw new Error('No Charity Selected');
+//   }
 
-  // NOTE: CampaignID is same as ProgramId;
-  const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
-      : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
+//   // NOTE: CampaignID is same as ProgramId;
+//   const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
+//       : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error; // Propagate the error to the caller if needed
-  }
+//   try {
+//     const response = await fetch(url);
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! Status: ${response.status}`);
+//     }
+//     const responseData = await response.json();
+//     return responseData;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//     throw error; // Propagate the error to the caller if needed
+//   }
+// }
+
+export async function applyImpactAffiliateLink(hostName: string, campaign: AllowedCampaign, userSettings: UserSettings) {
+
+  const trackingLink = await POST(UrlApplyImpactDeepLink, {
+    hostName,
+    campaign,
+    userSettings
+  });
+
+  return trackingLink;
 }
-
 
 export async function applyRakutenDeepLink(campaign: any, userSettings: UserSettings) {
 

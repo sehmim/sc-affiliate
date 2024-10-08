@@ -107,7 +107,7 @@ export async function initialize() {
 
     // BRAND PAGES
     const { allowedBrand, allowedSubDomain } = getAllowedBrandInfo(campaigns);
-    
+
     if (!allowedBrand) return;
 
     if (!userSettings || !userSettings.email) {
@@ -459,7 +459,8 @@ function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
             button.textContent = "Loading...";
 
             if (allowedBrand.provider === "Impact") {
-              const redirectionLink = await applyImpactAffiliateLink(allowedBrand.campaignID, userSettings)
+              const hostName = window.document.location.hostname;
+              const redirectionLink = await applyImpactAffiliateLink(hostName, allowedBrand, userSettings)
               window.location.href = "http://" + redirectionLink;
             } 
 
@@ -470,7 +471,7 @@ function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
 
             if (allowedBrand.provider === "Awin"){
               const redirectionLink = await applyAwinDeepLink(allowedBrand, userSettings)
-              window.location.href = redirectionLink;
+              window.location.href = redirectionLink.trackingLink;
             }
   
             setCookie("sc-minimize", false);
@@ -730,21 +731,24 @@ function getQueryParameter(name) {
 function saveClickIdToCookie() {
   const irclickid = getQueryParameter("irclickid");
   const ranMID = getQueryParameter("ranMID");
-  const utm_campaign = getQueryParameter("ranMID");
+  const utm_campaign = getQueryParameter("utm_source");
 
   const clickid = getQueryParameter("clickid");
   const scCoupon = getQueryParameter("sc-coupon");
 
+  // Imact
   if (irclickid) {
       setCookie("sc-irclickid", irclickid, 7);
   }
 
+  // Rakuten
   if(ranMID) {
     setCookie("sc-ranMID", ranMID, 7);
   }
 
+  // Awin
   if(utm_campaign) {
-    setCookie("sc-utm_campaign", utm_campaign, 7);
+    setCookie("sc-utm_source", utm_campaign, 7);
   }
 
   if (clickid) {
