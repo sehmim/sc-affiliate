@@ -1,5 +1,12 @@
 import { UserSettings } from "../types/types";
-import { collectAndSendBrowserInfoApiUrl, LOCAL_ENV, UrlApplyAwinDeepLink, UrlApplyRakutenDeepLink, urlGetSyncedCampaigns } from "../utils/env";
+// import { collectAndSendBrowserInfoApiUrl, LOCAL_ENV, UrlApplyAwinDeepLink, UrlApplyRakutenDeepLink, urlGetSyncedCampaigns } from "../utils/env";
+const {
+  LOCAL_ENV,
+  urlGetSyncedCampaigns,
+  UrlApplyAwinDeepLink,
+  collectAndSendBrowserInfoApiUrl,
+  UrlApplyRakutenDeepLink
+} = require('../utils/env');
 
 async function POST(url: string, payload: any) {
   try {
