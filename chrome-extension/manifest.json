@@ -50,7 +50,7 @@
     "128": "icons/icon.png"
   },
   "host_permissions": [
-    "https://us.cocoandeve.com/",
+    "https://www.cocoandeve.com/",
     "https://www.marks.com/",
     "https://www.fanatics.com/",
     "https://www.springfreetrampoline.com/",
@@ -60,6 +60,7 @@
     "http://www.roots.com/ca",
     "http://www.hanes.com/",
     "https://www.cheekbonebeauty.com/",
+    "https://ca.trip.com/",
     "https://www.curiositybox.com/",
     "https://petfriendlybox.com/",
     "https://ca.funnyfuzzy.com/",
@@ -77,7 +78,6 @@
     "http://www.balibras.com/",
     "https://www.blissworld.com/",
     "https://www.wish.com/",
-    "https://www.etundra.com/",
-    "https://ca.trip.com/"
+    "https://www.etundra.com/"
   ]
 }
