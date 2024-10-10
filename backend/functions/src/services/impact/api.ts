@@ -24,7 +24,7 @@ export const applyTrackingLink = onRequest((req, res) => {
 
       // Retrieve data from Firestore collection 'trackingLinks'
       const snapshot = await db
-        .collection("trackingLinks")
+        .collection("impactTrackingLinksDev")
         .where("teamName", "==", teamName)
         .where("programId", "==", programId)
         .get();
@@ -42,7 +42,7 @@ export const applyTrackingLink = onRequest((req, res) => {
       const responseData = await generateLink(programId, teamName, email, deepLink);
 
       // Save the new trackingLink and teamName to Firestore
-      await db.collection("trackingLinks").add({
+      await db.collection("impactTrackingLinksDev").add({
         teamName,
         programId,
         linkInitiallyGeneratedBy: email,

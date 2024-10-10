@@ -26,7 +26,7 @@ const TrackingLinksTable = () => {
     const fetchTrackingLinks = async () => {
       try {
         setIsloading(true);
-        const querySnapshot = await getDocs(collection(firestore, 'trackingLinks'));
+        const querySnapshot = await getDocs(collection(firestore, "impactTrackingLinksDev"));
         const links = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
