@@ -1,4 +1,4 @@
-const LOCAL_ENV = false;
+const LOCAL_ENV = true;
 
 console.log('Background script loaded.');
 
@@ -20,8 +20,39 @@ chrome.runtime.onInstalled.addListener(function(details) {
 
 chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
     if (message.action === "sendData") {
-        chrome.storage.local.set({ userSettings: message.data });
-        sendResponse({ userSettings: message.data });
+        // Save user settings
+        chrome.storage.local.set({ userSettings: message.data }, function() {
+            if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError });
+            } else {
+                sendResponse({ userSettings: message.data });
+            }
+        });
+        return true; // Indicate response will be sent asynchronously
+    }
+
+    if (message.action === "userSettingsFromPopup") {
+        // Reset userSettingsFromPopup to null
+        chrome.storage.local.set({ userSettingsFromPopup: null }, function() {
+            if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError });
+            } else {
+                sendResponse({ message: 'userSettingsFromPopup reset' });
+            }
+        });
+        return true; // Indicate response will be sent asynchronously
+    }
+
+    if (message.action === "userSettingsFromGoogleSearch") {
+        // Reset userSettingsFromGoogleSearch to null
+        chrome.storage.local.set({ userSettingsFromGoogleSearch: null }, function() {
+            if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError });
+            } else {
+                sendResponse({ message: 'userSettingsFromGoogleSearch reset' });
+            }
+        });
+        return true; // Indicate response will be sent asynchronously
     }
 });
 

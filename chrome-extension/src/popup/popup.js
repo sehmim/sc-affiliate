@@ -1,177 +1,13 @@
-const LOCAL_ENV = false;
+const { LOCAL_ENV } = require('../utils/env');
 
-const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyRakutenDeepLink';
-const UrlApplyAwinDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyAwinDeepLink" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyAwinDeepLink";
-const UrlApplyImpactDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink" : "https://applytrackinglink-6n7me4jtka-uc.a.run.app";
+import { setCookie} from "../utils/cookieHelpers";
+const {  applyImpactAffiliateLink, applyRakutenDeepLink, applyAwinDeepLink } = require('../content/apiCalls')
 
-
-// DUBLICATE CODE
-// async function applyAffiliateLink(campaignID, userSettings){
-//   const { selectedCharityObject, email } = userSettings;
-
-//   if (!selectedCharityObject?.organizationName) {
-//     throw new Error('No Charity Selected');
-//   }
-
-//   // NOTE: CampaignID is same as ProgramId;
-//   const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
-//       : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
-
-//   try {
-//     const response = await fetch(url);
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! Status: ${response.status}`);
-//     }
-//     const responseData = await response.json();
-//     return responseData;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     throw error; // Propagate the error to the caller if needed
-//   }
-// }
-
-// async function applyRakutenDeepLink(campaign, userSettings) {
-
-//   const trackingLink = await postProcess(UrlApplyRakutenDeepLink, {
-//     advertiserUrl: campaign.advertiserURL,
-//     advertiserId: Number(campaign.campaignID),
-//     teamName: userSettings.selectedCharityObject.organizationName
-//   });
-
-//   return trackingLink;
-// }
-
-// async function applyRakutenDeepLink(campaign, userSettings) {
-
-//   const trackingLink = await postProcess(U, {
-//     advertiserUrl: campaign.advertiserURL,
-//     advertiserId: Number(campaign.campaignID),
-//     teamName: userSettings.selectedCharityObject.organizationName
-//   });
-
-//   return trackingLink;
-// }
-
-async function POST(url, payload) {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+function sendDataToContentScript(data) {
+    chrome.storage.local.set(data, function() {
+        console.log('User settings saved to local storage');
     });
-
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data; // Return the JSON response from the server
-  } catch (error) {
-    console.error('POST request failed:', error);
-    return null; // Return null if the request fails
-  }
 }
-
-async function applyImpactAffiliateLink(campaign, userSettings) {
-
-
-  const hostName = campaign.advertiserURL;
-  console.log('---->', hostName)
-
-  const trackingLink = await POST(UrlApplyImpactDeepLink, {
-    hostName,
-    campaign,
-    userSettings
-  });
-
-  return trackingLink;
-}
-
-async function applyRakutenDeepLink(campaign, userSettings) {
-
-  console.log('----->', campaign);
-
-  const trackingLink = await POST(UrlApplyRakutenDeepLink, {
-    advertiserUrl: campaign.advertiserURL,
-    advertiserId: Number(campaign.campaignID),
-    teamName: userSettings.selectedCharityObject.organizationName
-  });
-
-  return trackingLink;
-}
-
-export async function applyAwinDeepLink(campaign, userSettings) {
-
-  const trackingLink = await POST(UrlApplyAwinDeepLink, {
-    advertiserUrl: campaign.advertiserURL,
-    advertiserId: Number(campaign.campaignID),
-    teamName: userSettings.selectedCharityObject.organizationName
-  });
-
-  return trackingLink;
-}
-
-
-// async function createMerchantContainer(campaign, userSettings) {
-//   const title = campaign.campaignName;
-//   const subTitle = `${campaign.defaultPayoutRate}% on Sales`;
-//   const imageSrc = campaign.campaignLogoURI;
-//   const campaignID = campaign.campaignID;
-
-//   const newDiv = document.createElement('a');
-//   newDiv.target = "_blank";
-//   newDiv.classList.add('merchant');
-
-//   // Create elements programmatically to avoid XSS risks
-//   const headerDiv = document.createElement('div');
-//   headerDiv.classList.add('merchant-header');
-//   headerDiv.textContent = title;
-
-//   const discountDiv = document.createElement('div');
-//   discountDiv.classList.add('merchant-discount');
-//   discountDiv.textContent = subTitle;
-
-//   const imgWrapperDiv = document.createElement('div');
-//   imgWrapperDiv.classList.add('merchant-img-wrapper');
-
-//   const imgElement = document.createElement('img');
-//   imgElement.classList.add('merchant-img');
-//   imgElement.src = imageSrc;
-//   imgElement.alt = title;
-//   imgElement.onerror = function() {
-//     imgElement.style.display = 'none'; // Hide the image if it fails to load
-//   };
-
-//   imgWrapperDiv.appendChild(imgElement);
-//   newDiv.appendChild(headerDiv);
-//   newDiv.appendChild(discountDiv);
-//   newDiv.appendChild(imgWrapperDiv);
-  
-//   newDiv.onclick = async function () {
-//     let redirectionLink;
-//     imgWrapperDiv.style.opacity = 0.3;
-
-//     if (campaign.provider === "Impact") {
-//       redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
-//       chrome.tabs.create({ url: "http://" + redirectionLink });
-//     } 
-
-//     if (campaign.provider === "Rakuten"){
-//       redirectionLink = await applyRakutenDeepLink(campaign, userSettings);
-//       chrome.tabs.create({ url: redirectionLink });
-//     }
-
-//     if (campaign.provider === "Awin"){
-//       redirectionLink = await applyAwinDeepLink(campaign, userSettings);
-//       chrome.tabs.create({ url: redirectionLink.trackingLink });
-//     }
-
-//   }
-
-//   return newDiv;
-// }
 
 async function createMerchantContainer(campaign, userSettings) {
   const title = campaign.campaignName;
@@ -239,6 +75,11 @@ async function createMerchantContainer(campaign, userSettings) {
         redirectionLink = await applyAwinDeepLink(campaign, userSettings);
         chrome.tabs.create({ url: redirectionLink.trackingLink });
       }
+      
+      sendDataToContentScript({ userSettingsFromPopup: userSettings });
+      sendDataToContentScript({ userSettingsFromGoogleSearch: null });
+
+      setCookie("sc-minimize", false);
 
     } catch (error) {
       console.error("Error generating the link", error);

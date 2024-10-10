@@ -1,5 +1,7 @@
 import { createTermsAndServiceDiv, hasMultipleTerms } from "./terms";
 import { isMainDomain, ensureHttps } from "./domainChecker";
+import { getCookie, setCookie, getQueryParameter, saveClickIdToCookie} from "../utils/cookieHelpers";
+
 import { LOCAL_ENV } from "../utils/env";
 import { applyImpactAffiliateLink, applyAwinDeepLink, applyRakutenDeepLink, fetchCampaigns, collectAndSendBrowserInfo } from "./apiCalls";
 
@@ -23,6 +25,36 @@ function getDataFromStorage() {
                 resolve(data.userSettings);
             }
         });
+    });
+}
+
+async function getUserSettingsFromPopup() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get("userSettingsFromPopup", function(data) {
+            if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError));
+            } else {
+                resolve(data.userSettingsFromPopup);
+            }
+        });
+    });
+}
+
+async function getUserSettingsFromGoogleSearch() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get("userSettingsFromGoogleSearch", function(data) {
+            if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError));
+            } else {
+                resolve(data.userSettingsFromGoogleSearch);
+            }
+        });
+    });
+}
+
+export function sendDataToContentScript(data) {
+    chrome.storage.local.set(data, function() {
+        console.log('User settings saved to local storage');
     });
 }
 
@@ -115,7 +147,7 @@ export async function initialize() {
       return
     }
     
-    let codeAlreadyAppliedToBrand = isCodeAlreadyAppliedToWebsite();
+    let codeAlreadyAppliedToBrand = await isCodeAlreadyAppliedToWebsite(userSettings.selectedCharityObject.registrationNumber);
 
     // SHOW APPLIED POPUP
     if (codeAlreadyAppliedToBrand) {
@@ -128,9 +160,43 @@ export async function initialize() {
     }
 }
 
-function isCodeAlreadyAppliedToWebsite() {
+
+async function isCodeAlreadyAppliedToWebsite(organizationName) {
     let codeAlreadyAppliedToBrand;
     const href = window.location.href;
+
+    let charityWhereCodeApplied = getCookie("sc-charity");
+
+    // 1. Check if code was applied via the expension popup
+    const userSettingsFromPopUp = await getUserSettingsFromPopup();
+    if (userSettingsFromPopUp) {
+      const charityFromPopup = userSettingsFromPopUp.selectedCharityObject.registrationNumber;
+
+      setCookie("sc-charity", charityFromPopup);
+      charityWhereCodeApplied = charityFromPopup
+      console.log('settings sc-charity');
+    } 
+
+    // 2. Check if code was applied via google search
+    const userSettingsFromGoogle = await getUserSettingsFromGoogleSearch();
+    if (userSettingsFromGoogle) {
+      const charityFromPopup = userSettingsFromGoogle.selectedCharityObject.registrationNumber;
+
+
+      setCookie("sc-charity", charityFromPopup);
+      charityWhereCodeApplied = charityFromPopup
+      console.log('settings sc-charity');
+    }
+    
+    // 3. Check cookie not set previously
+    if (!charityWhereCodeApplied) {
+      return false;
+    }
+
+    if (charityWhereCodeApplied && (organizationName.replace(/\s/g, "") !== charityWhereCodeApplied?.replace(/\s/g, ""))) {
+      return false
+    }
+
     const codeInUrl = href.includes("utm_source") || href.includes("irclickid") || href.includes("clickid") || href.includes("ranMID") || href.includes("sc-coupon=activated");
     
     const validIrclickid = getCookie("sc-irclickid");
@@ -138,7 +204,6 @@ function isCodeAlreadyAppliedToWebsite() {
     const validScCoupon = getCookie("sc-coupon");
     const validranMID = getCookie("sc-ranMID");
     const validranMIDUtmSource = getCookie("sc-utm_source");
-
 
     const isValidCookie = validIrclickid || validClickid || validScCoupon || validranMID || validranMIDUtmSource;
 
@@ -171,6 +236,7 @@ function extractUrlFromCite(divElement) {
 }
 
 
+// TODO: FIX
 async function applyGoogleSearchDiscounts(campaigns, userSettings) {
   await applyBoostedAd();
   const searchResults = document.querySelectorAll('div.g');
@@ -219,7 +285,7 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       textDiv.target = "_blank";
       textDiv.onclick = async function () {
         if (campaign.provider === "Impact") {
-          const redirectionLink = await (campaign.campaignID, userSettings)
+          const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings)
           window.location.href = "http://" + redirectionLink;
         } 
 
@@ -232,6 +298,9 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
           const redirectionLink = await applyAwinDeepLink(campaign, userSettings)
           window.location.href = redirectionLink;
         }
+
+        sendDataToContentScript({ userSettingsFromGoogleSearch: userSettings });
+        sendDataToContentScript({ userSettingsFromPopup: null });
       }
 
       mainDiv.appendChild(logoDiv);
@@ -460,7 +529,7 @@ function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
 
             if (allowedBrand.provider === "Impact") {
               const hostName = window.document.location.hostname;
-              const redirectionLink = await applyImpactAffiliateLink(hostName, allowedBrand, userSettings)
+              const redirectionLink = await applyImpactAffiliateLink(allowedBrand, userSettings, hostName)
               window.location.href = "http://" + redirectionLink;
             } 
 
@@ -474,6 +543,10 @@ function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
               window.location.href = redirectionLink.trackingLink;
             }
   
+            sendDataToContentScript({ userSettingsFromGoogleSearch: null });
+            sendDataToContentScript({ userSettingsFromPopup: null });
+
+            setCookie("sc-charity", userSettings.selectedCharityObject.registrationNumber);
             setCookie("sc-minimize", false);
 
         } catch (error) {
@@ -705,60 +778,60 @@ async function createLoginContainer(closedDiv) {
 }
 
 /////////// COOKIES /////////////
-function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/";
-}
+// function setCookie(name, value, days) {
+//     const date = new Date();
+//     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+//     const expires = "expires=" + date.toUTCString();
+//     document.cookie = name + "=" + value + ";" + expires + ";path=/";
+// }
 
-function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}
+// function getCookie(name) {
+//     const nameEQ = name + "=";
+//     const ca = document.cookie.split(';');
+//     for (let i = 0; i < ca.length; i++) {
+//         let c = ca[i];
+//         while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+//         if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+//     }
+//     return null;
+// }
 
-function getQueryParameter(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-}
+// function getQueryParameter(name) {
+//     const urlParams = new URLSearchParams(window.location.search);
+//     return urlParams.get(name);
+// }
 
-function saveClickIdToCookie() {
-  const irclickid = getQueryParameter("irclickid");
-  const ranMID = getQueryParameter("ranMID");
-  const utm_campaign = getQueryParameter("utm_source");
+// function saveClickIdToCookie() {
+//   const irclickid = getQueryParameter("irclickid");
+//   const ranMID = getQueryParameter("ranMID");
+//   const utm_campaign = getQueryParameter("utm_source");
 
-  const clickid = getQueryParameter("clickid");
-  const scCoupon = getQueryParameter("sc-coupon");
+//   const clickid = getQueryParameter("clickid");
+//   const scCoupon = getQueryParameter("sc-coupon");
 
-  // Imact
-  if (irclickid) {
-      setCookie("sc-irclickid", irclickid, 7);
-  }
+//   // Imact
+//   if (irclickid) {
+//       setCookie("sc-irclickid", irclickid, 7);
+//   }
 
-  // Rakuten
-  if(ranMID) {
-    setCookie("sc-ranMID", ranMID, 7);
-  }
+//   // Rakuten
+//   if(ranMID) {
+//     setCookie("sc-ranMID", ranMID, 7);
+//   }
 
-  // Awin
-  if(utm_campaign) {
-    setCookie("sc-utm_source", utm_campaign, 7);
-  }
+//   // Awin
+//   if(utm_campaign) {
+//     setCookie("sc-utm_source", utm_campaign, 7);
+//   }
 
-  if (clickid) {
-      setCookie("sc-clickid", clickid, 7);
-  }
+//   if (clickid) {
+//       setCookie("sc-clickid", clickid, 7);
+//   }
 
-  if (scCoupon && scCoupon === "activated") {
-      setCookie("sc-coupon", scCoupon, 7);
-  }
-}
+//   if (scCoupon && scCoupon === "activated") {
+//       setCookie("sc-coupon", scCoupon, 7);
+//   }
+// }
 
 //////////// Boosted Ads ///////////////////
 function isSearchQueryBarrie() {

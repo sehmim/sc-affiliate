@@ -9,7 +9,7 @@ const {
   UrlApplyImpactDeepLink
 } = require('../utils/env');
 
-async function POST(url: string, payload: any) {
+export async function POST(url: string, payload: any) {
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -51,34 +51,16 @@ export async function fetchCampaigns() {
   return await GET(urlGetSyncedCampaigns);
 }
 
-// export async function applyImpactAffiliateLink(campaign: AllowedCampaign, userSettings: UserSettings){
-//   const { selectedCharityObject, email } = userSettings;
+export async function applyImpactAffiliateLink(campaign: AllowedCampaign, userSettings: UserSettings, hostName: string) {
 
-//   if (!selectedCharityObject?.organizationName) {
-//     throw new Error('No Charity Selected');
-//   }
+  let advertiserURL = hostName;
 
-//   // NOTE: CampaignID is same as ProgramId;
-//   const url = LOCAL_ENV ? `http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}` 
-//       : `https://applytrackinglink-6n7me4jtka-uc.a.run.app?programId=${campaignID}&teamName=${selectedCharityObject.organizationName}&email=${email}`;
-
-//   try {
-//     const response = await fetch(url);
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! Status: ${response.status}`);
-//     }
-//     const responseData = await response.json();
-//     return responseData;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     throw error; // Propagate the error to the caller if needed
-//   }
-// }
-
-export async function applyImpactAffiliateLink(hostName: string, campaign: AllowedCampaign, userSettings: UserSettings) {
+  if (!advertiserURL) {
+    advertiserURL = campaign.advertiserURL;
+  }
 
   const trackingLink = await POST(UrlApplyImpactDeepLink, {
-    hostName,
+    hostName: advertiserURL,
     campaign,
     userSettings
   });
