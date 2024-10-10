@@ -107,6 +107,15 @@ export function sendMessageToExtension(data, extensinoId) {
     chrome.runtime.sendMessage(extensinoId, { action: "sendData", data: data }, (response) => {
       console.log("Response from extension:", response);
     });
+
+    chrome.runtime.sendMessage(extensinoId, { action: "userSettingsFromPopup", data: null }, (response) => {
+      console.log("Response from extension:", response);
+    });
+
+    chrome.runtime.sendMessage(extensinoId, { action: "userSettingsFromGoogleSearch", data: null }, (response) => {
+      console.log("Response from extension:", response);
+    });
+    
   } else {
     console.log("Chrome extension not detected.");
   }
