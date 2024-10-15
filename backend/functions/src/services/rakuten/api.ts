@@ -47,23 +47,23 @@ export const applyRakutenDeepLink = functions.https.onRequest(async (req, res) =
       }
 
 
-      const dashedTeamname = replaceSpacesWithUnderscore(teamName);
 
       // Check if a deep link already exists in Firestore for the given teamName and advertiserId
       const snapshot = await db
         .collection('rakutenDeeplink')
-        .where('teamName', '==', dashedTeamname)
-        .where('programId', '==', Number(advertiserId))
+        .where('teamName', '==', teamName)
+        .where('programId', '==', advertiserId)
         .get();
 
       // If a matching deep link is found, return it
       if (!snapshot.empty) {
         const storedDeepLink = snapshot.docs[0].data();
-        return res.status(200).json(storedDeepLink);
+        return res.status(200).json(storedDeepLink.trackingLink);
       }
 
       // Generate a new deep link if no document was found
       const accessToken = await getAccessToken();
+      const dashedTeamname = replaceSpacesWithUnderscore(teamName);
       const payload = {
         url: advertiserUrl,
         advertiser_id: Number(advertiserId),
