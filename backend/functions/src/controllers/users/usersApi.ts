@@ -29,6 +29,7 @@ export const createUser = onRequest((req, res) => {
                 firstName: firstName || "",
                 lastName: lastName || "",
                 email: email,
+                createdAt: new Date()
             });
 
             res.status(201).send({ id: userRef.id, message: 'User created successfully' });

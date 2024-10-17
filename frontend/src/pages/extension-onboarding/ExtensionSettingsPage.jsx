@@ -153,6 +153,18 @@ export default function ExtensionSettings(props) {
   // when the email is passed from the previous page
   const [email, setEmail] = useState(null);
 
+
+  useEffect(() => {
+    if (location.state?.lastLoggedIn) {
+      const updateLastLoggedIn = async () => {
+        if (!location.state?.email ) return; // If email is not provided, exit
+
+        await updateUser(location.state?.email, { lastLoggedIn: new Date() });
+      };
+      updateLastLoggedIn();
+    }
+  }, [location.state?.lastLoggedIn, location.state?.email ])
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
