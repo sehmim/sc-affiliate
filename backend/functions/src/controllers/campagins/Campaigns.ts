@@ -138,6 +138,7 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 		}
 	})
 
+	// return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns, ...CJCampaigns] TODO:
 	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns]
 }
 

@@ -3,6 +3,7 @@ import handleCorsMiddleware from '../../utils/corsMiddleware';
 import { db } from '../..';
 import { generateLink, getDeepLink } from './impact';
 import { replaceSpacesWithUnderscore } from '../rakuten/api';
+import { ensureHttps } from '../../utils/helper';
 
 export const applyTrackingLink = onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
@@ -32,14 +33,18 @@ export const applyTrackingLink = onRequest((req, res) => {
       // If a document matching the provided teamName and programId is found, return the data
       if (!snapshot.empty) {
         const responseData = snapshot.docs[0].data();
-        return res.status(200).json(responseData.trackingLink);
+        
+        if (!responseData.trackingLink.includes('fanatics')) {
+          return res.status(200).json(ensureHttps(responseData.trackingLink));
+        }
       }
 
 
       const deepLink = campaign?.isDeepLinkEnabled ? getDeepLink(hostName, campaign?.subDomains) : null;
       
       // If no matching document is found, generate a new trackingLink
-      const responseData = await generateLink(programId, teamName, email, deepLink);
+      const responseDataResponse = await generateLink(programId, teamName, email, deepLink);
+      const trackingLink = ensureHttps(responseDataResponse.TrackingURL);
 
       // Save the new trackingLink and teamName to Firestore
       await db.collection("impactTrackingLinksDev").add({
@@ -47,11 +52,11 @@ export const applyTrackingLink = onRequest((req, res) => {
         programId,
         linkInitiallyGeneratedBy: email,
         appliedDate: new Date(),
-        trackingLink: responseData.TrackingURL,
+        trackingLink,
       });
 
       // Return the generated trackingLink
-      return res.status(200).json(responseData.TrackingURL);
+      return res.status(200).json(trackingLink);
     } catch (error) {
       console.error("Error:", error);
       return res.status(500).send("Error processing request");
