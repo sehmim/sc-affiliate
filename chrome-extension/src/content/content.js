@@ -286,7 +286,7 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       textDiv.onclick = async function () {
         if (campaign.provider === "Impact") {
           const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings)
-          window.location.href = "http://" + redirectionLink;
+          window.location.href = redirectionLink;
         } 
 
         if (campaign.provider === "Rakuten"){

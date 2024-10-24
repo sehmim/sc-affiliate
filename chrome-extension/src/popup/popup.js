@@ -63,7 +63,7 @@ async function createMerchantContainer(campaign, userSettings) {
     try {
       if (campaign.provider === "Impact") {
         redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
-        chrome.tabs.create({ url: "http://" + redirectionLink });
+        chrome.tabs.create({ url: redirectionLink });
       } 
 
       if (campaign.provider === "Rakuten"){
