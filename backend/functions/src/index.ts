@@ -13,6 +13,7 @@ import * as admin from "firebase-admin";
 import { applyRakutenDeepLink, triggerRakutenCampaigns } from "./services/rakuten/api";
 import { applyAwinDeepLink, triggerAwinProgrammes } from "./services/awin/api";
 import { syncImpactCampaigns } from "./services/impact/impactCampaignSync";
+import { triggerCJAdvertisers } from "./services/cj/api";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -42,7 +43,8 @@ export {
   applyRakutenDeepLink,
   getDefaultCharities,
   collectAndSendBrowserInfo,
-  syncImpactCampaigns
+  syncImpactCampaigns,
+  triggerCJAdvertisers
 };
 
 // Schedule sync to run every 7 days as per discussed on github issue

@@ -30,7 +30,8 @@ export enum CampaignsProvider {
 	Rakuten = "Rakuten",
 		Impact = "Impact",
 		Awin = "Awin",
-		Custom = "Custom"
+		Custom = "Custom",
+		CJ = "CJ"
 }
 
 
@@ -45,14 +46,18 @@ export async function aggregateCamapigns(): Promise < Campaign[] > {
 		campaigns: awinCampaigns
 	} = await getLatestEntry('awinCampaigns');
 
-	const mappedCampains = mapToCampaigns(impactCampaigns, rakutenCampaigns, awinCampaigns)
+	const {
+		campaigns: CJCampaigns
+	} =  await getLatestEntry('CJCampaigns');
+
+	const mappedCampains = mapToCampaigns(impactCampaigns, rakutenCampaigns, awinCampaigns, CJCampaigns)
 	const validCampaigns = getNonZeroPayoutCampaigns(mappedCampains);
 
 	return sortByIsFeatured(validCampaigns);
 }
 
 
-function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Campaign[], awinCampaigns: Campaign[]): Campaign[] {
+function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Campaign[], awinCampaigns: Campaign[], CJCampaigns: Campaign[]): Campaign[] {
 	let mappedImpactCampaigns: Campaign[] = [];
 
 	let invalidBrands: any[] = []; // FOR DEBUGGING 
@@ -138,7 +143,7 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 		}
 	})
 
-	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns]
+	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns, ...CJCampaigns]
 }
 
 

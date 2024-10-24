@@ -49,36 +49,5 @@
     "48": "icons/icon.png",
     "128": "icons/icon.png"
   },
-  "host_permissions": [
-    "https://www.cocoandeve.com/",
-    "https://www.marks.com/",
-    "https://www.fanatics.ca/",
-    "https://www.springfreetrampoline.com/",
-    "https://www.decathlon.ca/",
-    "https://www.prohockeylife.com/",
-    "https://www.champion.com/",
-    "http://www.roots.com/ca",
-    "http://www.hanes.com/",
-    "https://www.cheekbonebeauty.com/",
-    "https://ca.trip.com/",
-    "https://www.curiositybox.com/",
-    "https://petfriendlybox.com/",
-    "https://ca.funnyfuzzy.com/",
-    "https://25home.com/",
-    "https://snorkel-mart.com/",
-    "https://www.ebrands.com/",
-    "https://www.lilysilk.com/",
-    "https://freereincoffee.com/",
-    "https://www.ebrands.com/",
-    "https://packedwithpurpose.gifts/",
-    "https://livwellnutrition.com/",
-    "https://lumierehairs.com/",
-    "https://www.easyship.com/",
-    "http://www.onehanesplace.com/",
-    "http://maidenform.com/",
-    "http://www.balibras.com/",
-    "https://www.blissworld.com/",
-    "https://www.wish.com/",
-    "https://www.etundra.com/"
-  ]
+  "host_permissions": []
 }
