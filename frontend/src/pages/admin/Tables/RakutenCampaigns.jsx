@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { triggerImpactCampaignSync } from "../../../api/env";
+import { triggerImpactCampaignSync, triggerRakutenCampaignSync } from "../../../api/env";
 import { updateDoc, doc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button } from "react-bootstrap";
@@ -46,8 +46,8 @@ const RakutenCampaigns = () => {
 
       if (userConfirmed) {
           setIsLoading(true);
-        await fetch(triggerImpactCampaignSync);
-          // window.location.reload();
+        await fetch(triggerRakutenCampaignSync);
+          window.location.reload();
         } else {
           console.log("Sync canceled");
       }
@@ -204,7 +204,7 @@ const Terms = ({ campaign }) => {
   return (
     <div className="m-4">
       <p><b>Last updates: </b>{lastUpdated}</p>
-      <Button disabled className="mb-3" onClick={() => syncCampaigns()}>
+      <Button className="mb-3" onClick={() => syncCampaigns()}>
         Sync Campaigns
       </Button>
       <p>

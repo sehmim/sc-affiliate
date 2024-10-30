@@ -3,6 +3,8 @@ import handleCorsMiddleware from '../../utils/corsMiddleware';
 import { db } from '../..';
 import { generateLink, getDeepLink } from './impact';
 import { replaceSpacesWithUnderscore } from '../rakuten/api';
+import { constructUpdatedCamapgins, getNormalizedCampagins } from './impactCampaignSync';
+import { storeData } from '../../utils/firestoreWrapper';
 
 export const applyTrackingLink = onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
@@ -64,4 +66,25 @@ export const applyTrackingLink = onRequest((req, res) => {
   });
 });
 
+export const triggerImpactCampaignSync = onRequest(async (req, res) => {
+    return handleCorsMiddleware(req, res, async () => {
+  try {
 
+    const normalizedCampagins = await getNormalizedCampagins();
+    const updatedArray = await constructUpdatedCamapgins(normalizedCampagins);
+
+    await storeData('impactCampaignsSynced', {
+      createdAt: new Date().toISOString(),
+      campaigns: updatedArray
+    });
+
+    res.status(200).json({
+      createdAt: new Date().toISOString(),
+      campaigns: updatedArray
+    });
+
+  } catch (error) {
+    console.error('Error syncing Impact campaigns:', error);
+    res.status(500).send('Error syncing Impact campaigns.');
+  }
+})});
