@@ -3,7 +3,6 @@ import handleCorsMiddleware from '../../utils/corsMiddleware';
 import { db } from '../..';
 import { generateLink, getDeepLink } from './impact';
 import { replaceSpacesWithUnderscore } from '../rakuten/api';
-import { ensureHttps } from '../../utils/helper';
 
 export const applyTrackingLink = onRequest((req, res) => {
   handleCorsMiddleware(req, res, async () => {
@@ -34,8 +33,9 @@ export const applyTrackingLink = onRequest((req, res) => {
       if (!snapshot.empty) {
         const responseData = snapshot.docs[0].data();
         
+        // no need to ensureHttps if its not fanatics. do it later tho once you remove it form 
         if (!responseData.trackingLink.includes('fanatics')) {
-          return res.status(200).json(ensureHttps(responseData.trackingLink));
+          return res.status(200).json(responseData.trackingLink);
         }
       }
 
@@ -44,7 +44,7 @@ export const applyTrackingLink = onRequest((req, res) => {
       
       // If no matching document is found, generate a new trackingLink
       const responseDataResponse = await generateLink(programId, teamName, email, deepLink);
-      const trackingLink = ensureHttps(responseDataResponse.TrackingURL);
+      const trackingLink = responseDataResponse.TrackingURL;
 
       // Save the new trackingLink and teamName to Firestore
       await db.collection("impactTrackingLinksDev").add({
