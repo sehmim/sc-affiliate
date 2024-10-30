@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { db } from '../../index';
 import handleCorsMiddleware from '../../utils/corsMiddleware';
-import { AwinProgramme, fetchAwinProgrammes, generateAwinLink, getCommissionGroups, normalizeAwinProgrammes } from './awin';
+import { AwinProgramme, fetchAwinProgrammes, generateAwinLink, getCommissionGroups, normalizeAwinProgrammes, constructUpdatedCamapgins } from './awin';
 import { storeData } from '../../utils/firestoreWrapper';
 
 const replaceSpacesWithUnderscore = (text: string) => text.replace(/\s+/g, '_');
@@ -23,7 +23,7 @@ export const applyAwinDeepLink = functions.https.onRequest(async (req, res) => {
         .where('advertiserId', '==', Number(advertiserId))
         .get();
 
-      if (!snapshot.empty) {
+      if (!snapshot.empty) { 
         const storedDeepLink = snapshot.docs[0].data();
         return res.status(200).json(storedDeepLink);
       }
@@ -76,14 +76,16 @@ export const triggerAwinProgrammes = functions.https.onRequest(async (req, res) 
       const commissionGroups = await Promise.all(commissionGroupsPromises); 
       const normalizedPrograms = normalizeAwinProgrammes(commissionGroups, programmes);
 
+      const updatedArray = await constructUpdatedCamapgins(normalizedPrograms);
+
       await storeData('awinCampaigns', {
         createdAt: new Date().toISOString(),
-        campaigns: normalizedPrograms
+        campaigns: updatedArray
       });
 
       res.status(200).json({
         createdAt: new Date().toISOString(),
-        campaigns: normalizedPrograms
+        campaigns: updatedArray
       });
     } catch (error) {
       console.error('Error fetching advertisers:', error);
