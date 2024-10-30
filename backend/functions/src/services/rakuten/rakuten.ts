@@ -1,6 +1,7 @@
 import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
 import { DEFAULT_TERMS_AND_CONDITIONS } from '../../utils/consts';
-import { extractNumber } from '../../utils/helper';
+import { getLatestEntry } from '../../utils/firestoreWrapper';
+import { extractNumber, updateCampaignArray } from '../../utils/helper';
 import { convertXmlToJson } from '../../utils/xml2json';
 
 const clientId: string = 'R8xXyh0OFFWR595XYbFDUKSrt2tlVM0E';
@@ -180,4 +181,12 @@ export async function generateDeepLink(accessToken: string, payload: DeepLinkPay
     console.error('Error calling Rakuten API:', error);
     throw error;
   }
+}
+
+export const constructUpdatedCamapgins = async (incomeinCampagins: Campaign[]) => {
+  const { campaigns: latestAwinCampaigns }: { campaigns: Campaign[] } = await getLatestEntry('rakutenCampaigns');
+
+  const updatedArray = updateCampaignArray(latestAwinCampaigns, incomeinCampagins);
+
+  return updatedArray;
 }

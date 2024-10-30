@@ -1,3 +1,5 @@
+import { Campaign } from "../controllers/campagins/Campaigns";
+
 export function sortBy(key: any, array: any) {
   return array.slice().sort((a: any, b: any) => {
     if (a[key] < b[key]) {
@@ -21,4 +23,31 @@ export function ensureHttps(url: string) {
     url = `https://${url}`;
   }
   return url;
+}
+
+export function updateCampaignArray(
+    previousArray: Campaign[], 
+    newArray: Campaign[]
+): Campaign[] {
+    const updatedArray = newArray.map(newCampaign => {
+        const previousCampaign = previousArray.find(
+            prev => prev.campaignID+"" === newCampaign.campaignID+""
+        );
+
+        if (previousCampaign) {
+            // Copy non-comparable properties from previousCampaign to newCampaign
+            return {
+                ...newCampaign,
+                isActive: previousCampaign.isActive,
+                isFeatured: previousCampaign.isFeatured,
+                terms: previousCampaign.terms,
+                isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled
+            };
+        }
+
+        // Return the new campaign as-is if no match was found
+        return newCampaign;
+    });
+
+    return updatedArray;
 }

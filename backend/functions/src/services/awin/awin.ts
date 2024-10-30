@@ -1,5 +1,6 @@
 import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
 import { getLatestEntry } from '../../utils/firestoreWrapper';
+import { updateCampaignArray } from '../../utils/helper';
 const API_KEY = 'b29b288d-5898-4a10-b93f-e588cf0a2678';
 const PUBLISHER_ID = '1726335';
 
@@ -168,32 +169,4 @@ export const constructUpdatedCamapgins = async (incomeinCampagins: Campaign[]) =
   const updatedArray = updateCampaignArray(latestAwinCampaigns, incomeinCampagins);
 
   return updatedArray;
-}
-
-
-function updateCampaignArray(
-    previousArray: Campaign[], 
-    newArray: Campaign[]
-): Campaign[] {
-    const updatedArray = newArray.map(newCampaign => {
-        const previousCampaign = previousArray.find(
-            prev => prev.campaignID+"" === newCampaign.campaignID+""
-        );
-
-        if (previousCampaign) {
-            // Copy non-comparable properties from previousCampaign to newCampaign
-            return {
-                ...newCampaign,
-                isActive: previousCampaign.isActive,
-                isFeatured: previousCampaign.isFeatured,
-                terms: previousCampaign.terms,
-                isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled
-            };
-        }
-
-        // Return the new campaign as-is if no match was found
-        return newCampaign;
-    });
-
-    return updatedArray;
 }

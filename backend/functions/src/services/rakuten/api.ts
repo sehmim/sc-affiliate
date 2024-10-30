@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { db } from '../../index';
 import handleCorsMiddleware from '../../utils/corsMiddleware';
-import { generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns } from './rakuten';
+import { constructUpdatedCamapgins, generateDeepLink, getAccessToken, getMerchByAppStatus, getRakutenAdvertiserById, normalizeRakutenCampaigns } from './rakuten';
 import { storeData } from '../../utils/firestoreWrapper';
 
 export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res) => {
@@ -17,14 +17,18 @@ export const triggerRakutenCampaigns = functions.https.onRequest(async (req, res
       const rakutenCampaignsObject = await Promise.all(rakutenCampaignPromises); 
 
       const { campaigns } = normalizeRakutenCampaigns(rakutenCampaignsObject, merchesByAppStatuses);
+
+      const updatedArray = await constructUpdatedCamapgins(campaigns);
+
+
       await storeData('rakutenCampaigns', {
         createdAt: new Date().toISOString(),
-        campaigns
+        campaigns: updatedArray
       });
 
       res.status(200).json({
         createdAt: new Date().toISOString(),
-        campaigns
+        campaigns: updatedArray
       });
     } catch (error) {
       console.error('Error fetching advertisers:', error);
