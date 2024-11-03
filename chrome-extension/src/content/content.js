@@ -197,15 +197,31 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
       return false
     }
 
-    const codeInUrl = href.includes("utm_source") || href.includes("irclickid") || href.includes("clickid") || href.includes("ranMID") || href.includes("sc-coupon=activated");
-    
+    const codeInUrl = 
+      href.includes("utm_source") || 
+      href.includes("irclickid") || 
+      href.includes("clickid") || 
+      href.includes("ranMID") || 
+      href.includes("utm_campaign") || 
+      href.includes("awc") || 
+      href.includes("sc-coupon=activated"); // NOT IN USE
+  
     const validIrclickid = getCookie("sc-irclickid");
     const validClickid = getCookie("sc-clickid");
     const validScCoupon = getCookie("sc-coupon");
     const validranMID = getCookie("sc-ranMID");
     const validranMIDUtmSource = getCookie("sc-utm_source");
+    const validAwc = getCookie("sc-awc");
+    const validUtmCampaign = getCookie("sc-utm_campaign");
 
-    const isValidCookie = validIrclickid || validClickid || validScCoupon || validranMID || validranMIDUtmSource;
+    const isValidCookie = 
+      validIrclickid || 
+      validClickid || 
+      validScCoupon || 
+      validranMID || 
+      validranMIDUtmSource || 
+      validUtmCampaign ||
+      validAwc;
 
     codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
 
@@ -286,7 +302,8 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       textDiv.onclick = async function () {
         if (campaign.provider === "Impact") {
           const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings)
-          window.location.href = redirectionLink;
+          console.log('redirectionLink --->', redirectionLink);
+          window.location.href = ensureHttps(redirectionLink);
         } 
 
         if (campaign.provider === "Rakuten"){
@@ -776,62 +793,6 @@ async function createLoginContainer(closedDiv) {
     isolatedIframe.style.display = 'none';
   }
 }
-
-/////////// COOKIES /////////////
-// function setCookie(name, value, days) {
-//     const date = new Date();
-//     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-//     const expires = "expires=" + date.toUTCString();
-//     document.cookie = name + "=" + value + ";" + expires + ";path=/";
-// }
-
-// function getCookie(name) {
-//     const nameEQ = name + "=";
-//     const ca = document.cookie.split(';');
-//     for (let i = 0; i < ca.length; i++) {
-//         let c = ca[i];
-//         while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-//         if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-//     }
-//     return null;
-// }
-
-// function getQueryParameter(name) {
-//     const urlParams = new URLSearchParams(window.location.search);
-//     return urlParams.get(name);
-// }
-
-// function saveClickIdToCookie() {
-//   const irclickid = getQueryParameter("irclickid");
-//   const ranMID = getQueryParameter("ranMID");
-//   const utm_campaign = getQueryParameter("utm_source");
-
-//   const clickid = getQueryParameter("clickid");
-//   const scCoupon = getQueryParameter("sc-coupon");
-
-//   // Imact
-//   if (irclickid) {
-//       setCookie("sc-irclickid", irclickid, 7);
-//   }
-
-//   // Rakuten
-//   if(ranMID) {
-//     setCookie("sc-ranMID", ranMID, 7);
-//   }
-
-//   // Awin
-//   if(utm_campaign) {
-//     setCookie("sc-utm_source", utm_campaign, 7);
-//   }
-
-//   if (clickid) {
-//       setCookie("sc-clickid", clickid, 7);
-//   }
-
-//   if (scCoupon && scCoupon === "activated") {
-//       setCookie("sc-coupon", scCoupon, 7);
-//   }
-// }
 
 //////////// Boosted Ads ///////////////////
 function isSearchQueryBarrie() {

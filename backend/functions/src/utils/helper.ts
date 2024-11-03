@@ -29,24 +29,35 @@ export function updateCampaignArray(
     previousArray: Campaign[], 
     newArray: Campaign[]
 ): Campaign[] {
-    const updatedArray = newArray.map(newCampaign => {
-        const previousCampaign = previousArray.find(
+    const updatedArray: Campaign[] = [];
+    
+    newArray.map(newCampaign => {
+        // Find campaigns that have matching campaignIDs
+        const previousCampaigns = previousArray.filter(
             prev => prev.campaignID+"" === newCampaign.campaignID+""
         );
 
-        if (previousCampaign) {
-            // Copy non-comparable properties from previousCampaign to newCampaign
-            return {
-                ...newCampaign,
-                isActive: previousCampaign.isActive,
-                isFeatured: previousCampaign.isFeatured,
-                terms: previousCampaign.terms,
-                isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled
-            };
+        if (previousCampaigns.length > 0) {
+          previousCampaigns.map((previousCampaign)=> {
+              // If added manually just copy it from the previous entry
+              if (previousCampaign?.isManuallyEnteredInFirestore) {
+                updatedArray.push(previousCampaign);
+                return;
+              }
+              
+              updatedArray.push({
+                  ...newCampaign,
+                  subDomains: [...new Set(previousCampaign.subDomains)],
+                  isActive: previousCampaign.isActive,
+                  isFeatured: previousCampaign.isFeatured,
+                  terms: previousCampaign.terms,
+                  isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled
+              })
+          }) 
+        } else {
+          // Return the new campaign as-is if no match was found
+          updatedArray.push(newCampaign); 
         }
-
-        // Return the new campaign as-is if no match was found
-        return newCampaign;
     });
 
     return updatedArray;

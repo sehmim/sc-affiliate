@@ -226,7 +226,7 @@ const Terms = ({ campaign }) => {
           {campaigns.map((campaign) => (
             <tr key={campaign.campaignID}>
               <td>{campaign.campaignName}</td>
-              <td>
+              {/* <td>
                 <img
                   src={campaign.campaignLogoURI}
                   alt={campaign.campaignName}
@@ -256,7 +256,7 @@ const Terms = ({ campaign }) => {
                 >
                   Terms
                 </Button>
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>
