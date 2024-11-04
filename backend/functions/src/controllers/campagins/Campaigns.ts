@@ -23,7 +23,8 @@ export interface Campaign {
         title: string,
         details: string,
     }[]
-	isDeepLinkEnabled?: boolean
+	isDeepLinkEnabled?: boolean;
+	isManuallyEnteredInFirestore?: boolean;
 }
 
 export enum CampaignsProvider {

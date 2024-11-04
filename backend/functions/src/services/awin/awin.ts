@@ -1,4 +1,6 @@
-import { CampaignsProvider } from '../../controllers/campagins/Campaigns';
+import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
+import { getLatestEntry } from '../../utils/firestoreWrapper';
+import { updateCampaignArray } from '../../utils/helper';
 const API_KEY = 'b29b288d-5898-4a10-b93f-e588cf0a2678';
 const PUBLISHER_ID = '1726335';
 
@@ -28,6 +30,7 @@ export type CommissionGroup = {
     type: string;
     amount: number;
     currency: string;
+    percentage: number;
 };
 
 type CommissionGroupResponse = {
@@ -120,22 +123,30 @@ export const getCommissionGroups = async (advertiserId: number) => {
 
 
 
-export const normalizeAwinProgrammes = (_commissionGroups: CommissionGroupResponse[], programmes: AwinProgramme[]) => {
+export const normalizeAwinProgrammes = (commissionGroups: CommissionGroupResponse[], programmes: AwinProgramme[]): Campaign[] => {
     
-    // const sortedCommissionGroupByAdvertiser = commissionGroups.sort((a, b) => a.advertiser - b.advertiser);
     const sortedProgrammesByAdvertiser = programmes.sort((a, b) => a.id - b.id);
-
+    const sortedCommissionGroups = commissionGroups.sort((a, b) => a.advertiser - b.advertiser);
 
     return sortedProgrammesByAdvertiser.map((promgram, index) => 
         {
             const subDomains = promgram.validDomains.map(d => (d.domain));
+            const defaultPayoutRateGroupArray = sortedCommissionGroups.find((c => c.advertiser === promgram.id)) as CommissionGroupResponse;
+
+            let defaultPayoutRate = 0;
+            
+            (defaultPayoutRateGroupArray.commissionGroups).map((commissionGroup)=> {
+              if (commissionGroup.groupCode === "DEFAULT" && commissionGroup.type === "percentage") {
+                defaultPayoutRate = commissionGroup.percentage;
+              }
+            })
 
             return ({
                 subDomains,
+                defaultPayoutRate: defaultPayoutRate+"",
                 campaignName: promgram.name,
-                campaignID: promgram.id,
+                campaignID: promgram.id+"",
                 campaignLogoURI: promgram.logoUrl,
-                defaultPayoutRate: '555',
                 advertiserURL: promgram.displayUrl,
                 provider: CampaignsProvider.Awin,
                 isActive: false, // TODO: Get past state
@@ -149,3 +160,13 @@ export const normalizeAwinProgrammes = (_commissionGroups: CommissionGroupRespon
     )
 
 };
+
+
+
+export const constructUpdatedCamapgins = async (incomeinCampagins: Campaign[]) => {
+  const { campaigns: latestAwinCampaigns }: { campaigns: Campaign[] } = await getLatestEntry('awinCampaigns');
+
+  const updatedArray = updateCampaignArray(latestAwinCampaigns, incomeinCampagins);
+
+  return updatedArray;
+}

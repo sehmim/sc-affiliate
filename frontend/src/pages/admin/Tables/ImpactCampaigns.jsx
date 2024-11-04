@@ -55,7 +55,7 @@ const ImpactCampaigns = () => {
     if (userConfirmed) {
         setIsLoading(true);
       await fetch(triggerImpactCampaignSync);
-        // window.location.reload();
+        window.location.reload();
       } else {
         console.log("Sync canceled");
     }
@@ -210,7 +210,7 @@ const Terms = ({ campaign }) => {
   return (
     <div className="m-4">
       <p><b>Last updates: </b>{lastUpdated}</p>
-      <Button disabled className="mb-3" onClick={() => syncCampaigns()}>
+      <Button className="mb-3" onClick={() => syncCampaigns()}>
         Sync Campaigns
       </Button>
       <p>

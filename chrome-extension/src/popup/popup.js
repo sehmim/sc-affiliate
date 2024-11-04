@@ -1,5 +1,6 @@
 const { LOCAL_ENV } = require('../utils/env');
 
+import { ensureHttps } from "../content/domainChecker";
 import { setCookie} from "../utils/cookieHelpers";
 const {  applyImpactAffiliateLink, applyRakutenDeepLink, applyAwinDeepLink } = require('../content/apiCalls')
 
@@ -63,7 +64,7 @@ async function createMerchantContainer(campaign, userSettings) {
     try {
       if (campaign.provider === "Impact") {
         redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
-        chrome.tabs.create({ url: "http://" + redirectionLink });
+        chrome.tabs.create({ url: ensureHttps(redirectionLink) });
       } 
 
       if (campaign.provider === "Rakuten"){
@@ -197,6 +198,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   if (merchantsContainer) {
     const campaigns = await fetchCampaigns();    
+
+    console.log(campaigns)
 
     try {
       for (const campaign of campaigns) {

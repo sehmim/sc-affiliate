@@ -1,3 +1,5 @@
+import { Campaign } from "../controllers/campagins/Campaigns";
+
 export function sortBy(key: any, array: any) {
   return array.slice().sort((a: any, b: any) => {
     if (a[key] < b[key]) {
@@ -21,4 +23,42 @@ export function ensureHttps(url: string) {
     url = `https://${url}`;
   }
   return url;
+}
+
+export function updateCampaignArray(
+    previousArray: Campaign[], 
+    newArray: Campaign[]
+): Campaign[] {
+    const updatedArray: Campaign[] = [];
+    
+    newArray.map(newCampaign => {
+        // Find campaigns that have matching campaignIDs
+        const previousCampaigns = previousArray.filter(
+            prev => prev.campaignID+"" === newCampaign.campaignID+""
+        );
+
+        if (previousCampaigns.length > 0) {
+          previousCampaigns.map((previousCampaign)=> {
+              // If added manually just copy it from the previous entry
+              if (previousCampaign?.isManuallyEnteredInFirestore) {
+                updatedArray.push(previousCampaign);
+                return;
+              }
+              
+              updatedArray.push({
+                  ...newCampaign,
+                  subDomains: [...new Set(previousCampaign.subDomains)],
+                  isActive: previousCampaign.isActive,
+                  isFeatured: previousCampaign.isFeatured,
+                  terms: previousCampaign.terms,
+                  isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled
+              })
+          }) 
+        } else {
+          // Return the new campaign as-is if no match was found
+          updatedArray.push(newCampaign); 
+        }
+    });
+
+    return updatedArray;
 }
