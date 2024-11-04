@@ -3,7 +3,7 @@ import { isMainDomain, ensureHttps } from "./domainChecker";
 import { getCookie, setCookie, getQueryParameter, saveClickIdToCookie} from "../utils/cookieHelpers";
 
 import { LOCAL_ENV } from "../utils/env";
-import { applyImpactAffiliateLink, applyAwinDeepLink, applyRakutenDeepLink, fetchCampaigns, collectAndSendBrowserInfo } from "./apiCalls";
+import { applyImpactAffiliateLink, applyAwinDeepLink, applyRakutenDeepLink, fetchCampaigns, collectAndSendBrowserInfo, applyCJDeepLink } from "./apiCalls";
 
 const SPONSOR_CIRCLE_ICON = "https://i.imgur.com/Oj6PnUe.png";
 const COMMISSION_RATE = 1;
@@ -302,7 +302,6 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
       textDiv.onclick = async function () {
         if (campaign.provider === "Impact") {
           const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings)
-          console.log('redirectionLink --->', redirectionLink);
           window.location.href = ensureHttps(redirectionLink);
         } 
 
@@ -313,6 +312,11 @@ async function applyGoogleSearchDiscounts(campaigns, userSettings) {
 
         if (campaign.provider === "Awin"){
           const redirectionLink = await applyAwinDeepLink(campaign, userSettings)
+          window.location.href = redirectionLink;
+        }
+
+        if (campaign.provider === "CJ"){
+          const redirectionLink = await applyCJDeepLink(campaign, userSettings)
           window.location.href = redirectionLink;
         }
 
@@ -559,6 +563,12 @@ function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
               const redirectionLink = await applyAwinDeepLink(allowedBrand, userSettings)
               window.location.href = redirectionLink.trackingLink;
             }
+
+            if (allowedBrand.provider === "CJ"){
+              const redirectionLink = await applyCJDeepLink(allowedBrand, userSettings);
+              window.location.href = redirectionLink.trackingLink;
+            }
+
   
             sendDataToContentScript({ userSettingsFromGoogleSearch: null });
             sendDataToContentScript({ userSettingsFromPopup: null });

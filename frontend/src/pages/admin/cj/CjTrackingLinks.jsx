@@ -25,12 +25,14 @@ const CjTrackingLinks = () => {
     const fetchTrackingLinks = async () => {
       try {
         setIsLoading(true);
-        const querySnapshot = await getDocs(collection(firestore, 'cjDeeplink'));
+        const querySnapshot = await getDocs(collection(firestore, 'CJDeeplink'));
         const links = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-          appliedDate: new Date(doc.data().appliedDate.seconds * 1000 + doc.data().appliedDate.nanoseconds / 1000000).toLocaleString()
+        //   appliedDate: new Date(doc.data().appliedDate.seconds * 1000 + doc.data().appliedDate.nanoseconds / 1000000).toLocaleString()
         }));
+
+        console.log("CJ --->", links);
 
         const sorted = sortByAppliedDate(links);
         setTrackingLinks(sorted);
@@ -52,8 +54,8 @@ const CjTrackingLinks = () => {
       <table className="table table-striped table-bordered">
         <thead className="thead-dark">
           <tr>
-            <th>Applied Date</th>
-            <th>Advertiser ID</th>
+            {/* <th>Applied Date</th> */}
+            {/* <th>Advertiser ID</th> */}
             <th>Team Name</th>
             <th>Cj Tracking Link</th>
           </tr>
@@ -61,8 +63,8 @@ const CjTrackingLinks = () => {
         <tbody>
           {trackingLinks.map((link, index) => (
             <tr key={index}>
-              <td>{link.appliedDate}</td>
-              <td>{link.advertiserId}</td>
+              {/* <td>{link.appliedDate}</td> */}
+              {/* <td>{link.advertiserId}</td> */}
               <td>{link.teamName}</td>
               <td>{link.trackingLink}</td>
             </tr>

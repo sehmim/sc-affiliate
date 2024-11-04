@@ -2,6 +2,23 @@ const path = require('path');
 const fs = require('fs');
 const { urlGetSyncedCampaigns } = require('./env');
 
+function formatURL(input) {
+  let url = input.toLowerCase().replace(/^https?:\/\//, '');
+
+  url = "https://" + url;
+
+  if (!url.includes("www.")) {
+    url = url.replace("https://", "https://www.");
+  }
+
+  if (!url.endsWith("/")) {
+    url += "/";
+  }
+
+  return url;
+}
+
+
 async function fetchHostPermissions(apiUrl) {
   try {
     const response = await fetch(apiUrl);
@@ -11,7 +28,7 @@ async function fetchHostPermissions(apiUrl) {
     const campaigns = await response.json();
 
     
-    const domains = campaigns.map((campaign) => (campaign.advertiserURL))
+    const domains = campaigns.map((campaign) => (formatURL(campaign.advertiserURL)))
     fs.writeFileSync(path.resolve(__dirname, 'allowedDomains.json'), JSON.stringify(domains, null, 2), 'utf-8');
     
     return domains;

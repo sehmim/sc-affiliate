@@ -10,7 +10,7 @@ import { collectAndSendBrowserInfo } from "./controllers/analytics/analytics";
 import * as admin from "firebase-admin";
 import { applyRakutenDeepLink, triggerRakutenCampaigns } from "./services/rakuten/api";
 import { applyAwinDeepLink, triggerAwinProgrammes } from "./services/awin/api";
-import { triggerCJAdvertisers } from "./services/cj/api";
+import { applyCJDeepLink, triggerCJAdvertisers } from "./services/cj/api";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -20,6 +20,7 @@ export const db = admin.firestore();
 
 export { 
   applyAwinDeepLink,
+  applyCJDeepLink,
   triggerRakutenCampaigns,
   triggerAwinProgrammes,
   triggerImpactCampaignSync,

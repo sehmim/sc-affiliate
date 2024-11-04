@@ -2,7 +2,7 @@ const { LOCAL_ENV } = require('../utils/env');
 
 import { ensureHttps } from "../content/domainChecker";
 import { setCookie} from "../utils/cookieHelpers";
-const {  applyImpactAffiliateLink, applyRakutenDeepLink, applyAwinDeepLink } = require('../content/apiCalls')
+const {  applyImpactAffiliateLink, applyRakutenDeepLink, applyAwinDeepLink, applyCJDeepLink} = require('../content/apiCalls')
 
 function sendDataToContentScript(data) {
     chrome.storage.local.set(data, function() {
@@ -76,6 +76,12 @@ async function createMerchantContainer(campaign, userSettings) {
         redirectionLink = await applyAwinDeepLink(campaign, userSettings);
         chrome.tabs.create({ url: redirectionLink.trackingLink });
       }
+
+      if (campaign.provider === "CJ"){
+        redirectionLink = await applyCJDeepLink(campaign, userSettings);
+        chrome.tabs.create({ url: redirectionLink.trackingLink });
+      }
+
       
       sendDataToContentScript({ userSettingsFromPopup: userSettings });
       sendDataToContentScript({ userSettingsFromGoogleSearch: null });

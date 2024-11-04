@@ -6,7 +6,8 @@ const {
   UrlApplyAwinDeepLink,
   collectAndSendBrowserInfoApiUrl,
   UrlApplyRakutenDeepLink,
-  UrlApplyImpactDeepLink
+  UrlApplyImpactDeepLink,
+  UrlApplyCJDeepLink
 } = require('../utils/env');
 
 export async function POST(url: string, payload: any) {
@@ -71,6 +72,20 @@ export async function applyImpactAffiliateLink(campaign: AllowedCampaign, userSe
 export async function applyRakutenDeepLink(campaign: any, userSettings: UserSettings) {
 
   const trackingLink = await POST(UrlApplyRakutenDeepLink, {
+    advertiserUrl: campaign.advertiserURL,
+    advertiserId: Number(campaign.campaignID),
+    teamName: userSettings.selectedCharityObject.organizationName
+  });
+
+  return trackingLink;
+}
+
+export async function applyCJDeepLink(campaign: any, userSettings: UserSettings) {
+
+  console.log("campaign---->", campaign);
+  console.log("userSettings---->", userSettings);
+
+  const trackingLink = await POST(UrlApplyCJDeepLink, {
     advertiserUrl: campaign.advertiserURL,
     advertiserId: Number(campaign.campaignID),
     teamName: userSettings.selectedCharityObject.organizationName
