@@ -9,6 +9,8 @@ import ImpactCampaigns from './Tables/ImpactCampaigns';
 import ActiveCampaigns from './Tables/ActiveCampagins';
 import AwinCampaigns from './awin/AwinCampaigns';
 import AwinTrackingLinks from './awin/AwinTrackingLinks';
+import CjCampaigns from './cj/CjCampagins';
+import CjTrackingLinks from './cj/CjTrackingLinks';
 
 // Dummy components for the 4 options
 const Charities = () => (<div><h4>Charities</h4><EditableTable /></div>);
@@ -39,6 +41,10 @@ const NavigationComponent = () => {
         return <AwinCampaigns />;
       case 'option9':
         return <AwinTrackingLinks />;
+      case 'option10':
+        return <CjCampaigns />;
+      case 'option11':
+        return <CjTrackingLinks />;
       default:
         return null;
     }
@@ -91,6 +97,16 @@ const NavigationComponent = () => {
         <Nav.Item>
           <Nav.Link eventKey="option9" active={selectedOption === 'option9'}>
             Awin Tracking Links
+          </Nav.Link>
+        </Nav.Item>
+                <Nav.Item>
+          <Nav.Link eventKey="option10" active={selectedOption === 'option10'}>
+            CJ Campaigns
+          </Nav.Link>
+        </Nav.Item>
+                <Nav.Item>
+          <Nav.Link eventKey="option11" active={selectedOption === 'option11'}>
+            CJ Tracking Links
           </Nav.Link>
         </Nav.Item>
       </Nav>

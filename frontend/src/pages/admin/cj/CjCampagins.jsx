@@ -7,7 +7,7 @@ import { firestore } from "../../../utils/firebase";
 import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpts";
 import { TermsModal } from "../modals/TermsModal";
 
-const AwinCampaigns = () => {
+const CjCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +23,7 @@ const AwinCampaigns = () => {
     const fetchCampaigns = async () => {
       try {
         setIsLoading(true);
-        const { data, id: campaignsID } = await fetchLatestEntry("awinCampaigns");
+        const { data, id: campaignsID } = await fetchLatestEntry("CJCampaigns");
         const { campaigns } = data;
         const { numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(campaigns)
 
@@ -47,7 +47,7 @@ const AwinCampaigns = () => {
       if (userConfirmed) {
           setIsLoading(true);
         await fetch(triggerImpactCampaignSync);
-          // window.location.reload();
+          window.location.reload();
         } else {
           console.log("Sync canceled");
       }
@@ -65,7 +65,7 @@ const AwinCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, "awinCampaigns", campaignsID);
+      const docRef = doc(firestore, "CJCampaigns", campaignsID);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -79,7 +79,7 @@ const AwinCampaigns = () => {
   const activateCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      const { data, id } = await fetchLatestEntry("awinCampaigns");
+      const { data, id } = await fetchLatestEntry("CJCampaigns");
       const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
@@ -89,7 +89,7 @@ const AwinCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, "awinCampaigns", id);
+      const docRef = doc(firestore, "CJCampaigns", id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -103,7 +103,7 @@ const AwinCampaigns = () => {
   const disableCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      const { data, id } = await fetchLatestEntry("awinCampaigns");
+      const { data, id } = await fetchLatestEntry("CJCampaigns");
       const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
@@ -113,7 +113,7 @@ const AwinCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, "awinCampaigns", id);
+      const docRef = doc(firestore, "CJCampaigns", id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -265,7 +265,7 @@ const Terms = ({ campaign }) => {
 
       {
       showModal && <TermsModal 
-        collectionName={"awinCampaigns"}
+        collectionName={"CJCampaigns"}
         campaignsList={campaigns}
         campaignsListId={campaignsID}
         campaign={showModal} 
@@ -281,4 +281,4 @@ const Terms = ({ campaign }) => {
   );
 };
 
-export default AwinCampaigns;
+export default CjCampaigns;
