@@ -144,11 +144,39 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 		}
 	})
 
-	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns, ...CJCampaigns]
+	let mappedCjCamapigns: Campaign[] = [];
+
+		CJCampaigns.forEach((campaign) => {
+		const validUrl = fixUrl(campaign.advertiserURL);
+
+		if (!validUrl) {
+			invalidBrands.push(campaign)
+			return;
+		}
+
+		if (validUrl && campaign.isActive) {
+			mappedCjCamapigns.push({
+				campaignName: campaign.campaignName,
+				campaignID: campaign.campaignID,
+				campaignLogoURI: campaign.campaignLogoURI,
+				defaultPayoutRate: campaign.defaultPayoutRate,
+				advertiserURL: validUrl,
+				subDomains: campaign.subDomains,
+				provider: CampaignsProvider.CJ,
+				isActive: campaign.isActive,
+				isFeatured: !!campaign.isFeatured,
+				terms: campaign.terms
+			})	
+		}
+	})
+
+
+
+	return [...mappedImpactCampaigns, ...mappedRakutenCampaigns, ...mappedAwinCamapigns, ...mappedCjCamapigns]
 }
 
 
-function fixUrl(url: string) {
+export function fixUrl(url: string) {
     try {
         // Decode URL to handle any encoded characters
         let decodedUrl = decodeURIComponent(url);

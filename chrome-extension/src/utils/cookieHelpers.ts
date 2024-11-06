@@ -26,6 +26,7 @@ export function saveClickIdToCookie() {
   const ranMID = getQueryParameter("ranMID");
   const utm_campaign = getQueryParameter("utm_campaign");
   const awc = getQueryParameter("awc");
+  const cjdata = getQueryParameter("cjdata");
 
   const clickid = getQueryParameter("clickid");
   const scCoupon = getQueryParameter("sc-coupon");
@@ -48,6 +49,10 @@ export function saveClickIdToCookie() {
 
   if (awc) {
     setCookie("sc-awc", awc, 7);
+  }
+
+  if (cjdata) {
+    setCookie("sc-cjdata", cjdata, 7);
   }
 
   if (scCoupon && scCoupon === "activated") {

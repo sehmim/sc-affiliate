@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Shop for Good",
-  "version": "1.74",
+  "version": "1.76",
   "description": "Tracks brands that give you discounts. When You Shop. You Save. Charities and Causes Win.",
   "permissions": [
     "cookies",
@@ -95,8 +95,8 @@
     "https://www.wish.com/",
     "https://www.war-locker.com/",
     "https://www.cronjager.com/",
-    "https://www.shopmicas.com/",
+    "https://www.cuisinart.com/",
     "https://www.zwilling.com/ca/",
-    "https://www.unice.com/"
+    "https://www.shopmicas.com/"
   ]
 }

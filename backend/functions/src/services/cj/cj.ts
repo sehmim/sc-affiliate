@@ -1,5 +1,7 @@
 import { parseStringPromise } from 'xml2js';
-import { CampaignsProvider } from '../../controllers/campagins/Campaigns';
+import { Campaign, CampaignsProvider } from '../../controllers/campagins/Campaigns';
+import { updateCampaignArray } from '../../utils/helper';
+import { getLatestEntry } from '../../utils/firestoreWrapper';
 const CID = '5908526';
 const BASE_URL = "https://advertiser-lookup.api.cj.com/v2";
 const API_KEY = '203jmtf336py654qrv8ms40ms6';
@@ -78,7 +80,7 @@ export async function fetchCJAdvertisers(): Promise<CJAdvertiserLookupResponse> 
   }
 }
 
-export const normalizeCJAdvertisers = (advertisers: CJAdvertiser[]) => {
+export const normalizeCJAdvertisers = (advertisers: CJAdvertiser[]): Campaign[] => {
     
     return advertisers.map((advertiser) => {
         const customProps = {
@@ -93,7 +95,7 @@ export const normalizeCJAdvertisers = (advertisers: CJAdvertiser[]) => {
         const payout = advertiser.actions[0].action[0].commission[0].default;
 
         // NOTE: Ignoring deals that give money discount
-        const defaultPayoutRate = checkIfStringArray(payout) ? payout[0].slice(0, payout[0].length -1) : 0;
+        const defaultPayoutRate = checkIfStringArray(payout) ? (payout[0].slice(0, payout[0].length -1))+"" : 0+"";
 
 
         return ({
@@ -103,13 +105,21 @@ export const normalizeCJAdvertisers = (advertisers: CJAdvertiser[]) => {
                 campaignLogoURI: '',
                 defaultPayoutRate,
                 provider: CampaignsProvider.CJ,
-                isActive: advertiser['account-status'][0],
+                isActive: !!advertiser['account-status'][0],
                 ...customProps
             })
         }
     )
 
 };
+
+export const constructUpdatedCamapgins = async (incomeinCampagins: Campaign[]) => {
+  const { campaigns: latestCJCampaigns }: { campaigns: Campaign[] } = await getLatestEntry('CJCampaigns');
+
+  const updatedArray = updateCampaignArray(latestCJCampaigns, incomeinCampagins);
+
+  return updatedArray;
+}
 
 function checkIfStringArray(input: unknown): input is string[] {
   return Array.isArray(input) && input.every(item => typeof item === 'string');

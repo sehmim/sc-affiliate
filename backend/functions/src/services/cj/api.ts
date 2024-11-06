@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import handleCorsMiddleware from '../../utils/corsMiddleware';
-import { fetchCJAdvertisers, normalizeCJAdvertisers } from './cj';
+import { constructUpdatedCamapgins, fetchCJAdvertisers, normalizeCJAdvertisers } from './cj';
 import { storeData } from '../../utils/firestoreWrapper';
 import { replaceSpacesWithUnderscore } from '../rakuten/api';
 import { db } from '../..';
@@ -19,6 +19,7 @@ export const applyCJDeepLink = functions.https.onRequest(async (req, res) => {
       const snapshot = await db
         .collection('CJDeeplink')
         .where('teamName', '==', dashedTeamName)
+        .where('advertiserId', '==', Number(advertiserId))
         .get();
 
       if (!snapshot.empty) {
@@ -44,14 +45,16 @@ export const triggerCJAdvertisers = functions.https.onRequest(async (req, res) =
 
       const normalizedAdvertisers = normalizeCJAdvertisers(advertisers);
 
+      const updatedArray = await constructUpdatedCamapgins(normalizedAdvertisers);
+
       await storeData('CJCampaigns', {
         createdAt: new Date().toISOString(),
-        campaigns: normalizedAdvertisers
+        campaigns: updatedArray
       });
 
       res.status(200).json({
         createdAt: new Date().toISOString(),
-        campaigns: normalizedAdvertisers
+        campaigns: updatedArray
       });
     } catch (error) {
       console.error('Error fetching advertisers:', error);

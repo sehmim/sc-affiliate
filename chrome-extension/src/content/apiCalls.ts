@@ -82,9 +82,6 @@ export async function applyRakutenDeepLink(campaign: any, userSettings: UserSett
 
 export async function applyCJDeepLink(campaign: any, userSettings: UserSettings) {
 
-  console.log("campaign---->", campaign);
-  console.log("userSettings---->", userSettings);
-
   const trackingLink = await POST(UrlApplyCJDeepLink, {
     advertiserUrl: campaign.advertiserURL,
     advertiserId: Number(campaign.campaignID),

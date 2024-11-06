@@ -204,6 +204,7 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
       href.includes("ranMID") || 
       href.includes("utm_campaign") || 
       href.includes("awc") || 
+      href.includes("cjdata") || 
       href.includes("sc-coupon=activated"); // NOT IN USE
   
     const validIrclickid = getCookie("sc-irclickid");
@@ -213,6 +214,7 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
     const validranMIDUtmSource = getCookie("sc-utm_source");
     const validAwc = getCookie("sc-awc");
     const validUtmCampaign = getCookie("sc-utm_campaign");
+    const validCjdata = getCookie("sc-cjdata");
 
     const isValidCookie = 
       validIrclickid || 
@@ -221,6 +223,7 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
       validranMID || 
       validranMIDUtmSource || 
       validUtmCampaign ||
+      validCjdata ||
       validAwc;
 
     codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;

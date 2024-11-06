@@ -47,6 +47,7 @@ export function updateCampaignArray(
               
               updatedArray.push({
                   ...newCampaign,
+                  campaignLogoURI: previousCampaign.campaignLogoURI,
                   subDomains: [...new Set(previousCampaign.subDomains)],
                   isActive: previousCampaign.isActive,
                   isFeatured: previousCampaign.isFeatured,

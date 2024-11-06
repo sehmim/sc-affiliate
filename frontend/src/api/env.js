@@ -11,6 +11,7 @@ export const getSyncedCampaigns = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcirc
 export const triggerImpactCampaignSync = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/triggerImpactCampaignSync' : 'https://triggerimpactcampaignsync-6n7me4jtka-uc.a.run.app';
 export const triggerAwinCampaignSync = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/triggerAwinProgrammes' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/triggerAwinProgrammes';
 export const triggerRakutenCampaignSync = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/triggerRakutenCampaigns' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/triggerRakutenCampaigns';
+export const triggerCjCampaignsSyc = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/triggerCJAdvertisers" : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/triggerCJAdvertisers';
 
 export const sendVerificationCodeUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/sendVerificationCode" : "https://sendverificationcode-6n7me4jtka-uc.a.run.app";
 export const verifyVerificationCode = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/verifyVerificationCode" : "https://verifyverificationcode-6n7me4jtka-uc.a.run.app";
