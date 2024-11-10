@@ -65,3 +65,11 @@ export function formatToHumanReadable(dateString) {
   // Convert the date to a human-readable string
   return date.toLocaleDateString('en-US', options);
 }
+
+export function ensureHttps(url) {
+  if (!/^https?:\/\//i.test(url)) {
+    // If not, prepend 'https://'
+    url = `https://${url}`;
+  }
+  return url;
+}

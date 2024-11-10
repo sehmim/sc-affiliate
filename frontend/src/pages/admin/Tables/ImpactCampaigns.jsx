@@ -12,7 +12,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button,  Form, Modal, Spinner  } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpts";
+import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpers";
 import { TermsModal } from "../modals/TermsModal";
 
 const ImpactCampaigns = () => {

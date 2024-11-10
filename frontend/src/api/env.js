@@ -18,3 +18,9 @@ export const verifyVerificationCode = LOCAL_ENV ? "http://127.0.0.1:5001/sponsor
 export const createUserUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/createUser" : "https://createuser-6n7me4jtka-uc.a.run.app";
 export const getUserByEmailUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getUser" : "https://getuser-6n7me4jtka-uc.a.run.app";
 export const defaultCharitiesUrl = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getDefaultCharities" : "https://getdefaultcharities-6n7me4jtka-uc.a.run.app";
+
+export const urlGetSyncedCampaigns = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/getSyncedCampaigns" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/getSyncedCampaigns"; 
+export const UrlApplyRakutenDeepLink = LOCAL_ENV ? 'http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyRakutenDeepLink' : 'https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyRakutenDeepLink';
+export const UrlApplyAwinDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyAwinDeepLink" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyAwinDeepLink";
+export const UrlApplyImpactDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyTrackingLink" : "https://applytrackinglink-6n7me4jtka-uc.a.run.app";
+export const UrlApplyCJDeepLink = LOCAL_ENV ? "http://127.0.0.1:5001/sponsorcircle-3f648/us-central1/applyCJDeepLink" : "https://us-central1-sponsorcircle-3f648.cloudfunctions.net/applyCJDeepLink";

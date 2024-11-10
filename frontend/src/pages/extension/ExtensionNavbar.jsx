@@ -1,0 +1,30 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { sendMessageToExtension } from "./ExtensionSettingsPage";
+
+export default function ExtensionNavbar(){
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    const extensinoId = localStorage.getItem("sc-extensionId");
+    sendMessageToExtension(null, extensinoId);
+    localStorage.setItem("sc-user", null);
+    navigate(`/onboard?extensinoId=${extensinoId}`);
+  };
+
+  return (
+    <header style={{ position: 'fixed' }} className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
+      <div className="d-flex justify-content-between w-100">
+        <a href="/extension-settings">
+          <img className="w-60" src={"https://i.imgur.com/UItnKy8.png"} alt="logo" />
+        </a>
+        <div>
+          <span className="mr-4">Settings</span>
+          <button onClick={handleLogout} type="button" className="btn btn-dark fw-bold">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+};

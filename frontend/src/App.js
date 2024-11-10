@@ -15,11 +15,12 @@ import Settings from './pages/Settings';
 import LandingPage from './pages/LandingPage/LandingPage';
 
 import Auth from './utils/Auth';
-import OnboardingPage from './pages/extension-onboarding/OnboardingPage';
-import ExtensionSettings from './pages/extension-onboarding/ExtensionSettingsPage';
+import OnboardingPage from './pages/extension/OnboardingPage';
+import ExtensionSettings from './pages/extension/ExtensionSettingsPage';
 
 import AdminDashboard from './pages/admin/adminDashboard';
-import EmailVerificationComponent from './pages/extension-onboarding/EmailVerificationComponent';
+import EmailVerificationComponent from './pages/extension/EmailVerificationComponent';
+import CampaignsPage from './pages/extension/campagins-page/CampaignsPage';
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
             <Route path='/onboard' element={<OnboardingPage/>}></Route>
             <Route path='/extension-settings' element={<Auth><ExtensionSettings/></Auth>}></Route>
             <Route path='/admin' element={<AdminDashboard />}></Route>
+            <Route path='/campaigns' element={<Auth><CampaignsPage /></Auth>}></Route>
           </Routes>
       </Router>
       

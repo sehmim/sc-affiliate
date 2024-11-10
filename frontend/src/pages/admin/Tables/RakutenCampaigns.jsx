@@ -4,7 +4,7 @@ import { updateDoc, doc } from "firebase/firestore";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import { Button } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
-import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpts";
+import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpers";
 import { TermsModal } from "../modals/TermsModal";
 
 const RakutenCampaigns = () => {
