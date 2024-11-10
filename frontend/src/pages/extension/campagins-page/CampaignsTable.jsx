@@ -121,7 +121,7 @@ const CampaginsDataTable = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Campaigns</h2>
+      <h2 className="text-2xl font-semibold mb-4">Merchants</h2>
       
       {/* Search Bar */}
       <input

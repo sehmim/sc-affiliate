@@ -18,8 +18,9 @@ export default function ExtensionNavbar(){
         <a href="/extension-settings">
           <img className="w-60" src={"https://i.imgur.com/UItnKy8.png"} alt="logo" />
         </a>
-        <div>
-          <span className="mr-4">Settings</span>
+        <div className="flex items-center">
+          <span onClick={() => navigate('/merchants')} className="mr-4 p-3 cursor-pointer hover:shadow-md transition-shadow duration-300 ease-in-out">Merchants</span>
+          <span onClick={() => navigate('/extension-settings')} className="mr-4 p-3 cursor-pointer hover:shadow-md transition-shadow duration-300 ease-in-out">Settings</span>
           <button onClick={handleLogout} type="button" className="btn btn-dark fw-bold">
             Logout
           </button>
