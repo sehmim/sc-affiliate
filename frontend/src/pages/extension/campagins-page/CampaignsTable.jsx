@@ -26,6 +26,7 @@ const CampaginsDataTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [userSettings, setUserSettings] = useState();
+  const [deepLinkCampaign, setDeepLinkCampaign] = useState(null);
   const navigate = useNavigate();
 
   // Get "Ships to" or "Ships in" details from terms
@@ -96,6 +97,7 @@ const CampaginsDataTable = () => {
 
 
   const hanldeCreateAffiliateLink = async (campaign) => {
+    setDeepLinkCampaign(campaign);
     if (campaign.provider === "Impact") {
         const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
 
@@ -117,6 +119,8 @@ const CampaginsDataTable = () => {
         const redirectionLink = await applyCJDeepLink(campaign, userSettings)
         window.open(ensureHttps(redirectionLink), '_blank');
     }
+
+    setDeepLinkCampaign(null);
   }
 
   return (
@@ -158,7 +162,9 @@ const CampaginsDataTable = () => {
           <tbody>
             {sortedData.map((item, index) => (
               <tr key={index} className="border-t cursor-pointer hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => hanldeCreateAffiliateLink(item)}>
-                    <td className="p-4 whitespace-nowrap">{item.campaignName}</td>
+                    {
+                      deepLinkCampaign && deepLinkCampaign?.campaignID === item.campaignID ? <div className='p-4'>Applying....</div> : <>
+                                        <td className="p-4 whitespace-nowrap">{item.campaignName}</td>
                     <td className="p-4">
                     <img
                         src={item.campaignLogoURI}
@@ -168,6 +174,8 @@ const CampaginsDataTable = () => {
                     </td>
                     <td className="p-4 whitespace-nowrap">{item.defaultPayoutRate}%</td>
                     <td className="p-4">{getShippingDetails(item.terms)}</td>
+                      </>
+                    }
               </tr>
             ))}
           </tbody>
