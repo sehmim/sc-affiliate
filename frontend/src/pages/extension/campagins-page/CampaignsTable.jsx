@@ -5,73 +5,61 @@ import { useNavigate } from 'react-router-dom';
 import { applyImpactAffiliateLink, applyRakutenDeepLink, applyAwinDeepLink, applyCJDeepLink } from '../../../api/deeplinks';
 import { ensureHttps } from '../../../utils/helpers';
 
-
-/*global chrome*/
-// function getDataFromStorage() {
-//     return new Promise((resolve, reject) => {
-//         chrome.storage.local.get("userSettings", function(data) {
-//             if (chrome.runtime.lastError) {
-//                 reject(new Error(chrome.runtime.lastError));
-//             } else {
-//                 resolve(data.userSettings);
-//             }
-//         });
-//     });
-// }
-
 const CampaginsDataTable = () => {
   const { data: campaignData, loading, error } = useSyncedCampaigns();
 
-  const [filteredData, setFilteredData] = useState(campaignData ?? []);
+  const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [userSettings, setUserSettings] = useState();
   const [deepLinkCampaign, setDeepLinkCampaign] = useState(null);
   const navigate = useNavigate();
 
-  // Get "Ships to" or "Ships in" details from terms
   const getShippingDetails = (terms) => {
     const term = terms.find(term => term.title === 'Ships to' || term.title === 'Ships in');
     return term ? term.details : '';
   };
 
-  // Handle search across campaignName and details
   useEffect(() => {
-    if(campaignData){
-        setFilteredData(
-        campaignData.filter(item =>
-            item.campaignName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            getShippingDetails(item.terms).toLowerCase().includes(searchTerm.toLowerCase())
+    if (campaignData) {
+      // Transform campaign names to uppercase and set filteredData
+      const transformedData = campaignData.map(item => ({
+        ...item,
+        campaignName: item.campaignName.toUpperCase(),
+      }));
+      setFilteredData(
+        transformedData.filter(item =>
+          item.campaignName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          getShippingDetails(item.terms).toLowerCase().includes(searchTerm.toLowerCase())
         )
-        );
+      );
     }
   }, [searchTerm, campaignData]);
 
-  useEffect(()=> {
+  useEffect(() => {
     const userSettings = localStorage.getItem('sc-userSettings');
-    if(!userSettings){
-        alert('Please select a charity first');
-        navigate('/extension-settings');
+    if (!userSettings) {
+      alert('Please select a charity first');
+      navigate('/extension-settings');
     } else {
-        setUserSettings(JSON.parse(userSettings));
+      setUserSettings(JSON.parse(userSettings));
     }
+  }, []);
 
-  }, [])
-
-
-  if(loading){
-    return (<p>Loading..</p>)
+  if (loading) {
+    return (<p>Loading..</p>);
   }
 
-  if(error){
-    return (<p>Something went wrong...{JSON.stringify(error)}</p>)
+  if (error) {
+    return (<p>Something went wrong...{JSON.stringify(error)}</p>);
   }
 
-  // Sorting function
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortConfig.key) {
-      const aVal = a[sortConfig.key] || '';
-      const bVal = b[sortConfig.key] || '';
+      // Convert values to uppercase for case-insensitive sorting
+      const aVal = a[sortConfig.key]?.toUpperCase() || '';
+      const bVal = b[sortConfig.key]?.toUpperCase() || '';
+
       if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
     }
@@ -95,31 +83,19 @@ const CampaginsDataTable = () => {
     return <FaSort />;
   };
 
-
   const hanldeCreateAffiliateLink = async (campaign) => {
     setDeepLinkCampaign(campaign);
+    let redirectionLink = '';
     if (campaign.provider === "Impact") {
-        const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
-
-        console.log('asdasd -->', redirectionLink);
-        window.open(ensureHttps(redirectionLink), '_blank');
-    } 
-
-    if (campaign.provider === "Rakuten"){
-        const redirectionLink = await applyRakutenDeepLink(campaign, userSettings)
-        window.open(ensureHttps(redirectionLink), '_blank');
-    } 
-
-    if (campaign.provider === "Awin"){
-        const redirectionLink = await applyAwinDeepLink(campaign, userSettings)
-        window.open(ensureHttps(redirectionLink), '_blank');
+      redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
+    } else if (campaign.provider === "Rakuten") {
+      redirectionLink = await applyRakutenDeepLink(campaign, userSettings);
+    } else if (campaign.provider === "Awin") {
+      redirectionLink = await applyAwinDeepLink(campaign, userSettings);
+    } else if (campaign.provider === "CJ") {
+      redirectionLink = await applyCJDeepLink(campaign, userSettings);
     }
-
-    if (campaign.provider === "CJ"){
-        const redirectionLink = await applyCJDeepLink(campaign, userSettings)
-        window.open(ensureHttps(redirectionLink), '_blank');
-    }
-
+    window.open(ensureHttps(redirectionLink), '_blank');
     setDeepLinkCampaign(null);
   }
 
@@ -162,20 +138,24 @@ const CampaginsDataTable = () => {
           <tbody>
             {sortedData.map((item, index) => (
               <tr key={index} className="border-t cursor-pointer hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => hanldeCreateAffiliateLink(item)}>
-                    {
-                      deepLinkCampaign && deepLinkCampaign?.campaignID === item.campaignID ? <div className='p-4'>Applying....</div> : <>
-                                        <td className="p-4 whitespace-nowrap">{item.campaignName}</td>
+                {deepLinkCampaign && deepLinkCampaign?.campaignID === item.campaignID ? (
+                  <td className='p-4' colSpan="4">Applying....</td>
+                ) : (
+                  <>
+                    <td className="p-4 whitespace-nowrap">
+                      {item.campaignName}
+                    </td>
                     <td className="p-4">
-                    <img
+                      <img
                         src={item.campaignLogoURI}
                         alt={`${item.campaignName} logo`}
                         className="w-16 h-16 object-contain"
-                    />
+                      />
                     </td>
                     <td className="p-4 whitespace-nowrap">{item.defaultPayoutRate}%</td>
                     <td className="p-4">{getShippingDetails(item.terms)}</td>
-                      </>
-                    }
+                  </>
+                )}
               </tr>
             ))}
           </tbody>
