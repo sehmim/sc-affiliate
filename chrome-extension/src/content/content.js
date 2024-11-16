@@ -390,7 +390,7 @@ function createClosedDiv() {
   const img = document.createElement('img');
 
   // Set the src attribute
-  img.src = 'https://i.imgur.com/Oj6PnUe.png';
+  img.src = 'https://i.imgur.com/J8IUxyn.png';
 
   // Apply the styles
   img.style.position = 'fixed';
@@ -401,7 +401,7 @@ function createClosedDiv() {
   img.style.height = '50px';
   img.style.border = 'none';
   img.style.backgroundColor = 'rgb(253, 253, 253)';
-  img.style.borderRadius = '16px';
+  img.style.borderRadius = '100%';
   img.style.boxShadow = 'rgba(0, 0, 0, 0.25) 0px 4px 4px 0px';
   img.style.display = 'flex';
   img.style.zIndex = '10000';
