@@ -1,6 +1,6 @@
-import { Campaign } from "../types/types";
+import { Charity } from "../types/types";
 
-export function createTermsAndServiceDiv(allowedBrand: Campaign) {
+export function createTermsAndServiceDiv(allowedBrand: Charity) {
   // Create the fieldset
   const fieldset = document.createElement('fieldset');
   fieldset.style.margin = '5px'; // Set margin for the fieldset

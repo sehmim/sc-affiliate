@@ -1,7 +1,7 @@
 export interface UserSettings {
   firstName: string;
   lastName: string;
-  selectedCharityObject: Campaign;
+  selectedCharityObject: Charity;
   email: string;
 }
 
@@ -11,6 +11,33 @@ export interface BrandInfo {
 }
 
 export interface Campaign {
+	campaignName: string,
+	campaignID: string,
+	campaignLogoURI: string,
+	defaultPayoutRate: string,
+	advertiserURL: string,
+	subDomains: string[],
+	provider: CampaignsProvider,
+	isActive: boolean,
+	isFeatured: boolean,
+    terms: {
+        title: string,
+        details: string,
+    }[]
+	isDeepLinkEnabled?: boolean;
+	isManuallyEnteredInFirestore?: boolean;
+}
+
+export enum CampaignsProvider {
+	Rakuten = "Rakuten",
+		Impact = "Impact",
+		Awin = "Awin",
+		Custom = "Custom",
+		CJ = "CJ"
+}
+
+
+export interface Charity {
   country: string;
   provinceTerritoryOutsideOfCanada: string;
   address: string;

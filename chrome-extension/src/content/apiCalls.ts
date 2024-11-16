@@ -1,4 +1,4 @@
-import { AllowedCampaign, UserSettings } from "../types/types";
+import { AllowedCampaign, UserSettings, Campaign } from '../types/types';
 // import { collectAndSendBrowserInfoApiUrl, LOCAL_ENV, UrlApplyAwinDeepLink, UrlApplyRakutenDeepLink, urlGetSyncedCampaigns } from "../utils/env";
 const {
   LOCAL_ENV,
@@ -52,7 +52,7 @@ export async function fetchCampaigns() {
   return await GET(urlGetSyncedCampaigns);
 }
 
-export async function applyImpactAffiliateLink(campaign: AllowedCampaign, userSettings: UserSettings, hostName: string) {
+export async function applyImpactAffiliateLink(campaign: Campaign, userSettings: UserSettings, hostName?: string) {
 
   let advertiserURL = hostName;
 
