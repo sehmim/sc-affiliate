@@ -157,8 +157,9 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
       href.includes("utm_campaign") || 
       href.includes("awc") || 
       href.includes("cjdata") || 
+      href.includes("murl") || 
       href.includes("sc-coupon=activated"); // NOT IN USE
-  
+
     const validIrclickid = getCookie("sc-irclickid");
     const validClickid = getCookie("sc-clickid");
     const validScCoupon = getCookie("sc-coupon");
@@ -167,6 +168,7 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
     const validAwc = getCookie("sc-awc");
     const validUtmCampaign = getCookie("sc-utm_campaign");
     const validCjdata = getCookie("sc-cjdata");
+    const validMurl = getCookie("sc-murl");
 
     const isValidCookie = 
       validIrclickid || 
@@ -176,6 +178,7 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
       validranMIDUtmSource || 
       validUtmCampaign ||
       validCjdata ||
+      validMurl || 
       validAwc;
 
     codeAlreadyAppliedToBrand = codeInUrl || isValidCookie;
@@ -188,23 +191,23 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
 }
 
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', applyImpactAffiliateLink);
-}
+// if (document.readyState === 'loading') {
+//   document.addEventListener('DOMContentLoaded', applyImpactAffiliateLink);
+// }
 
-function extractUrlFromCite(divElement) {
-    const citeElements = divElement.querySelectorAll('cite');
-    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+// function extractUrlFromCite(divElement) {
+//     const citeElements = divElement.querySelectorAll('cite');
+//     const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
 
-    for (let cite of citeElements) {
-        const textContent = cite.textContent.trim();
-        if (urlPattern.test(textContent)) {
-            return textContent;
-        }
-    }
+//     for (let cite of citeElements) {
+//         const textContent = cite.textContent.trim();
+//         if (urlPattern.test(textContent)) {
+//             return textContent;
+//         }
+//     }
 
-    return null;
-}
+//     return null;
+// }
 
 
 
@@ -225,6 +228,7 @@ function createIsolatedIframe(width, height) {
   iframe.style.borderRadius = '16px';
   iframe.style.boxShadow = '0px 4px 4px 0px rgba(0, 0, 0, 0.25)';
   iframe.style.display = 'flex';
+  iframe.style.padding = '0';
   iframe.style.zIndex = 20000;
   iframe.style.transition = 'top 0.75s ease-out'; // Animation for moving down
 
@@ -277,6 +281,7 @@ function createClosedDiv() {
   img.style.transition = 'top 0.75s ease-out 0s';
   img.style.cursor = 'pointer';
   img.style.display = 'none';
+  img.style.padding = '0';
 
 
   // Return the img

@@ -2,7 +2,7 @@ import { Charity, UserSettings, Campaign } from "../types/types";
 import { COMMISSION_RATE } from "../utils/consts";
 import { applyAwinDeepLink, applyCJDeepLink, applyImpactAffiliateLink, applyRakutenDeepLink, collectAndSendBrowserInfo } from "./apiCalls";
 import { ensureHttps, isMainDomain } from "./domainChecker";
-
+import { sendDataToContentScript } from "./chromeCommunication";
 
 export async function applyGoogleSearchDiscounts(campaigns: Campaign[], userSettings: UserSettings) {
   await applyBoostedAd();
@@ -50,36 +50,45 @@ export async function applyGoogleSearchDiscounts(campaigns: Campaign[], userSett
       textDiv.style.whiteSpace = 'nowrap';
       textDiv.textContent = `Give ${percentage} to your cause 💜`;
       textDiv.target = "_blank";
-      textDiv.onclick = async function () {
-        if (campaign.provider === "Impact") {
-          const redirectionLink = await applyImpactAffiliateLink(campaign, userSettings)
-          window.location.href = ensureHttps(redirectionLink);
-        } 
+      textDiv.style.cursor = 'pointer';
 
-        if (campaign.provider === "Rakuten"){
-          const redirectionLink = await applyRakutenDeepLink(campaign, userSettings)
-          window.location.href = redirectionLink;
-        } 
+      textDiv.onclick = async function (e) {
+        e.preventDefault(); // Prevent default behavior until the link is generated
+        // Change text to "Applying discount..."
+        textDiv.style.pointerEvents = 'none'; // Disable further clicks
+        textDiv.style.opacity = '0.1'; 
 
-        if (campaign.provider === "Awin"){
-          const redirectionLink = await applyAwinDeepLink(campaign, userSettings)
-          window.location.href = redirectionLink;
+        try {
+          let redirectionLink;
+          if (campaign.provider === "Impact") {
+            redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);
+          } else if (campaign.provider === "Rakuten") {
+            redirectionLink = await applyRakutenDeepLink(campaign, userSettings);
+          } else if (campaign.provider === "Awin") {
+            redirectionLink = await applyAwinDeepLink(campaign, userSettings);
+          } else if (campaign.provider === "CJ") {
+            redirectionLink = await applyCJDeepLink(campaign, userSettings);
+          }
+
+          if (redirectionLink) {
+            window.location.href = ensureHttps(redirectionLink);
+          }
+
+          sendDataToContentScript({ userSettingsFromGoogleSearch: userSettings });
+          sendDataToContentScript({ userSettingsFromPopup: null });
+        } catch (error) {
+          console.error("Error applying discount:", JSON.stringify(error));
+        } finally {
+            textDiv.style.opacity = '1'
+            textDiv.style.pointerEvents = 'auto'; // Re-enable clicks
         }
-
-        if (campaign.provider === "CJ"){
-          const redirectionLink = await applyCJDeepLink(campaign, userSettings)
-          window.location.href = redirectionLink;
-        }
-
-        sendDataToContentScript({ userSettingsFromGoogleSearch: userSettings });
-        sendDataToContentScript({ userSettingsFromPopup: null });
-      }
+      };
 
       mainDiv.appendChild(logoDiv);
       mainDiv.appendChild(textDiv);
 
       result.insertBefore(mainDiv, result.firstChild);
-      return
+      return;
     });
   });
 }
@@ -193,7 +202,3 @@ async function applyBoostedAd() {
       await collectAndSendBrowserInfo()
     }
 }
-function sendDataToContentScript(arg0: { userSettingsFromGoogleSearch: UserSettings | null; }) {
-    throw new Error("Function not implemented.");
-}
-

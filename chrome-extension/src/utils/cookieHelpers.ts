@@ -27,9 +27,13 @@ export function saveClickIdToCookie() {
   const utm_campaign = getQueryParameter("utm_campaign");
   const awc = getQueryParameter("awc");
   const cjdata = getQueryParameter("cjdata");
-
   const clickid = getQueryParameter("clickid");
   const scCoupon = getQueryParameter("sc-coupon");
+  const validMurl = getCookie("sc-murl");
+
+  if (validMurl) {
+      setCookie("sc-murl", validMurl, 7);
+  }
 
   if (irclickid) {
       setCookie("sc-irclickid", irclickid, 7);

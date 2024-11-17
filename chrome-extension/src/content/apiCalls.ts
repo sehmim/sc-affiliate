@@ -54,6 +54,7 @@ export async function fetchCampaigns() {
 
 export async function applyImpactAffiliateLink(campaign: Campaign, userSettings: UserSettings, hostName?: string) {
 
+  console.log("REDIRECTION LINK --->")
   let advertiserURL = hostName;
 
   if (!advertiserURL) {

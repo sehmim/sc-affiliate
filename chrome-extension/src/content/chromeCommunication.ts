@@ -1,6 +1,6 @@
 
 
-export function sendDataToContentScript(data) {
+export function sendDataToContentScript(data: any) {
     chrome.storage.local.set(data, function() {
         console.log('User settings saved to local storage');
     });
@@ -8,7 +8,7 @@ export function sendDataToContentScript(data) {
 
 export async function getUserSettingsFromGoogleSearch() {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get("userSettingsFromGoogleSearch", function(data) {
+        chrome.storage.local.get("userSettingsFromGoogleSearch", function(data: any) {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError));
             } else {
@@ -20,7 +20,7 @@ export async function getUserSettingsFromGoogleSearch() {
 
 export function getDataFromStorage() {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get("userSettings", function(data) {
+        chrome.storage.local.get("userSettings", function(data: any) {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError));
             } else {
@@ -32,7 +32,7 @@ export function getDataFromStorage() {
 
 export async function getUserSettingsFromPopup() {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get("userSettingsFromPopup", function(data) {
+        chrome.storage.local.get("userSettingsFromPopup", function(data: any) {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError));
             } else {
@@ -43,7 +43,7 @@ export async function getUserSettingsFromPopup() {
 }
 
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: any, sender: any, sendResponse: any) => {
   if (message.action === "sendData") {
     console.log("Data received in content script:", message.data);
   }
