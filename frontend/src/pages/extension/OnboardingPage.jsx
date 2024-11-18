@@ -20,9 +20,6 @@ const OnboardingPage = () => {
         extensionId = localStorage.getItem('sc-extensionId');
         } 
 
-
-        if(!extensionId) return alert('Couldnt find extensionId. Please reinstall the app from: ' + STORE_LINK);
-
         navigate(`/login?extensionId=${extensionId}`)
     }
 

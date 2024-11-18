@@ -63,7 +63,7 @@ const EmailVerificationComponent = () => {
             try {
                await createUser(email);
                localStorage.setItem("sc-user", email);
-               localStorage.setItem("sc-extensionId", extensionId);
+               extensionId && localStorage.setItem("sc-extensionId", extensionId);
                navigate("/extension-settings", { state: { email: email, lastLoggedIn: new Date() } });
             } catch (error) {
                setError('Something went wrong');

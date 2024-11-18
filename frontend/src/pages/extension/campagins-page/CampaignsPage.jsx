@@ -1,6 +1,6 @@
 import React from 'react'
 import ExtensionNavbar from '../ExtensionNavbar'
-import AdsCarousel from './AdsCarousel';
+// import AdsCarousel from './AdsCarousel';
 import CampaginsDataTable from './CampaignsTable';
 
 export default function CampaignsPage() {

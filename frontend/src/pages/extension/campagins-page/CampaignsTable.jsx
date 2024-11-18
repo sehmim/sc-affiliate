@@ -16,7 +16,7 @@ const CampaginsDataTable = () => {
   const navigate = useNavigate();
 
   const getShippingDetails = (terms) => {
-    const term = terms.find(term => term.title === 'Ships to' || term.title === 'Ships in');
+    const term = terms.find(term => term.title.includes('Ships') || term.title === 'Ships to' || term.title === 'Ships in');
     return term ? term.details : '';
   };
 
@@ -39,12 +39,11 @@ const CampaginsDataTable = () => {
   useEffect(() => {
     const userSettings = localStorage.getItem('sc-userSettings');
     if (!userSettings) {
-      alert('Please select a charity first');
-      navigate('/extension-settings');
+      console.log("NO USER SETTINGS FOUND")
     } else {
       setUserSettings(JSON.parse(userSettings));
     }
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (<p>Loading..</p>);
@@ -85,6 +84,12 @@ const CampaginsDataTable = () => {
 
   const hanldeCreateAffiliateLink = async (campaign) => {
     setDeepLinkCampaign(campaign);
+
+    if (!userSettings) {
+      navigate('/login');
+      return;
+    }
+
     let redirectionLink = '';
     if (campaign.provider === "Impact") {
       redirectionLink = await applyImpactAffiliateLink(campaign, userSettings);

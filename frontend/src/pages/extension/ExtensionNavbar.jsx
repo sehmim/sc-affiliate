@@ -8,13 +8,15 @@ export default function ExtensionNavbar(){
   const handleLogout = () => {
     const extensinoId = localStorage.getItem("sc-extensionId");
     sendMessageToExtension(null, extensinoId);
-    localStorage.setItem("sc-user", null);
+    localStorage.removeItem("sc-user");
+    localStorage.setItem("sc-userSettings");
+
     navigate(`/onboard?extensinoId=${extensinoId}`);
   };
 
   return (
     <header style={{ position: 'fixed' }} className="top-0 z-10 bg-white w-full h-20 px-5 py-3 flex justify-between items-center shadow">
-      <div className="d-flex justify-content-between w-100">
+      <div className="d-flex justify-content-between w-100 items-center">
         <a href="/extension-settings">
           <img className="w-60" src={"https://i.imgur.com/UItnKy8.png"} alt="logo" />
         </a>

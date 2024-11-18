@@ -119,6 +119,7 @@ export default function ExtensionSettings(props) {
   const [lastName, setLastName] = useState("");
   const [selectedCharity, setSelectedCharity] = useState(null);
   const [defaultCharities, setDefaultCharities] = useState([]);
+  const [extensinoIdLocal, setExtensinoIdLocal] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -182,11 +183,12 @@ export default function ExtensionSettings(props) {
 
 
     const extensinoId = localStorage.getItem("sc-extensionId");
+    setExtensinoIdLocal(extensinoId);
 
     localStorage.setItem("sc-userSettings", JSON.stringify(updates));
 
-    sendMessageToExtension({ ...updates }, extensinoId);
-  }, [selectedCharity, defaultCharities]);
+    extensinoId && sendMessageToExtension({ ...updates }, extensinoId);
+  }, [selectedCharity, defaultCharities, firstName, lastName, email]);
 
   const handleSave = async () => {
     let selectedCharityObject;
@@ -205,11 +207,10 @@ export default function ExtensionSettings(props) {
     };
 
     console.log("UPDATES: ", updates);
-    const extensinoId = localStorage.getItem("sc-extensionId");
 
     try {
       setLoading(true);
-      sendMessageToExtension({ ...updates }, extensinoId);
+      extensinoIdLocal && sendMessageToExtension({ ...updates }, extensinoIdLocal);
       await updateUser(email, updates);
       console.log("User Updated");
       setLoading(false);
@@ -402,7 +403,7 @@ export default function ExtensionSettings(props) {
           </div>
         </div>
 
-        <a className="d-flex justify-content-center mt-2 text-decoration-none" href="https://sponsorcircle.com/welcomeshop/" target="_blank" style={{ textAlign: "center", marginTop: "20px" }}>
+        <a className="d-flex justify-content-center mt-2 text-decoration-none" href="https://sponsorcircle.com/welcomeshop/" target="_blank" style={{ textAlign: "center", marginTop: "20px" }} rel="noreferrer">
           <button
             disabled={!selectedCharity || firstName === ""}
             style={{ width: "295px", height: "56px", borderRadius: 16 }}
@@ -413,7 +414,58 @@ export default function ExtensionSettings(props) {
             Save
           </button>
         </a>
+
+        {
+          !extensinoIdLocal && 
+          (
+            <div>
+              <hr></hr>
+              <DownloadExtensionPrompt />
+            </div>
+          )
+        }
       </div>
     </>
   );
 }
+
+
+const DownloadExtensionPrompt = () => {
+  return (
+    <a
+      href="https://chromewebstore.google.com/detail/shop-for-good/pifflcabiijbniniffeakhadehjilibi"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex justify-center items-center pt-4 bg-gray-100 cursor-pointer no-underline mb-5"
+    >
+      <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-lg w-full">
+        {/* Title */}
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Get Our Google Chrome Extension
+        </h2>
+
+        {/* Logos with "+" in the center */}
+        <div className="flex justify-center items-center space-x-4 mb-6">
+          {/* Extension Logo from public folder */}
+          <img
+            src="/logo_3.png"
+            alt="Extension Logo"
+            className="w-24 h-24 object-contain"
+          />
+          <span className="text-3xl font-bold text-gray-800">+</span>
+          {/* Google Chrome Logo */}
+          <img
+            src="https://www.google.com/chrome/static/images/chrome-logo-m100.svg"
+            alt="Google Chrome"
+            className="w-16 h-16 object-contain"
+          />
+        </div>
+
+        {/* Text */}
+        <p className="text-gray-600">
+          Add our extension to your Google Chrome browser for a better experience!
+        </p>
+      </div>
+    </a>
+  );
+};

@@ -43,7 +43,7 @@ function App() {
             <Route path='/onboard' element={<OnboardingPage/>}></Route>
             <Route path='/extension-settings' element={<Auth><ExtensionSettings/></Auth>}></Route>
             <Route path='/admin' element={<AdminDashboard />}></Route>
-            <Route path='/merchants' element={<Auth><CampaignsPage /></Auth>}></Route>
+            <Route path='/merchants' element={<CampaignsPage />}></Route>
           </Routes>
       </Router>
       
