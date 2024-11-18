@@ -71,6 +71,26 @@ const ExtensionUsers = () => {
     return null;
   };
 
+  // Function to format the date from Firebase Timestamp or ISO string
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+
+    // Handle Firebase Timestamp (seconds + nanoseconds)
+    if (date.seconds) {
+      return new Date(date.seconds * 1000).toLocaleString();
+    }
+
+    // Handle ISO string (e.g., "2024-10-24T18:24:10.603Z")
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate)) {
+        return parsedDate.toLocaleString();
+      }
+    }
+
+    return 'Invalid Date'; // Return if date is invalid
+  };
+
   return (
     <div className="mt-2">
       <h1 className="mb-4">Extension Users</h1>
@@ -101,14 +121,8 @@ const ExtensionUsers = () => {
               <td>{user.email || 'N/A'}</td>
               <td>{user.firstName || 'N/A'}</td>
               <td>{user.lastName || 'N/A'}</td>
-              <td>
-                {user.lastLoggedIn
-                  ? new Date(user.lastLoggedIn.seconds * 1000).toLocaleString()
-                  : 'N/A'}
-              </td>
-              <td>
-                {user.selectedCharityObject?.organizationName || 'None'}
-              </td>
+              <td>{formatDate(user.lastLoggedIn)}</td>
+              <td>{user.selectedCharityObject?.organizationName || 'None'}</td>
             </tr>
           ))}
         </tbody>
