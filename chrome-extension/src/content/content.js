@@ -147,7 +147,9 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
 
     if (charityWhereCodeApplied && (organizationName.replace(/\s/g, "") !== charityWhereCodeApplied?.replace(/\s/g, ""))) {
       return false
-    }
+    } 
+
+    console.log('cjdata --->', href.includes("cjdata"))
 
     const codeInUrl = 
       href.includes("utm_source") || 
@@ -455,12 +457,9 @@ function createRightDiv(isolatedIframe, allowedBrand, closedDiv, userSettings) {
 
         } catch (error) {
             console.error("Error activating to give:", error);
-        } finally {
-          // Re-enable the button and restore the original text
-          button.disabled = false;
-          button.style.cursor = "pointer";
-          button.textContent = `Activate to Give ${discountAmount}`;
-      }
+            button.disabled = true;
+            button.textContent = `Merchant not available for this Charity`;
+        }
     };
 
     div.appendChild(button);
