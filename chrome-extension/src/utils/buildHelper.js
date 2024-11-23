@@ -47,7 +47,7 @@ async function createManifest() {
     const manifest = {
       manifest_version: 3,
       name: "Shop for Good",
-      version: "1.77",
+      version: "1.78",
       description: "Tracks brands that give you discounts. When You Shop. You Save. Charities and Causes Win.",
       permissions: ["cookies", "storage"],
       action: {
