@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '../../../utils/firebase';
+import { BiChevronUp, BiChevronDown } from 'react-icons/bi'; // Import sorting icons
 
 // Function to sort by applied date
 function sortByAppliedDate(array, sortOrder = 'desc') {
@@ -16,10 +17,25 @@ function sortByAppliedDate(array, sortOrder = 'desc') {
   });
 }
 
+// Function to sort by team name
+function sortByTeamName(array, sortOrder = 'asc') {
+  return array.sort((a, b) => {
+    const teamA = a.teamName?.toLowerCase() || '';
+    const teamB = b.teamName?.toLowerCase() || '';
+
+    if (sortOrder === 'asc') {
+      return teamA.localeCompare(teamB); // Sort alphabetically ascending
+    } else {
+      return teamB.localeCompare(teamA); // Sort alphabetically descending
+    }
+  });
+}
+
 // Component to display Cj tracking links
 const CjTrackingLinks = () => {
   const [trackingLinks, setTrackingLinks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({ key: 'teamName', direction: 'asc' });
 
   useEffect(() => {
     const fetchTrackingLinks = async () => {
@@ -29,12 +45,18 @@ const CjTrackingLinks = () => {
         const links = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-        //   appliedDate: new Date(doc.data().appliedDate.seconds * 1000 + doc.data().appliedDate.nanoseconds / 1000000).toLocaleString()
         }));
 
         console.log("CJ --->", links);
 
-        const sorted = sortByAppliedDate(links);
+        // Apply sorting based on the current sortConfig
+        let sorted = [...links];
+        if (sortConfig.key === 'teamName') {
+          sorted = sortByTeamName(sorted, sortConfig.direction);
+        } else if (sortConfig.key === 'appliedDate') {
+          sorted = sortByAppliedDate(sorted, sortConfig.direction);
+        }
+
         setTrackingLinks(sorted);
         setIsLoading(false);
       } catch (error) {
@@ -44,7 +66,26 @@ const CjTrackingLinks = () => {
     };
 
     fetchTrackingLinks();
-  }, []);
+  }, [sortConfig]);
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'ascending' ? (
+        <BiChevronUp className="ms-2" size={16} />
+      ) : (
+        <BiChevronDown className="ms-2" size={16} />
+      );
+    }
+    return null;
+  };
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -54,17 +95,17 @@ const CjTrackingLinks = () => {
       <table className="table table-striped table-bordered">
         <thead className="thead-dark">
           <tr>
-            {/* <th>Applied Date</th> */}
-            {/* <th>Advertiser ID</th> */}
-            <th>Team Name</th>
-            <th>Cj Tracking Link</th>
+            <th onClick={() => requestSort('teamName')}>
+              Team Name {getSortIcon('teamName')}
+            </th>
+            <th onClick={() => requestSort('trackingLink')}>
+              Cj Tracking Link
+            </th>
           </tr>
         </thead>
         <tbody>
           {trackingLinks.map((link, index) => (
             <tr key={index}>
-              {/* <td>{link.appliedDate}</td> */}
-              {/* <td>{link.advertiserId}</td> */}
               <td>{link.teamName}</td>
               <td>{link.trackingLink}</td>
             </tr>
