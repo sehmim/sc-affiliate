@@ -218,21 +218,12 @@ function createIsolatedIframe(width, height) {
   const iframe = document.createElement('iframe');
   iframe.setAttribute('src', 'about:blank'); // Load a blank page initially
 
-  // Set initial inline styles for the iframe
-  iframe.style.position = 'fixed';
-  iframe.style.top = '-100%'; // Start from above the viewport
-  iframe.style.left = '85%';
-  iframe.style.transform = 'translate(-50%, -50%)';
+  // Add the CSS class
+  iframe.classList.add('isolated-iframe');
+
+  // Dynamically set width and height
   iframe.style.width = width;
   iframe.style.height = height;
-  iframe.style.border = 'none';
-  iframe.style.backgroundColor = '#FDFDFD';
-  iframe.style.borderRadius = '16px';
-  iframe.style.boxShadow = '0px 4px 4px 0px rgba(0, 0, 0, 0.25)';
-  iframe.style.display = 'flex';
-  iframe.style.padding = '0';
-  iframe.style.zIndex = 20000;
-  iframe.style.transition = 'top 0.75s ease-out'; // Animation for moving down
 
   // Access the document within the iframe
   const iframeDocument = iframe.contentDocument;
@@ -260,6 +251,7 @@ function createIsolatedIframe(width, height) {
   // Return the created iframe
   return iframe;
 }
+
 
 function createClosedDiv() {
   const img = document.createElement('img');

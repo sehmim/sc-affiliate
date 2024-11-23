@@ -1,3 +1,24 @@
+.isolated-iframe {
+  position: fixed;
+  top: -100%; /* Start from above the viewport */
+  left: 85%;
+  transform: translate(-50%, -50%);
+  border: none;
+  background-color: #fdfdfd;
+  border-radius: 16px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  display: flex;
+  padding: 0 !important;
+  z-index: 20000;
+  transition: top 0.75s ease-out; /* Animation for moving down */
+}
+
+@media screen and (min-width: 1600px) {
+  body > *, .Body > * {
+    padding: 0px;
+  }
+}
+
 .sponsor-circle-app {
   width: 530px;
   border-radius: 20px;
