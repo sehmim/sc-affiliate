@@ -20,7 +20,7 @@ const ImpactCampaigns = () => {
 
   // Pagination and search state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     enabled: false,  // Track whether 'enabled' filter is applied
@@ -39,6 +39,7 @@ const ImpactCampaigns = () => {
         setNumberOfActiveCampaigns(numberOfActiveCampaigns);
         setNumberOfInactiveCampaigns(numberOfInactiveCampaigns);
         setCampaigns(campaigns);
+        setItemsPerPage(campaigns.length);
         setLastUpdated(formatToHumanReadable(data.createdAt));
         setIsLoading(false);
       } catch (err) {
@@ -316,7 +317,7 @@ const ImpactCampaigns = () => {
       </table>
 
       {/* Pagination */}
-      <div className="d-flex justify-content-center">
+      {/* <div className="d-flex justify-content-center">
         <nav>
           <ul className="pagination">
             {[...Array(Math.ceil(filteredCampaigns.length / itemsPerPage))].map((_, index) => (
@@ -331,7 +332,7 @@ const ImpactCampaigns = () => {
             ))}
           </ul>
         </nav>
-      </div>
+      </div> */}
 
       {
       showModal && <TermsModal 
