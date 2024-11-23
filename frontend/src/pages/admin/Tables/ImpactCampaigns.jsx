@@ -297,7 +297,7 @@ const ImpactCampaigns = () => {
                   <div key={index}>{subDomain}</div>
                 ))}</div>
               </td>
-              <td>${campaign.defaultPayoutRate}</td>
+              <td>{campaign.defaultPayoutRate}%</td>
               <Terms campaign={campaign} />
               <td>
                 <EnableBrandButton campaign={campaign} />
