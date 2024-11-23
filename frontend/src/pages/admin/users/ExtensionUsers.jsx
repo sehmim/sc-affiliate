@@ -40,15 +40,29 @@ const ExtensionUsers = () => {
   }
 
   // Sorting function
-  const sortedUsers = [...users].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === 'ascending' ? -1 : 1;
-    }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === 'ascending' ? 1 : -1;
-    }
-    return 0;
-  });
+const sortedUsers = [...users].sort((a, b) => {
+  const aValue = a[sortConfig.key];
+  const bValue = b[sortConfig.key];
+
+  // Handle 'lastLoggedIn' specifically
+  if (sortConfig.key === 'lastLoggedIn') {
+    if (!aValue && !bValue) return 0; // Both are missing, no change
+    if (!aValue) return 1; // `a` missing, push to the bottom
+    if (!bValue) return -1; // `b` missing, push to the bottom
+
+    const aDate = aValue.seconds ? new Date(aValue.seconds * 1000) : new Date(aValue);
+    const bDate = bValue.seconds ? new Date(bValue.seconds * 1000) : new Date(bValue);
+
+    return sortConfig.direction === 'ascending'
+      ? aDate - bDate
+      : bDate - aDate;
+  }
+
+  // Handle other columns
+  if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+  if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+  return 0;
+});
 
   // Request sorting for a specific column
   const requestSort = (key) => {
@@ -72,24 +86,36 @@ const ExtensionUsers = () => {
   };
 
   // Function to format the date from Firebase Timestamp or ISO string
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
+const formatDate = (date) => {
+  if (!date) return '';
 
-    // Handle Firebase Timestamp (seconds + nanoseconds)
-    if (date.seconds) {
-      return new Date(date.seconds * 1000).toLocaleString();
-    }
-
-    // Handle ISO string (e.g., "2024-10-24T18:24:10.603Z")
-    if (typeof date === 'string') {
-      const parsedDate = new Date(date);
-      if (!isNaN(parsedDate)) {
-        return parsedDate.toLocaleString();
-      }
-    }
-
-    return 'Invalid Date'; // Return if date is invalid
+  const formatOptions = {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
   };
+
+  const format = (dateObject) =>
+    new Intl.DateTimeFormat('en-US', formatOptions).format(dateObject);
+
+  // Handle Firebase Timestamp (seconds + nanoseconds)
+  if (date.seconds) {
+    return format(new Date(date.seconds * 1000));
+  }
+
+  // Handle ISO string (e.g., "2024-10-24T18:24:10.603Z")
+  if (typeof date === 'string') {
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate)) {
+      return format(parsedDate);
+    }
+  }
+
+  return 'Invalid Date'; // Return if date is invalid
+};
 
   return (
     <div className="mt-2">

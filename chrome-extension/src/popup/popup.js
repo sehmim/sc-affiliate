@@ -90,7 +90,7 @@ async function createMerchantContainer(campaign, userSettings) {
 
     } catch (error) {
       console.error("Error generating the link", error);
-      alert("Failed to generate the link. Please try again.");
+      alert("Merchant is not supported for this Charity");
     } finally {
       // Restore the div to be clickable again and hide the loading screen
       newDiv.style.pointerEvents = 'auto'; // Re-enable clicks
