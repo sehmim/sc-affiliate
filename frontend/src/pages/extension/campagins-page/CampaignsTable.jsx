@@ -108,9 +108,11 @@ const CampaginsDataTable = () => {
     } else if (campaign.provider === "Rakuten") {
       redirectionLink = await applyRakutenDeepLink(campaign, userSettings);
     } else if (campaign.provider === "Awin") {
-      redirectionLink = await applyAwinDeepLink(campaign, userSettings);
+      const awinResponse = await applyAwinDeepLink(campaign, userSettings);
+      redirectionLink = awinResponse?.trackingLink;
     } else if (campaign.provider === "CJ") {
-      redirectionLink = await applyCJDeepLink(campaign, userSettings);
+      const cjResponse = await applyCJDeepLink(campaign, userSettings);
+      redirectionLink = cjResponse?.trackingLink;
     }
 
     if (extensionId) {
