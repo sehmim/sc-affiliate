@@ -1,3 +1,4 @@
+/*global chrome*/
 import React, { useState, useEffect } from 'react';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import useSyncedCampaigns from './GetCampaignsHook';
@@ -13,6 +14,7 @@ const CampaginsDataTable = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [userSettings, setUserSettings] = useState();
   const [deepLinkCampaign, setDeepLinkCampaign] = useState(null);
+  const [extensionId, setExtensionId] = useState();
   const navigate = useNavigate();
 
   const getShippingDetails = (terms) => {
@@ -38,12 +40,22 @@ const CampaginsDataTable = () => {
 
   useEffect(() => {
     const userSettings = localStorage.getItem('sc-userSettings');
+    
     if (!userSettings) {
       console.log("NO USER SETTINGS FOUND")
     } else {
       setUserSettings(JSON.parse(userSettings));
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const extentionIdFromStorage = localStorage.getItem('sc-extensionId');
+
+    if (extentionIdFromStorage) {
+      setExtensionId(extentionIdFromStorage)
+    }
+    
+  }, []);
 
   if (loading) {
     return (<p>Loading..</p>);
@@ -100,6 +112,13 @@ const CampaginsDataTable = () => {
     } else if (campaign.provider === "CJ") {
       redirectionLink = await applyCJDeepLink(campaign, userSettings);
     }
+
+    if (extensionId) {
+      chrome.runtime.sendMessage(extensionId, { action: "userSettingsFromMerchant", data: null }, (response) => {
+        console.log("Response from extension:", response);
+      });
+    }
+
     window.open(ensureHttps(redirectionLink), '_blank');
     setDeepLinkCampaign(null);
   }

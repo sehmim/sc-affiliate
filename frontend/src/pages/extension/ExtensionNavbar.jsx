@@ -7,9 +7,12 @@ export default function ExtensionNavbar(){
 
   const handleLogout = () => {
     const extensinoId = localStorage.getItem("sc-extensionId");
-    sendMessageToExtension(null, extensinoId);
+    if (extensinoId) {
+      sendMessageToExtension(null, extensinoId);
+    }
+    
     localStorage.removeItem("sc-user");
-    localStorage.setItem("sc-userSettings");
+    localStorage.removeItem("sc-userSettings");
 
     navigate(`/onboard?extensinoId=${extensinoId}`);
   };

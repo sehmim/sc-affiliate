@@ -82,11 +82,19 @@ export function sendMessageToExtension(data, extensinoId) {
       console.log("Response from extension:", response);
     });
 
+    chrome.runtime.sendMessage(extensinoId, { action: "userSettings", data }, (response) => {
+      console.log("Response from extension:", response);
+    });
+
     chrome.runtime.sendMessage(extensinoId, { action: "userSettingsFromPopup", data: null }, (response) => {
       console.log("Response from extension:", response);
     });
 
     chrome.runtime.sendMessage(extensinoId, { action: "userSettingsFromGoogleSearch", data: null }, (response) => {
+      console.log("Response from extension:", response);
+    });
+
+    chrome.runtime.sendMessage(extensinoId, { action: "userSettingsFromMerchant", data: null }, (response) => {
       console.log("Response from extension:", response);
     });
     
