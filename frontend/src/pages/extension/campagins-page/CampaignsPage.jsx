@@ -9,7 +9,7 @@ export default function CampaignsPage() {
     return (
         <>
             <ExtensionNavbar />
-            <div className='m-20'> 
+            <div className='m-auto'> 
                 <Header />
                 {/* <AdsCarousel /> */}
                 <CampaginsDataTable />

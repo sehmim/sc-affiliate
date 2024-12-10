@@ -6,6 +6,10 @@ import { Button } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
 import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpers";
 import { TermsModal } from "../modals/TermsModal";
+import MerchantCategorySelector from "../../../components/CategorySelector";
+
+
+const COLLECTION_NAME = "awinCampaigns";
 
 const AwinCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -23,7 +27,7 @@ const AwinCampaigns = () => {
     const fetchCampaigns = async () => {
       try {
         setIsLoading(true);
-        const { data, id: campaignsID } = await fetchLatestEntry("awinCampaigns");
+        const { data, id: campaignsID } = await fetchLatestEntry(COLLECTION_NAME);
         const { campaigns } = data;
         const { numberOfActiveCampaigns, numberOfInactiveCampaigns } = reorderCampaigns(campaigns)
 
@@ -65,7 +69,7 @@ const AwinCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, "awinCampaigns", campaignsID);
+      const docRef = doc(firestore, COLLECTION_NAME, campaignsID);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -79,7 +83,7 @@ const AwinCampaigns = () => {
   const activateCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      const { data, id } = await fetchLatestEntry("awinCampaigns");
+      const { data, id } = await fetchLatestEntry(COLLECTION_NAME);
       const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
@@ -89,7 +93,7 @@ const AwinCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, "awinCampaigns", id);
+      const docRef = doc(firestore, COLLECTION_NAME, id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -103,7 +107,7 @@ const AwinCampaigns = () => {
   const disableCampaign = async (campaignID) => {
     setFeatureLoading(true);
     try {
-      const { data, id } = await fetchLatestEntry("awinCampaigns");
+      const { data, id } = await fetchLatestEntry(COLLECTION_NAME);
       const { campaigns: campaignsArray } = data;
 
       const updatedCampaignsArray = campaignsArray.map((campaign) => {
@@ -113,7 +117,7 @@ const AwinCampaigns = () => {
         return campaign;
       });
 
-      const docRef = doc(firestore, "awinCampaigns", id);
+      const docRef = doc(firestore, COLLECTION_NAME, id);
       await updateDoc(docRef, { campaigns: updatedCampaignsArray });
 
       setFeatureLoading(false);
@@ -201,6 +205,9 @@ const Terms = ({ campaign }) => {
 };
 
   if (isLoading) return <div>Loading...</div>;
+
+  console.log("---->", campaigns);
+  
   return (
     <div className="m-4">
       <p><b>Last updates: </b>{lastUpdated}</p>
@@ -218,6 +225,7 @@ const Terms = ({ campaign }) => {
             <th>Campaign Logo</th>
             <th>Advertiser URL</th>
             <th>Payout Rate</th>
+            <th>Categories</th>
             <th>Terms</th>
             <th>Action</th>
           </tr>
@@ -243,6 +251,7 @@ const Terms = ({ campaign }) => {
                 </a>
               </td>
               <td>{campaign.defaultPayoutRate}%</td>
+              <MerchantCategorySelector collection={COLLECTION_NAME} campaign={campaign} />
               <Terms campaign={campaign} />
               <td>
                 <AddToFeatureRadio campaign={campaign} />
@@ -265,7 +274,7 @@ const Terms = ({ campaign }) => {
 
       {
       showModal && <TermsModal 
-        collectionName={"awinCampaigns"}
+        collectionName={COLLECTION_NAME}
         campaignsList={campaigns}
         campaignsListId={campaignsID}
         campaign={showModal} 

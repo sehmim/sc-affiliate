@@ -12,6 +12,7 @@ import AwinTrackingLinks from './awin/AwinTrackingLinks';
 import CjCampaigns from './cj/CjCampagins';
 import CjTrackingLinks from './cj/CjTrackingLinks';
 import ExtensionUsers from './users/ExtensionUsers';
+import CategoriesTable from './categories/Categories';
 
 const Charities = () => (<div><h4>Charities</h4><EditableTable /></div>);
 
@@ -26,6 +27,7 @@ const NavigationComponent = () => {
     users: 'Users',
     active: 'Active Campaigns',
     featured: 'Featured Campaigns',
+    categories: 'Categories'
   });
 
   const handleSelect = (component, key, text) => {
@@ -113,7 +115,16 @@ const NavigationComponent = () => {
         </Dropdown>
 
         <Dropdown as={ButtonGroup}>
-          <Dropdown.Toggle variant="primary">{dropdownText.users}</Dropdown.Toggle>
+          <Dropdown.Toggle variant="success">{dropdownText.categories}</Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => handleSelect(<CategoriesTable />, 'categories', 'Categories')}>
+              Categories
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
+        <Dropdown as={ButtonGroup}>
+          <Dropdown.Toggle variant="success">{dropdownText.users}</Dropdown.Toggle>
           <Dropdown.Menu>
             <Dropdown.Item onClick={() => handleSelect(<ExtensionUsers />, 'users', 'Users')}>
               Users

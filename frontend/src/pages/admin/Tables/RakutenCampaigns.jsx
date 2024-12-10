@@ -6,6 +6,7 @@ import { Button } from "react-bootstrap";
 import { firestore } from "../../../utils/firebase";
 import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpers";
 import { TermsModal } from "../modals/TermsModal";
+import MerchantCategorySelector from "../../../components/CategorySelector";
 
 const RakutenCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -218,6 +219,7 @@ const Terms = ({ campaign }) => {
             <th>Campaign Logo</th>
             <th>Advertiser URL</th>
             <th>Payout Rate</th>
+            <th>Categories</th>
             <th>Terms</th>
             <th>Action</th> {/* New Action column */}
           </tr>
@@ -243,6 +245,7 @@ const Terms = ({ campaign }) => {
                 </a>
               </td>
               <td>{campaign.defaultPayoutRate}%</td>
+              <MerchantCategorySelector collection={'rakutenCampaigns'} campaign={campaign} />
               <Terms campaign={campaign} />
               <td>
                 <AddToFeatureRadio campaign={campaign} />

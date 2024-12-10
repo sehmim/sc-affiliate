@@ -132,7 +132,7 @@ const CampaginsDataTable = () => {
       {/* Search Bar */}
       <input
         type="text"
-        placeholder="Search campaigns or details..."
+        placeholder="Search merchant..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="p-2 mb-4 border border-gray-300 rounded w-full"

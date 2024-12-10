@@ -6,6 +6,7 @@ import { firestore } from "../../../utils/firebase";
 import { triggerImpactCampaignSync } from "../../../api/env";
 import { fetchLatestEntry, formatToHumanReadable, reorderCampaigns } from "../../../utils/helpers";
 import { TermsModal } from "../modals/TermsModal";
+import MerchantCategorySelector from "../../../components/CategorySelector";
 
 const ImpactCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -281,6 +282,7 @@ const ImpactCampaigns = () => {
             <th>Advertiser URL</th>
             <th>Sub Domains</th>
             <th>Payout</th>
+            <th>Categories</th>
             <th>Terms</th>
             <th>Actions</th>
           </tr>
@@ -299,6 +301,7 @@ const ImpactCampaigns = () => {
                 ))}</div>
               </td>
               <td>{campaign.defaultPayoutRate}%</td>
+              <MerchantCategorySelector collection={'impactCampaignsSynced'} campaign={campaign} />
               <Terms campaign={campaign} />
               <td>
                 <EnableBrandButton campaign={campaign} />
