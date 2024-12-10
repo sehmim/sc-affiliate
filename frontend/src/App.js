@@ -29,7 +29,7 @@ function App() {
       <Router>
           <Routes>
             <Route path='/login' element={<EmailVerificationComponent />}/>
-            <Route path='/' element={ localStorage.getItem("user") ? <Home /> : <LandingPage />}/>
+            {/* <Route path='/' element={ localStorage.getItem("user") ? <Home /> : <LandingPage />}/> */}
             <Route path='/creategroup' element={<Auth><CreateGroup /></Auth>}/>
             <Route path='/groupform' element={<Auth><GroupForm /></Auth>}/>
             <Route path='/register' element={<Register />}/>
@@ -42,6 +42,7 @@ function App() {
             <Route path='/settings' element={<Auth><Settings /></Auth>}/>
             <Route path='/onboard' element={<OnboardingPage/>}></Route>
             <Route path='/extension-settings' element={<Auth><ExtensionSettings/></Auth>}></Route>
+            <Route path='/' element={<Auth><ExtensionSettings/></Auth>}></Route>
             <Route path='/admin' element={<AdminDashboard />}></Route>
             <Route path='/merchants' element={<CampaignsPage />}></Route>
           </Routes>

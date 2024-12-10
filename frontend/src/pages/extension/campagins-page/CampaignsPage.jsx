@@ -20,7 +20,7 @@ export default function CampaignsPage() {
 
 const Header = () => {
   return (
-    <div className="mx-24 flex justify-around items-center">
+    <div className="mt-20 flex justify-around items-center">
       <div>
         <h1 className="text-2xl font-bold">More Merchants</h1>
         <h3 className="text-lg text-gray-600">Explore from all the merchants</h3>
