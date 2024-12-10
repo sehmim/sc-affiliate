@@ -149,8 +149,6 @@ async function isCodeAlreadyAppliedToWebsite(organizationName) {
       return false
     } 
 
-    console.log('cjdata --->', href.includes("cjdata"))
-
     const codeInUrl = 
       href.includes("utm_source") || 
       href.includes("irclickid") || 

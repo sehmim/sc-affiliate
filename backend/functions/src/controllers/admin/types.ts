@@ -14,5 +14,6 @@ export type ImpactCampaign = {
     title: string;
     details: string;
   }[]
-  isDeepLinkEnabled?: boolean
+  isDeepLinkEnabled?: boolean,
+  categories?: string[]
 };

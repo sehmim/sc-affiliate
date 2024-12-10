@@ -11,7 +11,6 @@ export default function CampaignsPage() {
             <ExtensionNavbar />
             <div className='m-auto'> 
                 <Header />
-                {/* <AdsCarousel /> */}
                 <CampaginsDataTable />
             </div>
         </>

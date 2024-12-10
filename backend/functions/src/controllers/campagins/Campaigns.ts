@@ -25,6 +25,7 @@ export interface Campaign {
     }[]
 	isDeepLinkEnabled?: boolean;
 	isManuallyEnteredInFirestore?: boolean;
+	categories?: string[] 
 }
 
 export enum CampaignsProvider {
@@ -84,7 +85,8 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 				isActive: impactCampaign.isActive,
 				isFeatured: !!impactCampaign.isFeatured,
 				terms: impactCampaign.terms,
-				isDeepLinkEnabled: impactCampaign?.isDeepLinkEnabled
+				isDeepLinkEnabled: impactCampaign?.isDeepLinkEnabled,
+				categories: impactCampaign?.categories ?? []
 			})
 		}
 	})
@@ -112,7 +114,8 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 				provider: CampaignsProvider.Rakuten,
 				isActive: rakutenCampaign.isActive,
 				isFeatured: !!rakutenCampaign.isFeatured,
-				terms: rakutenCampaign.terms
+				terms: rakutenCampaign.terms,
+				categories: rakutenCampaign?.categories ?? []
 			})
 		}
 	})
@@ -139,7 +142,8 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 				provider: CampaignsProvider.Awin,
 				isActive: awinCampaign.isActive,
 				isFeatured: !!awinCampaign.isFeatured,
-				terms: awinCampaign.terms
+				terms: awinCampaign.terms,
+				categories: awinCampaign?.categories ?? []
 			})	
 		}
 	})
@@ -165,7 +169,8 @@ function mapToCampaigns(impactCampagins: ImpactCampaign[], rakutenCampaigns: Cam
 				provider: CampaignsProvider.CJ,
 				isActive: campaign.isActive,
 				isFeatured: !!campaign.isFeatured,
-				terms: campaign.terms
+				terms: campaign.terms,
+				categories: campaign?.categories ?? []
 			})	
 		}
 	})

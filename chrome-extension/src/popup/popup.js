@@ -205,8 +205,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (merchantsContainer) {
     const campaigns = await fetchCampaigns();    
 
-    console.log(campaigns)
-
     try {
       for (const campaign of campaigns) {
         const newMerchantDiv = await createMerchantContainer(campaign, userSettings);

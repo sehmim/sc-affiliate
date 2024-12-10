@@ -24,7 +24,6 @@ const CampaginsDataTable = () => {
 
   useEffect(() => {
     if (campaignData) {
-      // Transform campaign names to uppercase and set filteredData
       const transformedData = campaignData.map(item => ({
         ...item,
         campaignName: item.campaignName.toUpperCase(),
@@ -32,7 +31,8 @@ const CampaginsDataTable = () => {
       setFilteredData(
         transformedData.filter(item =>
           item.campaignName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          getShippingDetails(item.terms).toLowerCase().includes(searchTerm.toLowerCase())
+          getShippingDetails(item.terms).toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (item.categories && item.categories.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase())))
         )
       );
     }
@@ -40,21 +40,12 @@ const CampaginsDataTable = () => {
 
   useEffect(() => {
     const userSettings = localStorage.getItem('sc-userSettings');
-    
-    if (!userSettings) {
-      console.log("NO USER SETTINGS FOUND")
-    } else {
-      setUserSettings(JSON.parse(userSettings));
-    }
+    if (userSettings) setUserSettings(JSON.parse(userSettings));
   }, [navigate]);
 
   useEffect(() => {
     const extentionIdFromStorage = localStorage.getItem('sc-extensionId');
-
-    if (extentionIdFromStorage) {
-      setExtensionId(extentionIdFromStorage)
-    }
-    
+    if (extentionIdFromStorage) setExtensionId(extentionIdFromStorage);
   }, []);
 
   if (loading) {
@@ -67,7 +58,6 @@ const CampaginsDataTable = () => {
 
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortConfig.key) {
-      // Convert values to uppercase for case-insensitive sorting
       const aVal = a[sortConfig.key]?.toUpperCase() || '';
       const bVal = b[sortConfig.key]?.toUpperCase() || '';
 
@@ -77,7 +67,6 @@ const CampaginsDataTable = () => {
     return 0;
   });
 
-  // Toggle sorting direction
   const requestSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -86,7 +75,6 @@ const CampaginsDataTable = () => {
     setSortConfig({ key, direction });
   };
 
-  // Icon for sorting direction
   const getSortIcon = (column) => {
     if (sortConfig.key === column) {
       return sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />;
@@ -123,13 +111,12 @@ const CampaginsDataTable = () => {
 
     window.open(ensureHttps(redirectionLink), '_blank');
     setDeepLinkCampaign(null);
-  }
+  };
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Merchants</h2>
       
-      {/* Search Bar */}
       <input
         type="text"
         placeholder="Search merchant..."
@@ -138,7 +125,6 @@ const CampaginsDataTable = () => {
         className="p-2 mb-4 border border-gray-300 rounded w-full"
       />
 
-      {/* Data Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
           <thead>
@@ -159,13 +145,14 @@ const CampaginsDataTable = () => {
                 {getSortIcon('defaultPayoutRate')}
               </th>
               <th className="p-4 text-left">Ships to</th>
+              <th className="p-4 text-left">Categories</th>
             </tr>
           </thead>
           <tbody>
             {sortedData.map((item, index) => (
               <tr key={index} className="border-t cursor-pointer hover:shadow-lg transition-shadow duration-300 ease-in-out" onClick={() => hanldeCreateAffiliateLink(item)}>
                 {deepLinkCampaign && deepLinkCampaign?.campaignID === item.campaignID ? (
-                  <td className='p-4' colSpan="4">Applying....</td>
+                  <td className='p-4' colSpan="5">Applying....</td>
                 ) : (
                   <>
                     <td className="p-4 whitespace-nowrap">
@@ -180,6 +167,7 @@ const CampaginsDataTable = () => {
                     </td>
                     <td className="p-4 whitespace-nowrap">{item.defaultPayoutRate}%</td>
                     <td className="p-4">{getShippingDetails(item.terms)}</td>
+                    <td className="p-4">{item.categories ? item.categories.join(', ') : ''}</td>
                   </>
                 )}
               </tr>
