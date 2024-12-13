@@ -52,7 +52,8 @@ export function updateCampaignArray(
                   isActive: previousCampaign.isActive,
                   isFeatured: previousCampaign.isFeatured,
                   terms: previousCampaign.terms,
-                  isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled
+                  categories: previousCampaign.categories || [],
+                  isDeepLinkEnabled: !!previousCampaign.isDeepLinkEnabled,
               })
           }) 
         } else {
