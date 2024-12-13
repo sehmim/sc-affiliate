@@ -1,0 +1,27 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "firebase-admin": "^13.0.1",
+    "puppeteer": "^23.10.4"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "@types/puppeteer": "^7.0.4",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.7.2"
+  }
+}
