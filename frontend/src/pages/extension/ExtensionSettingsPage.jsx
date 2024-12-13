@@ -339,24 +339,46 @@ export default function ExtensionSettings(props) {
               sx={{ width: "100%" }}
             >
               {defaultCharities &&
-                defaultCharities.map(({ data: defaultCharity }) => {
-                  return (
-                    defaultCharity.isActive && (
-                      <MenuItem key={defaultCharity.id} value={defaultCharity.organizationName}>
-                        {defaultCharity.organizationName}
-                      </MenuItem>
-                    )
-                  );
-                })}
+              defaultCharities
+                .filter(({ data: defaultCharity }) => defaultCharity.isActive) // Filter out inactive charities
+                .sort((a, b) => {
+                  const nameA = a.data.organizationName.toLowerCase();
+                  const nameB = b.data.organizationName.toLowerCase();
+                  return nameA.localeCompare(nameB); // Alphabetical sort
+                })
+                .map(({ data: defaultCharity }) => (
+                  <MenuItem key={defaultCharity.id} value={defaultCharity.organizationName}>
+                    {defaultCharity.organizationName}
+                  </MenuItem>
+                ))}
             </TextField>
           </div>
         </div>
 
         <div>
-          <div>Don’t have a charity in mind? Explore some charities below.</div>
+          <h5 className="mt-4">Don’t have a charity in mind? Explore some charities below:</h5>
+          <a className="d-flex justify-content-left mb-4 text-decoration-none" href="https://sponsorcircle.com/welcomeshop/" target="_blank" style={{ textAlign: "center", marginTop: "20px" }} rel="noreferrer">
+          <button
+            disabled={!selectedCharity || firstName === ""}
+            style={{ width: "295px", height: "56px", borderRadius: 16 }}
+            onClick={handleSave}
+            type="button"
+            className="btn btn-dark fw-bold mb-3"
+          >
+            Save
+          </button>
+        </a>
+
           <div className="d-flex flex-wrap justify-content-space-between mt-3" style={{ gap: 12 }}>
             {defaultCharities &&
-              defaultCharities.map(({ data: defaultCharity }) => {
+              defaultCharities
+                .filter(({ data: defaultCharity }) => defaultCharity.isActive) // Filter out inactive charities
+                .sort((a, b) => {
+                  const nameA = a.data.organizationName.toLowerCase();
+                  const nameB = b.data.organizationName.toLowerCase();
+                  return nameA.localeCompare(nameB); // Alphabetical sort
+                })
+              .map(({ data: defaultCharity }) => {
 
                 return (
                   defaultCharity?.isActive && (
@@ -410,18 +432,6 @@ export default function ExtensionSettings(props) {
               })}
           </div>
         </div>
-
-        <a className="d-flex justify-content-center mt-2 text-decoration-none" href="https://sponsorcircle.com/welcomeshop/" target="_blank" style={{ textAlign: "center", marginTop: "20px" }} rel="noreferrer">
-          <button
-            disabled={!selectedCharity || firstName === ""}
-            style={{ width: "295px", height: "56px", borderRadius: 16 }}
-            onClick={handleSave}
-            type="button"
-            className="btn btn-dark fw-bold mb-3"
-          >
-            Save
-          </button>
-        </a>
 
         {
           !extensinoIdLocal && 
