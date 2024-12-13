@@ -13,6 +13,7 @@ import CjCampaigns from './cj/CjCampagins';
 import CjTrackingLinks from './cj/CjTrackingLinks';
 import ExtensionUsers from './users/ExtensionUsers';
 import CategoriesTable from './categories/Categories';
+import HealthCheckTable from './health-check/HealthCheckTable';
 
 const Charities = () => (<div><h4>Charities</h4><EditableTable /></div>);
 
@@ -27,8 +28,10 @@ const NavigationComponent = () => {
     users: 'Users',
     active: 'Active Campaigns',
     featured: 'Featured Campaigns',
-    categories: 'Categories'
+    categories: 'Categories',
+    'health-check': 'HealthCheck'
   });
+  
 
   const handleSelect = (component, key, text) => {
     setSelectedComponent(component);
@@ -128,6 +131,16 @@ const NavigationComponent = () => {
           <Dropdown.Menu>
             <Dropdown.Item onClick={() => handleSelect(<ExtensionUsers />, 'users', 'Users')}>
               Users
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
+
+        <Dropdown as={ButtonGroup}>
+          <Dropdown.Toggle variant="success">{dropdownText['health-check']}</Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => handleSelect(<HealthCheckTable />, 'health-check', 'HealthCheck')}>
+              Health Check
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
