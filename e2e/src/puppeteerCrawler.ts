@@ -18,7 +18,7 @@ export class PuppeteerCrawler {
 
   public async init(): Promise<void> {
     this.browser = await puppeteer.launch({
-      headless: false, // Extensions require non-headless mode
+      headless: true, // Extensions require non-headless mode
       args: [
         `--disable-extensions-except=${this.extensionPath}`,
         `--load-extension=${this.extensionPath}`,

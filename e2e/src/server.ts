@@ -22,19 +22,24 @@ app.post('/crawl-login-screen', async (_req: Request, res: Response): Promise<vo
     await crawler.init();
     const results = await crawler.crawlAndCheckLoginScreen({ websites });
 
-    // Prepare data to store
+    // Normalize the status field
     const resultArray = Object.entries(results).map(([website, status]) => ({
       website,
-      status,
+      status:
+        typeof status === 'string' // Keep status as is if it's already a string
+          ? status
+          : status && typeof status === 'object' && 'name' in status // Handle object status
+          ? status.name
+          : 'Unknown Error', // Default fallback for empty or undefined statuses
     }));
 
     const runData = {
       date: admin.firestore.FieldValue.serverTimestamp(), // Timestamp when the crawl was run
-      results: resultArray, // Array of website statuses
+      results: resultArray, // Array of normalized website statuses
     };
 
     // Save as a single entry in the Firestore collection
-    const docRef = firestore.collection('health-check-login').doc(); // Auto-generate document ID
+    const docRef = firestore.collection('healthCheckLogin').doc(); // Auto-generate document ID
     await docRef.set(runData);
 
     res.status(200).json({
