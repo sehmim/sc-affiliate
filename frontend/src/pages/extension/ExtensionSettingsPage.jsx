@@ -174,6 +174,8 @@ export default function ExtensionSettings(props) {
   useEffect(() => {
     let selectedCharityObject;
 
+    console.log('charity changed', selectedCharityObject)
+
     selectedCharity &&
       defaultCharities &&
       defaultCharities.map(({ data: charity }) => {
@@ -214,8 +216,6 @@ export default function ExtensionSettings(props) {
       email,
     };
 
-    console.log("UPDATES: ", updates);
-
     try {
       setLoading(true);
       extensinoIdLocal && sendMessageToExtension({ ...updates }, extensinoIdLocal);
@@ -228,6 +228,34 @@ export default function ExtensionSettings(props) {
       setLoading(false);
     }
   };
+
+  const handleUpdateCharity = async (organizationName) => {
+
+    let selectedCharityObject;
+
+    defaultCharities.forEach(({ data: charity }) => {
+      if (charity.organizationName === organizationName) {
+        selectedCharityObject = charity;
+      }
+    });
+
+    const updates = {
+      firstName,
+      lastName,
+      selectedCharityObject,
+      email,
+    };
+
+
+    try {
+      extensinoIdLocal && sendMessageToExtension({ ...updates }, extensinoIdLocal);
+      setSelectedCharity(organizationName);
+      await updateUser(email, updates);
+      console.log("User Updated");
+    } catch (error) {
+      console.log("ERROR", error);
+    }
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -332,7 +360,7 @@ export default function ExtensionSettings(props) {
             <TextField
               select
               defaultValue={DEFAULT_CHARITY.organizationName}
-              onChange={(event) => setSelectedCharity(event.target.value)}
+              onChange={(event) => handleUpdateCharity(event.target.value)}
               value={selectedCharity}
               variant="standard"
               placeholder="Search for a charity"
@@ -386,7 +414,7 @@ export default function ExtensionSettings(props) {
                 return (
                   defaultCharity?.isActive && (
                     <div
-                      onClick={()=> setSelectedCharity(defaultCharity.organizationName)}
+                      onClick={()=> handleUpdateCharity(defaultCharity.organizationName)}
                       key={defaultCharity.id}
                       style={{
                         border: `${defaultCharity.organizationName === selectedCharity ? '2px solid blue' : '1px solid'}`,
