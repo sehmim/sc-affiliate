@@ -356,7 +356,10 @@ export default function ExtensionSettings(props) {
         </div>
 
         <div>
-          <h5 className="mt-4">Don’t have a charity in mind? Explore some charities below:</h5>
+          <h6 className="mt-3 italic">Don't see your charity? <a rel="noreferrer" target="_blank" href="https://sponsorcircle.com/shopforgood/" >Let us know</a> and we'll reach out to them!</h6>
+          <hr></hr>
+          
+          <h4 className="mt-4 mb-2">Don’t have a charity in mind? Explore some charities below:</h4>
           <a className="d-flex justify-content-left mb-4 text-decoration-none" href="https://sponsorcircle.com/welcomeshop/" target="_blank" style={{ textAlign: "center", marginTop: "20px" }} rel="noreferrer">
           <button
             disabled={!selectedCharity || firstName === ""}
