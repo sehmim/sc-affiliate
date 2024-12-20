@@ -2,7 +2,7 @@ import {
 	getLatestEntry
 } from "../../utils/firestoreWrapper";
 import {
-	getNonZeroPayoutCampaigns,
+	// getNonZeroPayoutCampaigns,
 	sortByIsFeatured
 } from "../admin/helper";
 import {
@@ -53,9 +53,9 @@ export async function aggregateCamapigns(): Promise < Campaign[] > {
 	} =  await getLatestEntry('CJCampaigns');
 
 	const mappedCampains = mapToCampaigns(impactCampaigns, rakutenCampaigns, awinCampaigns, CJCampaigns)
-	const validCampaigns = getNonZeroPayoutCampaigns(mappedCampains);
+	// const validCampaigns = getNonZeroPayoutCampaigns(mappedCampains);
 
-	return sortByIsFeatured(validCampaigns);
+	return sortByIsFeatured(mappedCampains);
 }
 
 
